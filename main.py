@@ -7,12 +7,15 @@ if os.getenv("ENV", "development") == "development":
 
     load_dotenv()
 
+import random
 from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
-    ContextTypes,
+
+
     MessageHandler,
+    ContextTypes,
     filters,
 )
 
