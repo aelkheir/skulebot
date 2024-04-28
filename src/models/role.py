@@ -1,7 +1,7 @@
 from enum import unique
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import String, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.enum import StringEnum
@@ -35,3 +35,11 @@ class Role(Base):
 
     def __repr__(self) -> str:
         return f"Role(id={self.id!r}, name={self.name!r})"
+
+
+def insert_data(target, connection, **kw):
+    for i, role_name in enumerate(RoleName):
+        connection.execute(target.insert(), {"id": i + 1, "name": role_name})
+
+
+event.listen(Role.__table__, "after_create", insert_data)
