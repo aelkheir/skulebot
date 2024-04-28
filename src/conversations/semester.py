@@ -105,7 +105,7 @@ async def semester_add(
     query = update.callback_query
 
     max = session.query(func.max(Semester.number)).one_or_none()
-    max = max[0] if max else 0
+    max = max[0] if max[0] is not None else 0
 
     session.add(Semester(number=max + 1))
     session.flush()

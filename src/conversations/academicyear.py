@@ -97,7 +97,7 @@ async def year_add(
     query = update.callback_query
 
     max = session.query(func.max(AcademicYear.end)).one_or_none()
-    max = max[0] if max else date.today().year
+    max = max[0] if max[0] is not None else date.today().year
 
     session.add(AcademicYear(start=max, end=max + 1))
     session.flush()
