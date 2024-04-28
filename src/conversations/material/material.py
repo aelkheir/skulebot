@@ -439,7 +439,8 @@ def conversation(url_prefix: str):
                     MessageHandler(
                         filters.Regex(
                             r"^(?P<y>(?:20)?\d{2})-(?P<m>\d{1,2})(?:-(?P<d>\d{1,2}))?$"
-                        ),
+                        )
+                        | (filters.Command(only_start=True) & (filters.Text("/empty"))),
                         date.receive,
                     ),
                 ],
