@@ -1,22 +1,22 @@
 ci:
-    autofix_prs: false
+  autofix_prs: false
 
 repos:
--   repo: https://github.com/psf/black
-    rev: 23.3.0
+  - repo: https://github.com/psf/black
+    rev: 24.4.0
     hooks:
-    -   id: black
+      - id: black
         args:
-        - --diff
-        - --check
--   repo: https://github.com/pycqa/isort
+          - --diff
+          - --check
+  - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
-    -   id: isort
+      - id: isort
         name: isort
         args: ["--diff", "--check", "--profile", "black"]
 
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.277
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.0
     hooks:
-        - id: ruff
+      - id: ruff

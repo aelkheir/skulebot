@@ -1,12 +1,6 @@
 """Setup and run a simple echo bot."""
+
 import logging
-import os
-
-if os.getenv("ENV") != "production":
-    # Get EV from a local .env file
-    from dotenv import load_dotenv
-
-    load_dotenv()
 
 from src import application
 

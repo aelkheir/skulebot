@@ -1,1 +1,3 @@
 -r common.txt
+# Production postgres driver to be used with SQLAlchemy
+psycopg2==2.9.9
