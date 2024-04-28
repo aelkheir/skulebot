@@ -34,11 +34,12 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
         rf".*/{constants.EDIT}/{constants.DEADLINE}", context.match.group()
     ).group()
 
+    context.chat_data["url"] = context.match.group()
+
     picker = buttons.datepicker(context.match, selected=deadline)
     date_time: datetime = picker.date_time
 
     if date_time:
-        context.chat_data["url"] = context.match.group()
         message = (
             f"Alright, you selected"
             f" <b>{date_time.strftime('%A %d %B %Y')}</b>,"
@@ -54,23 +55,18 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
         + "\n"
         + f"{messages.course_text(context.match, session)}"
         + f"{messages.material_message_text(context.match, session)}"
-        + "\nSelect deadline date"
+        + "\nSelect deadline date.\nType /empty to remove current deadline"
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
-    return constants.ONE
+    return f"{constants.EDIT} {constants.DEADLINE}"
 
 
 @session
 async def receive_time(
     update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
 ):
-    hour = int(context.match.groups()[0])
-    minute = int(context.match.groups()[1])
-    if hour >= 24 or minute >= 60:
-        return constants.EDIT
-
     url = context.chat_data.get("url")
     match: re.Match[str] | None = re.search(
         f"/(?P<material_id>\d+)/{constants.EDIT}"
@@ -80,17 +76,28 @@ async def receive_time(
     )
 
     material_id = int(match.group("material_id"))
+    material = session.get(Assignment, material_id)
+
+    keyboard = [[buttons.back(url, f"/{constants.EDIT}/.*", "to Assignment")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    if update.message.text == "/empty":
+        material.deadline = None
+        message = messages.success_deleted("deadline")
+        await update.message.reply_text(message, reply_markup=reply_markup)
+        return constants.ONE
+
+    hour, minute = int(context.match.groups()[0]), int(context.match.groups()[1])
+    if hour >= 24 or minute >= 60:
+        return constants.EDIT
+
     year = int(match.group("y"))
     month = int(match.group("m"))
     day = int(match.group("d"))
 
-    material = session.get(Assignment, material_id)
     d = datetime(year, month, day, hour, minute)
     material.deadline = d
 
-    keyboard = [[buttons.back(url, f"/{constants.EDIT}/.*", "to Assignment")]]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
         f"Success! Assignment deadline"
         f" set to <b>{d.strftime('%A %d %B %Y %H:%M')}</b>."

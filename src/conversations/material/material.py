@@ -421,8 +421,16 @@ def conversation(url_prefix: str):
                 ],
                 f"{constants.EDIT} {constants.DEADLINE}": [
                     *states[constants.ONE],
+                    CallbackQueryHandler(
+                        deadline.edit,
+                        pattern=f"{url_prefix}"
+                        f"/(?P<material_type>{deadline.TYPES})/(?P<material_id>\d+)"
+                        f"/{constants.EDIT}/{constants.DEADLINE}(?:\?y=(?P<y>\d+)"
+                        f"(?:&m=(?P<m>\d+))?(?:&d=(?P<d>\d+))?)?(?:/{constants.IGNORE})?$",
+                    ),
                     MessageHandler(
-                        filters.Regex(r"^((?:\d)?\d)\:((?:\d)?\d)$"),
+                        filters.Regex(r"^((?:\d)?\d)\:((?:\d)?\d)$")
+                        | (filters.Command(only_start=True) & (filters.Text("/empty"))),
                         deadline.receive_time,
                     ),
                 ],
