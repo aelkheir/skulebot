@@ -9,12 +9,16 @@ from telegram.ext import Application
 from src import commands, conversations
 from src.config import Config, ProductionConfig
 from src.errorhandler import error_handler
+from src.persistence import SQLPersistence
 from src.typehandler import typehandler
 
 
 def create() -> Application:
     """Creates an instance of `telegram.ext.Application` and configures it."""
-    return Application.builder().token(Config.BOT_TOKEN).build()
+    persistence = SQLPersistence()
+    return (
+        Application.builder().token(Config.BOT_TOKEN).persistence(persistence).build()
+    )
 
 
 def register_handlers(application: Application):

@@ -3,6 +3,8 @@ __all__ = (
     "AccessRequest",
     "Assignment",
     "Base",
+    "ChatData",
+    "Conversation",
     "Course",
     "Department",
     "Enrollment",
@@ -28,6 +30,7 @@ __all__ = (
     "Tool",
     "Tutorial",
     "User",
+    "UserData",
     "UserOptionalCourse",
     "user_role",
 )
@@ -53,6 +56,7 @@ from .material import (
     Tool,
     Tutorial,
 )
+from .persistence import ChatData, Conversation, UserData
 from .program import Program
 from .program_semester import ProgramSemester
 from .program_semester_course import ProgramSemesterCourse

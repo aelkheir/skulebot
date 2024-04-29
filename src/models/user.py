@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from src.models import Role
 
     from .enrollment import Enrollment
+    from .persistence import ChatData, UserData
     from .setting import Setting
 
 
@@ -36,6 +37,13 @@ class User(Base):
 
     settings: Mapped[list["Setting"]] = relationship(
         default_factory=list, cascade="all, delete-orphan", back_populates="user"
+    )
+
+    chat_data: Mapped["ChatData"] = relationship(
+        init=False, back_populates="user", cascade="all"
+    )
+    user_data: Mapped["UserData"] = relationship(
+        init=False, back_populates="user", cascade="all"
     )
 
     def __repr__(self) -> str:
