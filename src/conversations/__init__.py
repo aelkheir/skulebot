@@ -5,6 +5,7 @@ from .coursemanagement import coursemanagement_
 from .department import department_
 from .editor import editor_
 from .enrollment import enrolments_
+from .notification import notifications_
 from .program import program_
 from .requestmanagement import requestmanagement_
 from .semester import semester_
@@ -16,6 +17,7 @@ handlers = [
     program_,
     department_,
     semester_,
+    notifications_,
     enrolments_,
     settings_,
     coursemanagement_,

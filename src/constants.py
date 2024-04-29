@@ -50,6 +50,7 @@ COURSES_ = "cos"
 UPDATE_MATERIALS_ = "uma"
 MATERIALS_ = "mat"
 SETTINGS_ = "stg"
+NOTIFICATION_ = "ntf"
 
 LEVELS = {
     1: {"en_name": "First Year", "ar": ""},
