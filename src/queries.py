@@ -553,7 +553,12 @@ def program_semester_courses(
             )
         )
 
-    return session.query(ProgramSemesterCourse).filter(*filters)
+    return (
+        session.query(ProgramSemesterCourse)
+        .filter(*filters)
+        .join(ProgramSemesterCourse.course)
+        .order_by(Course.en_name.asc())
+    )
 
 
 def program_semester_course(

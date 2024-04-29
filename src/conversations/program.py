@@ -423,8 +423,10 @@ async def course_semester_edit(
         keyboard = build_menu(
             semester_buttons,
             2,
-            footer_buttons=buttons.back(url, rf"/{constants.EDIT}/.*"),
+            footer_buttons=buttons.back(url, rf"/{constants.EDIT}.*"),
         )
+    elif s_id == semester_id:
+        return STATEONE
     elif s_id:
         psc = queries.program_semester_course(session, course_id)
         psc.semester_id = s_id
@@ -434,10 +436,12 @@ async def course_semester_edit(
             + messages.third_list_level(course.get_name())
             + f"\n{messages.success_updated('Course semester')}"
         )
-        course_url = url.replace(f"/{semester_id}/", f"/{s_id}/")
+        course_url = url.replace(
+            f"{constants.SEMESTERS}/{semester_id}/", f"{constants.SEMESTERS}/{s_id}/"
+        )
         keyboard = build_menu(
             [
-                buttons.back(course_url, "", text="to Course"),
+                buttons.back(course_url, f"/{constants.EDIT}.*", text="to Course"),
                 buttons.back(
                     url,
                     rf"/{constants.COURSES}/.*",
