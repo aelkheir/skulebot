@@ -148,9 +148,8 @@ requestmanagement_ = ConversationHandler(
     states=states,
     fallbacks=[],
     name=constants.REQUEST_MANAGEMENT_,
-    per_chat=True,
-    per_user=True,
     per_message=True,
+    persistent=True,
     # allow_reentry must be set to true for the conversation
     # to work after pressing Back button
     allow_reentry=True,

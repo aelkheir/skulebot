@@ -48,6 +48,7 @@ CONETENT_MANAGEMENT_ = "ctm"
 COURSE_MANAGEMENT_ = "crm"
 COURSES_ = "cos"
 UPDATE_MATERIALS_ = "uma"
+MATERIALS_ = "mat"
 SETTINGS_ = "stg"
 
 LEVELS = {

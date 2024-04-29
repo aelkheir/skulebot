@@ -465,6 +465,8 @@ def conversation(url_prefix: str):
         entry_points=entry_points,
         states=states,
         fallbacks=[],
+        persistent=True,
+        name=constants.MATERIALS_,
         # allow_reentry must be set to true for the conversation
         # to work after pressing Back button
         allow_reentry=True,

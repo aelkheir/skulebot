@@ -188,8 +188,7 @@ settings_ = ConversationHandler(
     fallbacks=[],
     name=constants.SETTINGS_,
     per_message=True,
-    per_user=True,
-    per_chat=True,
+    persistent=True,
     # allow_reentry must be set to true for the conversation
     # to work after pressing Back button
     allow_reentry=True,

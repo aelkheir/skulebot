@@ -560,6 +560,7 @@ coursemanagement_ = ConversationHandler(
     states=states,
     fallbacks=[],
     name=constants.COURSE_MANAGEMENT_,
+    persistent=True,
     # allow_reentry must be set to true for the conversation to work
     # after pressing going back to an entry point
     allow_reentry=True,
