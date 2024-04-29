@@ -790,7 +790,15 @@ def display(callback_data: str):
 
 def show_more(callback_data: str):
     return InlineKeyboardButton(
-        "Show More", callback_data=f"{callback_data}/{constants.DISPLAY}"
+        "Show More",
+        callback_data=callback_data,
+    )
+
+
+def show_less(callback_data: str):
+    return InlineKeyboardButton(
+        "Show Less",
+        callback_data=callback_data,
     )
 
 

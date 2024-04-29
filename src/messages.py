@@ -220,7 +220,12 @@ def material_title_text(match: re.Match, material: Material):
     if isinstance(material, SingleFile):
         return m_type.capitalize() + " " + str(material.file.name)
     if isinstance(material, Review):
-        return m_type.capitalize() + " " + str(material.get_name())
+        return (
+            m_type.capitalize()
+            + " "
+            + str(material.get_name())
+            + (" " + str(d.year) if (d := material.date) else "")
+        )
     return None
 
 
