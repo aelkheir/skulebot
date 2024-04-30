@@ -179,6 +179,21 @@ async def request_list(
         await update.message.reply_text(message, reply_markup=reply_markup)
 
 
+@roles(RoleName.USER)
+@session
+async def help(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+) -> None:
+    """Runs with Message.text `/help`."""
+
+    user = queries.user(session, user_id=context.user_data["id"])
+    user_roles = {r.name for r in user.roles}
+
+    message = messages.help(user_roles)
+
+    await update.message.reply_html(message)
+
+
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     await update.message.reply_text(update.message.text)
@@ -187,8 +202,9 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # ------------------------------- CommandHandlers ---------------------------
 
 handlers = [
-    CommandHandler(["enrollments", "start"], list_enrollments),
+    CommandHandler(["enrollments"], list_enrollments),
     CommandHandler("courses", user_course_list),
     CommandHandler(["settings"], settings),
     CommandHandler(["requestmanagement"], request_list),
+    CommandHandler(["help", "start"], help),
 ]

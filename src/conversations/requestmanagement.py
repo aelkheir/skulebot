@@ -28,6 +28,10 @@ async def request_action(
     request = queries.access_request(session, access_request_id=request_id)
     action = context.match.group("action")
 
+    # request we deleted in a previous menu
+    if request is None:
+        return constants.ONE
+
     if request.status != Status.PENDING:
         return constants.ONE
 
@@ -38,17 +42,25 @@ async def request_action(
             for e in user.enrollments
             if e.access_request and e.access_request.status == Status.GRANTED
         ]
-        if len(granted_accessess) == 0:
-            user.roles.append(queries.role(session, RoleName.EDITOR))
         request.status = Status.GRANTED
-        await set_my_commands(context.bot, user)
         await context.bot.send_message(
             user.chat_id,
             (
-                "Congratulations! 🎉 You're now an editor. 📚✨ "
-                'Use "/updatematerials" to dive in, '
-                "and know that we appreciate your valuable contributions."
+                "Congratulations 🎉! Now you have access to update materials. "
+                "We appreciate your contributions."
             ),
+        )
+        if len(granted_accessess) == 0:
+            user.roles.append(queries.role(session, RoleName.EDITOR))
+            await set_my_commands(context.bot, user)
+            help_message = messages.help(
+                user_roles={role.name for role in user.roles}, new=RoleName.EDITOR
+            )
+        await context.bot.send_message(
+            user.chat_id,
+            "Here is your updated list of commands\n"
+            f"{'\n'.join(help_message.splitlines()[1:])}",
+            parse_mode=ParseMode.HTML,
         )
     if action == Status.REJECTED:
         session.delete(request)
@@ -64,7 +76,7 @@ async def request_action(
         [buttons.back(url, f"/{constants.ACCESSREQUSTS}.*", text="to Pending Requests")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    success = await query.message.delete()
+    success = await query.delete_message()
 
     if success:
         await query.message.reply_html(message, reply_markup=reply_markup)

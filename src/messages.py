@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Set
 
 from sqlalchemy.orm import Session
 from telegram.constants import InputMediaType
@@ -17,6 +17,7 @@ from src.models import (
     MaterialType,
     Program,
     Review,
+    RoleName,
     Semester,
     SingleFile,
 )
@@ -122,6 +123,46 @@ def multilang_names(ar: str, en: str):
 
 def bot_settings():
     return "├ ⚙️ <b>Bot Settings</b>\n"
+
+
+def help(user_roles: Set[RoleName], new: Optional[RoleName] = None):
+    message: str
+    if user_roles == {RoleName.USER}:
+        message = "<b>Commands</b>\n\n/enrollments - enroll yourself to a program."
+    elif user_roles == {RoleName.USER, RoleName.ROOT}:
+        message = (
+            "<b>Commands</b>\n\n"
+            "• /requestmanagement - grant or reject pending requests from users\n"
+            "• /coursemanagement - update course info.\n"
+            "• /contentmanagement - moderate materials that users are uploading.\n"
+            "• /departments - update department info.\n"
+            "• /programs - update programs info, manage carriculams.\n"
+            "• /semesters - update semester info\n"
+            "• /academicyears - update academic years\n"
+        )
+    elif user_roles == {RoleName.USER, RoleName.STUDENT}:
+        message = (
+            "• <b>Commands</b>\n\n"
+            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
+            "/courses - list current courses.\n"
+            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
+            f"/settings - customize bot settings.\n"
+            "• /enrollments - update your enrollments.\n"
+            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
+            f"/editor - apply for access to upload content."
+        )
+    elif user_roles == {RoleName.USER, RoleName.STUDENT, RoleName.EDITOR}:
+        message = (
+            "<b>Commands</b>\n\n"
+            "• /courses - list current courses.\n"
+            f"•{' [<i><u>new</u></i>] ' if new==RoleName.EDITOR else ' '}"
+            "/updatematerials - update current courses.\n"
+            "• /settings - tweak bot settings.\n"
+            "• /enrollments - update your enrollments.\n"
+            "• /editor - control, revoke your access rights."
+        )
+
+    return message
 
 
 def title(match: re.Match, session: Session):

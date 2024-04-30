@@ -85,17 +85,20 @@ async def enrollments_add(
         user.enrollments.append(enrollment_obj)
         is_only_enrollment = len(user.enrollments) == 1
         session.flush()
-        next_state = await enrollment.__wrapped__(
-            update, context, session, enrollment_id=enrollment_obj.id
-        )
-        await query.message.reply_html(
-            "You have been successfully enrolled in\n"
-            f"{messages.enrollment_text(enrollment=enrollment_obj)}"
-        )
-        if is_only_enrollment:
-            user.roles.append(queries.role(session, RoleName.STUDENT))
-            await set_my_commands(context.bot, user)
-        return next_state
+        success = await query.delete_message()
+        if success:
+            await query.message.reply_html("You have been successfully enrolled 🎉!")
+            if is_only_enrollment:
+                user.roles.append(queries.role(session, RoleName.STUDENT))
+                await set_my_commands(context.bot, user)
+                help_message = messages.help(
+                    user_roles={role.name for role in user.roles}, new=RoleName.STUDENT
+                )
+                await query.message.reply_html(
+                    "Here is your updated list of commands\n"
+                    f"{'\n'.join(help_message.splitlines()[1:])}"
+                )
+            return None
     # enrollment creation has faild because user alread enrolled from another message
     except IntegrityError:
         await query.message.reply_html("Oops, seems like you are already enrolled.")
