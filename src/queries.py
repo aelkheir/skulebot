@@ -710,6 +710,7 @@ def lectures(session: Session, course_id: int, year_id: int) -> List[str]:
         .where(
             Lecture.course_id == course_id,
             Lecture.academic_year_id == year_id,
+            Lecture.published,
         )
         .order_by(Lecture.number)
     ).all()

@@ -101,14 +101,17 @@ async def material_list(
         academic_year_id = year_id
 
     MaterialClass = get_material_class(material_type)
+    filters = [
+        MaterialClass.course_id == course_id,
+        MaterialClass.academic_year_id == academic_year_id,
+    ]
+    if user_mode(url):
+        filters.append(MaterialClass.published)
     if issubclass(MaterialClass, HasNumber):
         materials = (
             session.query(MaterialClass)
             .where(MaterialClass.type == material_type)
-            .filter(
-                MaterialClass.course_id == course_id,
-                MaterialClass.academic_year_id == academic_year_id,
-            )
+            .filter(*filters)
             .order_by(MaterialClass.number)
             .all()
         )
@@ -117,10 +120,7 @@ async def material_list(
             session.query(MaterialClass)
             .join(File, File.id == MaterialClass.file_id)
             .where(MaterialClass.type == material_type)
-            .filter(
-                MaterialClass.course_id == course_id,
-                MaterialClass.academic_year_id == academic_year_id,
-            )
+            .filter(*filters)
             .order_by(File.name)
             .all()
         )
@@ -128,10 +128,7 @@ async def material_list(
         materials = (
             session.query(MaterialClass)
             .where(MaterialClass.type == material_type)
-            .filter(
-                MaterialClass.course_id == course_id,
-                MaterialClass.academic_year_id == academic_year_id,
-            )
+            .filter(*filters)
             .order_by(MaterialClass.date.desc(), MaterialClass.en_name)
             .all()
         )
