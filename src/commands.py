@@ -107,6 +107,15 @@ async def user_course_list(
     message = "Good morning, " + update.effective_user.mention_html(
         name=update.effective_user.first_name
     )
+    if not queries.all_have_editors(
+        session,
+        course_ids=[u.id for u in user_courses],
+        academic_year=enrollment.academic_year,
+    ):
+        message += (
+            "\n\n[there is no one with upload access for this program,"
+            " you can become one here /editor.]"
+        )
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML

@@ -364,6 +364,43 @@ def user_courses(
     ).all()
 
 
+def all_have_editors(
+    session: Session, course_ids: Sequence[int], academic_year: AcademicYear
+) -> bool:
+    """
+    Query wheather a list of courses all have associated editors with upload access
+    in a specific academic year.
+
+    Args:
+        session (:obj:`Session`): An `sqlalchemy.orm.Session` instance.
+        course_ids (Sequence(:obj:`int`)): The course ids.
+        academic_year (:obj:`AcademicYear`): The academic year.
+
+    Returns:
+        :obj:`bool`
+    """
+    courses_with_editors = session.scalars(
+        select(ProgramSemesterCourse.course_id)
+        .join(
+            ProgramSemester,
+            and_(
+                ProgramSemesterCourse.program_id == ProgramSemester.program_id,
+                ProgramSemesterCourse.semester_id == ProgramSemester.semester_id,
+            ),
+        )
+        .join(Enrollment, Enrollment.program_semester_id == ProgramSemester.id)
+        .join(AccessRequest, AccessRequest.enrollment_id == Enrollment.id, full=True)
+        .filter(
+            ProgramSemesterCourse.course_id.in_(list(course_ids)),
+            Enrollment.academic_year_id == academic_year.id,
+            AccessRequest.status == Status.GRANTED,
+        )
+        .group_by(ProgramSemesterCourse.course_id)
+    ).all()
+
+    return set(course_ids) == set(courses_with_editors)
+
+
 def academic_years(session: Session) -> List[AcademicYear]:
     """
     Query all :obj:`AcademicYear`s
