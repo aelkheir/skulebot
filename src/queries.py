@@ -1,7 +1,7 @@
 from typing import List, Optional, Sequence, Union
 
-from sqlalchemy import and_, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, case, or_, select
+from sqlalchemy.orm import Session, aliased
 
 from src.models import (
     AcademicYear,
@@ -379,13 +379,25 @@ def all_have_editors(
     Returns:
         :obj:`bool`
     """
+    sub_semester = aliased(Semester)
     courses_with_editors = session.scalars(
         select(ProgramSemesterCourse.course_id)
+        .join(Semester)
         .join(
             ProgramSemester,
             and_(
-                ProgramSemesterCourse.program_id == ProgramSemester.program_id,
-                ProgramSemesterCourse.semester_id == ProgramSemester.semester_id,
+                ProgramSemester.program_id == ProgramSemesterCourse.program_id,
+                ProgramSemester.semester_id.in_(
+                    select(sub_semester.id).filter(
+                        sub_semester.number.in_(
+                            [
+                                Semester.number,
+                                Semester.number
+                                + case((Semester.number % 2 == 0, -1), else_=1),
+                            ]
+                        )
+                    )
+                ),
             ),
         )
         .join(Enrollment, Enrollment.program_semester_id == ProgramSemester.id)
