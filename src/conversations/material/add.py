@@ -4,9 +4,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from telegram import Document, InlineKeyboardMarkup, Update, Video
 from telegram.constants import ParseMode
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import (
     Enrollment,
     File,
@@ -21,9 +21,7 @@ from src.utils import build_menu, session
 
 
 @session
-async def handler(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, back
-):
+async def handler(update: Update, context: CustomContext, session: Session, back):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/{constants.ADD}$`
@@ -91,12 +89,14 @@ async def handler(
             )
 
         await query.answer()
-        menu = buttons.review_types(context.match.group())
+        menu = context.buttons.review_types(context.match.group())
 
         keyboard = build_menu(
             menu,
             2,
-            footer_buttons=buttons.back(context.match.group(), rf"/{constants.ADD}.*"),
+            footer_buttons=context.buttons.back(
+                context.match.group(), rf"/{constants.ADD}.*"
+            ),
         )
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -119,7 +119,7 @@ ALLTYPES = "|".join([t.value for t in MaterialType])
 
 @session
 async def receive_material_file(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, url_prefix
+    update: Update, context: CustomContext, session: Session, url_prefix
 ):
     message = update.message
 
@@ -178,13 +178,13 @@ async def receive_material_file(
             url,
         )
         menu = [
-            buttons.view_added(id=material.id, url=url, text="File"),
-            buttons.edit(f"{file_url}/{constants.SOURCE}", "Source"),
+            context.buttons.view_added(id=material.id, url=url, text="File"),
+            context.buttons.edit(f"{file_url}/{constants.SOURCE}", "Source"),
         ]
         if not url.startswith(constants.CONETENT_MANAGEMENT_):
             menu.insert(
                 1,
-                buttons.publish(
+                context.buttons.publish(
                     callback_data=re.sub(rf"/{constants.ADD}", f"/{material.id}", url)
                 ),
             )

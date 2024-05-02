@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.error import Forbidden
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
+from src.customcontext import CustomContext
 from src.database import Session as DBSession
 from src.models import (
     Course,
@@ -26,9 +26,7 @@ from src.utils import get_setting_value, session
 
 
 @session
-async def handler(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, back
-):
+async def handler(update: Update, context: CustomContext, session: Session, back):
     """
     {url_prefix}/{constants.COURSES}/(?P<course_id>\d+)
     /(?P<material_type>{TYPES})/(?P<material_id>\d+)
@@ -78,10 +76,10 @@ async def handler(
         await query.answer()
         keyboard = [
             [
-                buttons.with_notification(url),
-                buttons.without_notification(url),
+                context.buttons.with_notification(url),
+                context.buttons.without_notification(url),
             ],
-            [buttons.back(url, pattern=rf"/{constants.PUBLISH}")],
+            [context.buttons.back(url, pattern=rf"/{constants.PUBLISH}")],
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -119,7 +117,7 @@ async def handler(
     return None
 
 
-def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
+def remove_job_if_exists(name: str, context: CustomContext) -> bool:
     """Remove job with given name. Returns whether job was removed."""
     current_jobs = context.job_queue.get_jobs_by_name(name)
     if not current_jobs:
@@ -130,9 +128,7 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
 
 
 @session
-async def register_jobs(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def register_jobs(update: Update, context: CustomContext, session: Session):
     material_id = context.match.group("material_id")
     material = session.get(Material, material_id)
 
@@ -204,7 +200,7 @@ async def register_jobs(
         )
 
 
-async def send_notification(context: ContextTypes.DEFAULT_TYPE) -> None:
+async def send_notification(context: CustomContext) -> None:
     """Send the notification message."""
     job = context.job
 
@@ -230,7 +226,7 @@ async def send_notification(context: ContextTypes.DEFAULT_TYPE) -> None:
             )
             keyboard = [
                 [
-                    buttons.show_more(
+                    context.buttons.show_more(
                         f"{constants.NOTIFICATION_}/{material.type}/{material.id}"
                     )
                 ]
@@ -238,7 +234,7 @@ async def send_notification(context: ContextTypes.DEFAULT_TYPE) -> None:
             if isinstance(material, (Review, SingleFile)):
                 keyboard = [
                     [
-                        buttons.material(
+                        context.buttons.material(
                             f"{constants.NOTIFICATION_}/{material.type}", material
                         )
                     ]

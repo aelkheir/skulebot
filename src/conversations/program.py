@@ -7,13 +7,13 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import Course, Program, ProgramSemester, ProgramSemesterCourse, RoleName
 from src.utils import Pager, build_menu, roles, session
 
@@ -39,9 +39,7 @@ def carriculam_title():
 
 @roles(RoleName.ROOT)
 @session
-async def program_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def program_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/programs`"""
 
     query: None | CallbackQuery = None
@@ -51,14 +49,16 @@ async def program_list(
         await query.answer()
 
     programs = queries.programs(session)
-    program_buttons = buttons.programs_list(
+    program_buttons = context.buttons.programs_list(
         programs, url=f"{URLPREFIX}/{constants.PROGRAMS}"
     )
 
     keyboard = build_menu(
         program_buttons,
         1,
-        footer_buttons=buttons.add(f"{URLPREFIX}/{constants.PROGRAMS}", "Program"),
+        footer_buttons=context.buttons.add(
+            f"{URLPREFIX}/{constants.PROGRAMS}", "Program"
+        ),
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -74,7 +74,7 @@ async def program_list(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def program(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def program(update: Update, context: CustomContext, session: Session):
     """Runs on callback_query
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)$`"""
 
@@ -90,14 +90,14 @@ async def program(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
 
     keyboard = [
         [
-            buttons.edit(url, "Arabic Name", end=f"/{constants.AR}"),
-            buttons.edit(url, "English Name", end=f"/{constants.EN}"),
+            context.buttons.edit(url, "Arabic Name", end=f"/{constants.AR}"),
+            context.buttons.edit(url, "English Name", end=f"/{constants.EN}"),
         ],
         [
-            buttons.carriculum(url=f"{url}/{constants.SEMESTERS}"),
-            buttons.delete(url, "Program"),
+            context.buttons.carriculum(url=f"{url}/{constants.SEMESTERS}"),
+            context.buttons.delete(url, "Program"),
         ],
-        [buttons.back(url, "/\d+$")],
+        [context.buttons.back(url, "/\d+$")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = messages.multilang_names(ar=program.ar_name, en=program.en_name)
@@ -106,7 +106,7 @@ async def program(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
     return STATEONE
 
 
-async def program_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def program_add(update: Update, context: CustomContext):
     """Runs on callback_data `^{URLPREFIX}/{constants.PROGRAMS}/({ADD})$`"""
     query = update.callback_query
     await query.answer()
@@ -120,9 +120,7 @@ async def program_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_name_new(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_new(update: Update, context: CustomContext, session: Session):
     en_name, ar_name = context.match.group("en_name"), context.match.group("ar_name")
 
     program = Program(
@@ -134,7 +132,7 @@ async def receive_name_new(
     session.flush()
     keyboard = [
         [
-            buttons.view_added(
+            context.buttons.view_added(
                 text="Program",
                 absolute_url=f"{URLPREFIX}/{constants.PROGRAMS}/{program.id}",
             )
@@ -148,7 +146,7 @@ async def receive_name_new(
     return STATEONE
 
 
-async def program_edit_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def program_edit_name(update: Update, context: CustomContext):
     query = update.callback_query
     await query.answer()
 
@@ -167,7 +165,7 @@ async def program_edit_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @session
 async def program_semester_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)/{constants.SEMESTERS}$`
@@ -181,7 +179,7 @@ async def program_semester_list(
     program_id = int(context.match.group("program_id"))
     program = queries.program(session, program_id)
     semesters = queries.semesters(session, program_id=program_id)
-    semester_buttons = buttons.semester_list(
+    semester_buttons = context.buttons.semester_list(
         semesters,
         url,
         selected_ids=[
@@ -193,7 +191,7 @@ async def program_semester_list(
     keyboard = build_menu(
         semester_buttons,
         2,
-        footer_buttons=buttons.back(url, f"/{constants.SEMESTERS}"),
+        footer_buttons=context.buttons.back(url, f"/{constants.SEMESTERS}"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -205,7 +203,7 @@ async def program_semester_list(
 
 @session
 async def semester_course_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runds on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)
@@ -233,7 +231,7 @@ async def semester_course_list(
     courses = queries.program_semester_courses(
         session, program_id=program_id, semester_id=semester_id
     )
-    courses_buttons = buttons.program_semester_courses_list(
+    courses_buttons = context.buttons.program_semester_courses_list(
         courses, f"{url}/{constants.COURSES}"
     )
     keyboard = build_menu(
@@ -241,14 +239,14 @@ async def semester_course_list(
         1,
         footer_buttons=[
             (
-                buttons.deactivate(f"{url}/{constants.ACTIVATE}?a=0")
+                context.buttons.deactivate(f"{url}/{constants.ACTIVATE}?a=0")
                 if available
-                else buttons.activate(f"{url}/{constants.ACTIVATE}?a=1")
+                else context.buttons.activate(f"{url}/{constants.ACTIVATE}?a=1")
             ),
-            buttons.link_course(f"{url}/{constants.ADD}"),
+            context.buttons.link_course(f"{url}/{constants.ADD}"),
         ],
     )
-    keyboard += [[buttons.back(url, "/\d+$")]]
+    keyboard += [[context.buttons.back(url, "/\d+$")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = (
@@ -264,9 +262,7 @@ async def semester_course_list(
 
 
 @session
-async def semester_activate(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def semester_activate(update: Update, context: CustomContext, session: Session):
     """Runds on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)/{constants.SEMESTERS}
     /(?P<semester_id>\d+)/{constants.ACTIVATE}\?a=(?P<activate>1|0)$`
@@ -316,9 +312,7 @@ async def semester_activate(
 
 
 @session
-async def program_course(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def program_course(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)/{constants.SEMESTERS}
     /(?P<semester_id>\d+)/{constants.COURSES}/(?P<course_id>\d+)
@@ -357,14 +351,18 @@ async def program_course(
 
     keyboard = [
         [
-            buttons.edit(url, "Semester"),
-            buttons.unlink_course(f"{url}/{constants.DELETE}"),
+            context.buttons.edit(url, "Semester"),
+            context.buttons.unlink_course(f"{url}/{constants.DELETE}"),
         ],
         [
-            buttons.required(f"{url}/{constants.EDIT}?o=0", selected=not psc.optional),
-            buttons.optional(f"{url}/{constants.EDIT}?o=1", selected=psc.optional),
+            context.buttons.required(
+                f"{url}/{constants.EDIT}?o=0", selected=not psc.optional
+            ),
+            context.buttons.optional(
+                f"{url}/{constants.EDIT}?o=1", selected=psc.optional
+            ),
         ],
-        [buttons.back(url, rf"/{constants.COURSES}/.*")],
+        [context.buttons.back(url, rf"/{constants.COURSES}/.*")],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -385,7 +383,7 @@ async def program_course(
 
 @session
 async def course_semester_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """
     Runs on callback_data
@@ -412,7 +410,7 @@ async def course_semester_edit(
     message = carriculam_title() + messages.first_list_level(program.get_name())
     if s_id is None:
         semesters = queries.semesters(session, program_id=program_id)
-        semester_buttons = buttons.semester_list(
+        semester_buttons = context.buttons.semester_list(
             semesters, url, selected_ids=semester_id, sep="?s_id="
         )
         message += (
@@ -423,7 +421,7 @@ async def course_semester_edit(
         keyboard = build_menu(
             semester_buttons,
             2,
-            footer_buttons=buttons.back(url, rf"/{constants.EDIT}.*"),
+            footer_buttons=context.buttons.back(url, rf"/{constants.EDIT}.*"),
         )
     elif s_id == semester_id:
         return STATEONE
@@ -441,13 +439,15 @@ async def course_semester_edit(
         )
         keyboard = build_menu(
             [
-                buttons.back(course_url, f"/{constants.EDIT}.*", text="to Course"),
-                buttons.back(
+                context.buttons.back(
+                    course_url, f"/{constants.EDIT}.*", text="to Course"
+                ),
+                context.buttons.back(
                     url,
                     rf"/{constants.COURSES}/.*",
                     text=f"to Semeter {old_semester.number}",
                 ),
-                buttons.back(
+                context.buttons.back(
                     course_url,
                     rf"/{constants.COURSES}/.*",
                     text=f"to Semeter {new_semester.number}",
@@ -465,7 +465,7 @@ async def course_semester_edit(
 
 @session
 async def program_course_unlink(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)/{constants.SEMESTERS}
@@ -486,9 +486,7 @@ async def program_course_unlink(
 
 
 @session
-async def course_link(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def course_link(update: Update, context: CustomContext, session: Session):
     """Runds on callback_data
     ^{URLPREFIX}/{constants.PROGRAMS}/(\d+)/{constants.SEMESTERS}/(\d+)/{ADD}$
     """
@@ -521,11 +519,11 @@ async def course_link(
     if d_id is None:
         await query.answer()
         departments = queries.departments(session)
-        menu = buttons.departments_list(
+        menu = context.buttons.departments_list(
             departments, url, include_none_department=True, sep="?d_id="
         )
         menu += [
-            buttons.back(url, f"/{constants.ADD}"),
+            context.buttons.back(url, f"/{constants.ADD}"),
         ]
         keyboard = build_menu(menu, 1)
         message += "\nSelect course"
@@ -542,7 +540,7 @@ async def course_link(
         }
         pager = Pager[Course](deptartment_courses, offset, 12)
 
-        menu = buttons.program_courses(
+        menu = context.buttons.program_courses(
             courses=pager.items,
             course_semester=p_courses,
             url=url,
@@ -554,15 +552,17 @@ async def course_link(
             keyboard.append(pager_keyboard)
             if pager.has_previous:
                 pager_keyboard.append(
-                    buttons.previous_page(
+                    context.buttons.previous_page(
                         f"{url}?d_id={d_id}&p={pager.previous_offset}"
                     )
                 )
             if pager.has_next:
                 pager_keyboard.append(
-                    buttons.next_page(f"{url}?d_id={d_id}&p={pager.next_offset}")
+                    context.buttons.next_page(
+                        f"{url}?d_id={d_id}&p={pager.next_offset}"
+                    )
                 )
-        keyboard.extend([[buttons.back(url, pattern="\?.*")]])
+        keyboard.extend([[context.buttons.back(url, pattern="\?.*")]])
         message += "\nSelect course"
     if c_id:
         course = queries.course(session, c_id)
@@ -587,11 +587,11 @@ async def course_link(
             message += f"\nCourse is already linked in Semester {psc.semester.number}"
             keyboard = [
                 [
-                    buttons.update_to_semester(
+                    context.buttons.update_to_semester(
                         f"{url}?d_id={d_id}&p={page}&c_id={c_id}&u=1", semester.number
                     )
                 ],
-                [buttons.back(absolute_url=f"{url}?d_id={d_id}&p={page}")],
+                [context.buttons.back(absolute_url=f"{url}?d_id={d_id}&p={page}")],
             ]
         else:
             psc.semester_id = semester_id
@@ -607,9 +607,7 @@ async def course_link(
 
 
 @session
-async def receive_name_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_edit(update: Update, context: CustomContext, session: Session):
     name = context.match.groups()[0].strip()
 
     url = context.chat_data[DATA_KEY]["url"]
@@ -629,7 +627,7 @@ async def receive_name_edit(
 
     keyboard = [
         [
-            buttons.back(
+            context.buttons.back(
                 absolute_url=f"{URLPREFIX}/{constants.PROGRAMS}/{program_id}",
                 text="to Program",
             )
@@ -644,9 +642,7 @@ async def receive_name_edit(
 
 
 @session
-async def program_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def program_delete(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)
     /{constants.DELETE}(?:\?c=(?P<has_confirmed>1|0))?$`
@@ -665,15 +661,17 @@ async def program_delete(
     menu_buttons: List
     message: str
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message = messages.delete_confirm(f"Program {program.en_name}")
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message = messages.delete_reconfirm(f"Program {program.en_name}")
     elif has_confirmed == "1":
         session.delete(program)
         menu_buttons = [
-            buttons.back(url, text="to Programs", pattern=rf"/\d+/{constants.DELETE}")
+            context.buttons.back(
+                url, text="to Programs", pattern=rf"/\d+/{constants.DELETE}"
+            )
         ]
         message = messages.success_deleted(f"Program {program.en_name}")
 

@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CommandHandler, ContextTypes
+from telegram.ext import CommandHandler
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import RoleName, Status
 from src.utils import build_menu, roles, session
 
@@ -13,7 +14,7 @@ from src.utils import build_menu, roles, session
 @roles(RoleName.USER)
 @session
 async def list_enrollments(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs with Message.text `/enrollments`. This is an entry point to
     `constans.ENROLLMENT_` conversation"""
@@ -32,14 +33,14 @@ async def list_enrollments(
     menu = []
     if most_recent_year and most_recent_enrollment_year != most_recent_year:
         menu.append(
-            buttons.new_enrollment(
+            context.buttons._(
                 most_recent_year,
                 f"{URLPREFIX}/{constants.ENROLLMENTS}"
                 f"/{constants.ADD}?year_id={most_recent_year.id}",
             ),
         )
 
-    menu += buttons.enrollments_list(
+    menu += context.buttons.enrollments_list(
         enrollments, f"{URLPREFIX}/{constants.ENROLLMENTS}"
     )
     keyboard = build_menu(menu, 1)
@@ -55,9 +56,7 @@ async def list_enrollments(
 
 @roles(RoleName.STUDENT)
 @session
-async def user_course_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def user_course_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/courses`. This is an entry point to
     `constans.COURSES_` conversation"""
 
@@ -88,7 +87,7 @@ async def user_course_list(
     )
 
     url = f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         user_courses,
         url=url,
     )
@@ -98,7 +97,7 @@ async def user_course_list(
         semester_id=enrollment.semester.id,
     )
     menu = (
-        [*menu, buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
+        [*menu, context.buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
         if has_optional_courses
         else menu
     )
@@ -126,7 +125,7 @@ async def user_course_list(
 
 
 @roles(RoleName.STUDENT)
-async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def settings(update: Update, context: CustomContext):
     """Runs with Message.text `/settings`. This is an entry point to
     `constans.SETTINGS_` conversation"""
 
@@ -139,8 +138,8 @@ async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     URLPREFIX = constants.SETTINGS_
 
     menu = [
-        buttons.notifications(f"{URLPREFIX}/{constants.NOTIFICATIONS}"),
-        buttons.language(f"{URLPREFIX}/{constants.LANGUAGE}"),
+        context.buttons.notifications(f"{URLPREFIX}/{constants.NOTIFICATIONS}"),
+        context.buttons.language(f"{URLPREFIX}/{constants.LANGUAGE}"),
     ]
     keyboard = build_menu(menu, 2)
 
@@ -156,9 +155,7 @@ async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @roles(RoleName.ROOT)
 @session
-async def request_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def request_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/requestmanagement`. This is an entry point to
     `constans.REQUEST_MANAGEMENT_` conversation"""
 
@@ -171,7 +168,7 @@ async def request_list(
     URLPREFIX = constants.REQUEST_MANAGEMENT_
 
     requests = queries.access_requests(session, status=Status.PENDING)
-    menu = await buttons.access_requests_list_chat_name(
+    menu = await context.buttons.access_requests_list_chat_name(
         requests, url=f"{URLPREFIX}/{constants.ACCESSREQUSTS}", context=context
     )
 
@@ -190,9 +187,7 @@ async def request_list(
 
 @roles(RoleName.USER)
 @session
-async def help(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-) -> None:
+async def help(update: Update, context: CustomContext, session: Session) -> None:
     """Runs with Message.text `/help`."""
 
     user = queries.user(session, user_id=context.user_data["id"])
@@ -203,7 +198,7 @@ async def help(
     await update.message.reply_html(message)
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def echo(update: Update, context: CustomContext) -> None:
     """Echo the user message."""
     await update.message.reply_text(update.message.text)
 

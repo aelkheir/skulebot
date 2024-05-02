@@ -7,10 +7,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, messages, queries
 from src.conversations.course import usercourses_
+from src.customcontext import CustomContext
 from src.models import Enrollment, RoleName, Status
 from src.utils import build_menu, session, set_my_commands
 
@@ -22,7 +23,7 @@ URLPREFIX = constants.ENROLLMENT_
 
 @session
 async def enrollments_add(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs on callback_data
     ^{URLPREFIX}/{constants.ENROLLMENTS}/{constants.ADD}
@@ -45,9 +46,9 @@ async def enrollments_add(
         message = "Select program"
         programs = queries.programs(session)
         menu = build_menu(
-            buttons.programs_list(programs, url, sep="&program_id="),
+            context.buttons.programs_list(programs, url, sep="&program_id="),
             1,
-            footer_buttons=buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
+            footer_buttons=context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
         )
         reply_markup = InlineKeyboardMarkup(menu)
 
@@ -59,11 +60,11 @@ async def enrollments_add(
         message = "Select level"
         program_semesters = queries.program_semesters(session, program_id)
         menu = build_menu(
-            buttons.program_levels_list(
+            context.buttons.program_levels_list(
                 program_semesters, url, sep="&program_semester_id="
             ),
             1,
-            footer_buttons=buttons.back(url, "&program_id.*"),
+            footer_buttons=context.buttons.back(url, "&program_id.*"),
         )
         reply_markup = InlineKeyboardMarkup(menu)
 
@@ -108,7 +109,7 @@ async def enrollments_add(
 @session
 async def enrollment(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
     enrollment_id: Optional[int] = None,
 ) -> None:
@@ -143,7 +144,7 @@ async def enrollment(
     program_semesters = queries.program_semesters(
         session, enrollment_obj.program.id, level=level
     )
-    menu = buttons.program_semesters_list(
+    menu = context.buttons.program_semesters_list(
         program_semesters,
         url,
         selected_ids=enrollment_obj.program_semester.id,
@@ -163,7 +164,7 @@ async def enrollment(
     )
 
     courses_url = f"{url}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         user_courses,
         url=courses_url,
     )
@@ -173,15 +174,18 @@ async def enrollment(
         semester_id=enrollment_obj.semester.id,
     )
     menu = (
-        [*menu, buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
+        [
+            *menu,
+            context.buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}"),
+        ]
         if has_optional_courses
         else menu
     )
     keyboard += build_menu(menu, 1)
     keyboard += [
         [
-            buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
-            buttons.disenroll(f"{url}/{constants.DELETE}"),
+            context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
+            context.buttons.disenroll(f"{url}/{constants.DELETE}"),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -194,9 +198,7 @@ async def enrollment(
 
 
 @session
-async def enrollment_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def enrollment_delete(update: Update, context: CustomContext, session: Session):
     """runs on ^{URLPREFIX}/{ENROLLMENTS}/(\d+)/{DELETE}$"""
 
     query = update.callback_query
@@ -214,10 +216,10 @@ async def enrollment_delete(
     message: str
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message = messages.delete_confirm(f"Enrollment {year.start} - {year.end}")
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message = messages.delete_reconfirm(f"Enrollment {year.start} - {year.end}")
     elif has_confirmed == "1":
         user = enrollment.user
@@ -236,7 +238,7 @@ async def enrollment_delete(
             user.roles.remove(queries.role(session, RoleName.STUDENT))
             await set_my_commands(context.bot, user)
         menu_buttons = [
-            buttons.back(
+            context.buttons.back(
                 url, text="to Enrollmentss", pattern=rf"/{constants.ENROLLMENTS}.*"
             )
         ]

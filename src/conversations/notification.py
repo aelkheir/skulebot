@@ -7,10 +7,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, constants, messages
+from src import constants, messages
 from src.conversations.material import files, sendall
+from src.customcontext import CustomContext
 from src.models import File, Material, MaterialType, RefFilesMixin, Review, SingleFile
 from src.utils import build_menu, session
 
@@ -22,7 +23,7 @@ URLPREFIX = constants.NOTIFICATION_
 @session
 async def material(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
 ):
     """
@@ -51,13 +52,13 @@ async def material(
         menu_files = session.scalars(
             select(File).where(File.material_id == material.id)
         ).all()
-        files_menu = buttons.files_list(f"{url}/{constants.FILES}", menu_files)
+        files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
         keyboard += build_menu(files_menu, 1)
 
     if isinstance(material, RefFilesMixin) and len(material.files) > 1:
-        keyboard += [[buttons.send_all(url)]]
+        keyboard += [[context.buttons.send_all(url)]]
 
-    keyboard += [[buttons.show_less(url + "?collapse=1")]]
+    keyboard += [[context.buttons.show_less(url + "?collapse=1")]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
@@ -80,7 +81,7 @@ async def material(
 @session
 async def collapse_material(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
 ):
     """
@@ -103,7 +104,9 @@ async def collapse_material(
             )
         )
     )
-    keyboard = [[buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]]
+    keyboard = [
+        [context.buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]
+    ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(text=message, reply_markup=reply_markup)

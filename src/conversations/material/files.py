@@ -3,16 +3,16 @@ import re
 from sqlalchemy.orm import Session
 from telegram import Document, InlineKeyboardMarkup, Update, Video
 from telegram.constants import ParseMode
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import File, User
 from src.models.material import get_material_class
 from src.utils import build_menu, session, user_mode
 
 
 @session
-async def file(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def file(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.FILES}}/(\d+)$`
@@ -29,8 +29,8 @@ async def file(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
     file = session.get(File, file_id)
 
     menu_buttons = [
-        *buttons.file_menu(url=path),
-        buttons.back(url=path, pattern=f"/{constants.FILES}/\\d+"),
+        *context.buttons.file_menu(url=path),
+        context.buttons.back(url=path, pattern=f"/{constants.FILES}/\\d+"),
     ]
     keyboard = build_menu(
         menu_buttons[1:-1],
@@ -59,7 +59,7 @@ async def file(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
 @session
 async def delete(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
     back,
 ):
@@ -83,7 +83,7 @@ async def delete(
 
 @session
 async def display(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, file_id=None
+    update: Update, context: CustomContext, session: Session, file_id=None
 ):
     """
     Runs on callback_data
@@ -103,7 +103,7 @@ async def display(
 
     reply_markup = None
     if source := file.source:
-        keyboard = [[buttons.source(url=source)]]
+        keyboard = [[context.buttons.source(url=source)]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
     sender = (
@@ -127,10 +127,7 @@ async def display(
     return constants.ONE
 
 
-async def add(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
-):
+async def add(update: Update, context: CustomContext):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.FILES}/{constants.ADD}$`
@@ -149,9 +146,7 @@ async def add(
 
 
 @session
-async def receive_file(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_file(update: Update, context: CustomContext, session: Session):
     message = update.message
 
     url = context.chat_data.get("url")
@@ -200,8 +195,8 @@ async def receive_file(
 
     keyboard = [
         [
-            buttons.view_added(file.id, url, text="File"),
-            buttons.edit(
+            context.buttons.view_added(file.id, url, text="File"),
+            context.buttons.edit(
                 re.sub(f"/{constants.ADD}", f"/{file.id}", url)
                 + f"/{constants.SOURCE}",
                 "Source",
@@ -217,7 +212,7 @@ async def receive_file(
     return constants.ADD
 
 
-async def source_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def source_edit(update: Update, context: CustomContext):
     """
     Runs on callback_data
     `{url_prefix}/{constants.COURSES}/(?P<course_id>\d+)
@@ -239,9 +234,7 @@ async def source_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_source(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_source(update: Update, context: CustomContext, session: Session):
     url = context.chat_data.get("url")
     match: re.Match[str] | None = re.search(f"/{constants.FILES}/(?P<file_id>\d+)", url)
     file_id = int(match.group("file_id"))
@@ -250,7 +243,7 @@ async def receive_source(
     back_patern = (
         rf"/{constants.SOURCE}.*" if file.material_id else rf"/{constants.FILES}.*"
     )
-    keyboard = [[buttons.back(url, pattern=back_patern, text="to File")]]
+    keyboard = [[context.buttons.back(url, pattern=back_patern, text="to File")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if update.message.text == "/empty":

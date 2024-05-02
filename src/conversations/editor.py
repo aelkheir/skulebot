@@ -9,15 +9,15 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
 from src.config import Config
 from src.conversations.updatematerial import updatematerials_
+from src.customcontext import CustomContext
 from src.models import AccessRequest, File, RoleName, Status
 from src.utils import build_menu, roles, session, set_my_commands
 
@@ -33,7 +33,7 @@ DATA_KEY = constants.EDITOR_
 @roles(RoleName.STUDENT)
 @session
 async def list_accesses(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs with Message.text `/editor`"""
 
@@ -56,7 +56,7 @@ async def list_accesses(
             Status.PENDING,
         ],
     )
-    buttons_list = buttons.access_requests_list(
+    buttons_list = context.buttons.access_requests_list(
         access_requests=requests, url=f"{URLPREFIX}/{constants.ENROLLMENTS}"
     )
     most_recent_enrollment = queries.user_most_recent_enrollment(
@@ -65,7 +65,7 @@ async def list_accesses(
     if most_recent_enrollment not in [r.enrollment for r in requests]:
         buttons_list.insert(
             0,
-            buttons.new_access_request(
+            context.buttons._new_access_request(
                 most_recent_enrollment,
                 url=f"{URLPREFIX}/{constants.ENROLLMENTS}"
                 f"/{most_recent_enrollment.id}/{constants.ADD}",
@@ -84,9 +84,7 @@ async def list_accesses(
 
 
 @session
-async def access_add(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-) -> None:
+async def access_add(update: Update, context: CustomContext, session: Session) -> None:
     """Runs on callback_data
     `^{URLPREFIX}/{constants.ENROLLMENTS}/(?P<enrollment_id>\d+)/{constants.ADD}$`
     """
@@ -110,15 +108,15 @@ async def access_add(
     )
     keyboard = [
         [
-            buttons.submit_proof(url=f"{url}/{constants.ID}"),
-            buttons.contact_support(
+            context.buttons.submit_proof(url=f"{url}/{constants.ID}"),
+            context.buttons.contact_support(
                 url="https://t.me/skulebotsupport"
                 "?text=Hi! I'd like to have access and"
                 f" upload materials in\n\n{enrollment_text}",
             ),
         ],
     ]
-    keyboard += [[buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
+    keyboard += [[context.buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -127,7 +125,7 @@ async def access_add(
     return constants.ONE
 
 
-async def send_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def send_id(update: Update, context: CustomContext) -> None:
     """Run on callback_data
     `^{URLPREFIX}/{constants.ENROLLMENTS}/(?P<enrollment_id>\d+)
     /{constants.ADD}/{constants.ID}$`
@@ -143,9 +141,7 @@ async def send_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 @session
-async def receive_id_file(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_id_file(update: Update, context: CustomContext, session: Session):
     """Runs with Message.photo"""
 
     url = context.chat_data[DATA_KEY]["url"]
@@ -181,8 +177,8 @@ async def receive_id_file(
     url = f"{constants.REQUEST_MANAGEMENT_}/{constants.ACCESSREQUSTS}/{request.id}"
     keyboard = [
         [
-            buttons.grant_access(f"{url}?action={Status.GRANTED.value}"),
-            buttons.reject(f"{url}?action={Status.REJECTED.value}"),
+            context.buttons.grant_access(f"{url}?action={Status.GRANTED.value}"),
+            context.buttons.reject(f"{url}?action={Status.REJECTED.value}"),
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -204,9 +200,7 @@ async def receive_id_file(
 
 
 @session
-async def access(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-) -> None:
+async def access(update: Update, context: CustomContext, session: Session) -> None:
     """Runs on callback_data
     `^{URLPREFIX}/{constants.ENROLLMENTS}/(?P<enrollment_id>\d+)
     (/{constants.EDIT}\?program_semester_id=(?P<edit_p_s_id>\d+))?(/{constants.COURSES})?$`
@@ -224,7 +218,7 @@ async def access(
     if request.status == Status.PENDING:
         message = messages.enrollment_text(enrollment=enrollment)
         message += "\nYou're request is pending. We'll get back to you soon. Thanks"
-        keyboard = [[buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
+        keyboard = [[context.buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -256,7 +250,7 @@ async def access(
     )
 
     courses_url = f"{url}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         user_courses,
         url=courses_url,
     )
@@ -266,7 +260,7 @@ async def access(
         semester_id=enrollment.semester.id,
     )
     menu = (
-        [*menu, buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
+        [*menu, context.buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
         if has_optional_courses
         else menu
     )
@@ -277,15 +271,15 @@ async def access(
     keyboard = build_menu(
         menu,
         1,
-        header_buttons=buttons.program_semesters_list(
+        header_buttons=context.buttons.program_semesters_list(
             program_semesters,
             url,
             selected_ids=enrollment.program_semester.id,
             sep=f"/{constants.EDIT}?program_semester_id=",
         ),
         footer_buttons=[
-            buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
-            buttons.revoke(url),
+            context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
+            context.buttons.revoke(url),
         ],
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -301,9 +295,7 @@ async def access(
 
 
 @session
-async def revoke_access(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def revoke_access(update: Update, context: CustomContext, session: Session):
     """Runs with callback_data
     `^{URLPREFIX}/{constants.ENROLLMENTS}/(?P<enrollment_id>\d+)
     /{constants.REVOKE}(?:\?c=(?P<has_confirmed>1|0))?$`
@@ -323,10 +315,10 @@ async def revoke_access(
     menu_buttons: List
     message: str
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message = messages.revoke_confirm(f"Enrollment {year.start} - {year.end}")
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message = messages.revoke_reconfirm(f"Enrollment {year.start} - {year.end}")
     elif has_confirmed == "1":
         del enrollment.access_request
@@ -344,7 +336,7 @@ async def revoke_access(
             user.roles.remove(queries.role(session, role_name=RoleName.EDITOR))
             await set_my_commands(context.bot, user)
         menu_buttons = [
-            buttons.back(
+            context.buttons.back(
                 url, text="to Editor Accesses", pattern=rf"/{constants.ENROLLMENTS}.*"
             )
         ]

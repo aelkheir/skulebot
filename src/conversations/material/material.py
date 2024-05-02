@@ -39,13 +39,12 @@ from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, constants, messages
+from src import constants, messages
 from src.conversations.material import (
     add,
     date,
@@ -56,6 +55,7 @@ from src.conversations.material import (
     publish,
     sendall,
 )
+from src.customcontext import CustomContext
 from src.models import (
     Assignment,
     Enrollment,
@@ -74,9 +74,7 @@ from src.utils import build_menu, session, user_mode
 
 # ------------------------------- entry_points ---------------------------
 @session
-async def material_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def material_list(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data
     `{url_prefix}/(?P<material_type>{ALLTYPES})$`
@@ -133,7 +131,7 @@ async def material_list(
             .all()
         )
 
-    menu = buttons.material_list(url, materials)
+    menu = context.buttons.material_list(url, materials)
 
     n_columns = 3 if materials and isinstance(materials[0], HasNumber) else 1
     keyboard = build_menu(menu, n_columns)
@@ -141,16 +139,16 @@ async def material_list(
     if not user_mode(url):
         keyboard += [
             [
-                buttons.back(url, pattern=rf"/({ALLTYPES})$"),
-                buttons.add(url, material_type.capitalize()),
+                context.buttons.back(url, pattern=rf"/({ALLTYPES})$"),
+                context.buttons.add(url, material_type.capitalize()),
             ],
         ]
     else:
         if issubclass(MaterialClass, SingleFile) and len(materials) > 1:
-            keyboard += [[buttons.send_all(url)]]
+            keyboard += [[context.buttons.send_all(url)]]
         keyboard += [
             [
-                buttons.back(
+                context.buttons.back(
                     url,
                     pattern=rf"/({ALLTYPES})$",
                 )
@@ -178,7 +176,7 @@ async def material_list(
 @session
 async def material(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
     material_id: Optional[int] = None,
 ):
@@ -221,21 +219,23 @@ async def material(
         menu_files = session.scalars(
             select(File).where(File.material_id == material.id)
         ).all()
-        files_menu = buttons.files_list(f"{url}/{constants.FILES}", menu_files)
+        files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
         keyboard += build_menu(files_menu, 1)
         if not user_mode(url):
-            keyboard += [[buttons.add_file(url=f"{url}/{constants.FILES}")]]
+            keyboard += [[context.buttons.add_file(url=f"{url}/{constants.FILES}")]]
     # handle control buttons for number
     if not user_mode(url) and isinstance(material, HasNumber):
-        keyboard[-1].append(buttons.edit(url, "Number", end=f"/{constants.NUMBER}"))
+        keyboard[-1].append(
+            context.buttons.edit(url, "Number", end=f"/{constants.NUMBER}")
+        )
     # handle control buttons for date
     if not user_mode(url) and isinstance(material, Review):
-        keyboard[-1].append(buttons.edit(url, "Date", end=f"/{constants.DATE}"))
+        keyboard[-1].append(context.buttons.edit(url, "Date", end=f"/{constants.DATE}"))
     # handle single file materials
     if not user_mode(url) and isinstance(material, SingleFile):
         menu = [
-            buttons.display(f"{url}/{constants.FILES}/{material.file_id}"),
-            buttons.edit(
+            context.buttons.display(f"{url}/{constants.FILES}/{material.file_id}"),
+            context.buttons.edit(
                 f"{url}/{constants.FILES}/{material.file_id}/{constants.SOURCE}",
                 "Source",
             ),
@@ -246,13 +246,15 @@ async def material(
     if not user_mode(url):
         keyboard += [
             [
-                buttons.publish(callback_data=url),
-                buttons.delete(url, material_type.capitalize()),
+                context.buttons.publish(callback_data=url),
+                context.buttons.delete(url, material_type.capitalize()),
             ]
         ]
 
     if isinstance(material, Assignment) and not user_mode(url):
-        keyboard += [[buttons.edit(url, "Deadline", end=f"/{constants.DEADLINE}")]]
+        keyboard += [
+            [context.buttons.edit(url, "Deadline", end=f"/{constants.DEADLINE}")]
+        ]
 
     # Send all button when on user mode:
     if (
@@ -260,7 +262,7 @@ async def material(
         and isinstance(material, RefFilesMixin)
         and len(material.files) > 1
     ):
-        keyboard += [[buttons.send_all(url)]]
+        keyboard += [[context.buttons.send_all(url)]]
 
     # when on lectures and on user mode, hop two steps back
     back_pattern = (
@@ -268,7 +270,7 @@ async def material(
         if isinstance(material, Lecture) and user_mode(url)
         else r"/\d+$"
     )
-    keyboard += [[buttons.back(url, pattern=back_pattern)]]
+    keyboard += [[context.buttons.back(url, pattern=back_pattern)]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (

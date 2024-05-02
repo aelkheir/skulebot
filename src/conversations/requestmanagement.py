@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import RoleName, Status
 from src.utils import session, set_my_commands
 
@@ -13,9 +14,7 @@ URLPREFIX = constants.REQUEST_MANAGEMENT_
 
 # ------------------------------- entry_points ---------------------------
 @session
-async def request_action(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def request_action(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.ACCESSREQUSTS}/(?P<request_id>\d+)\?action=(?P<action>\w+)$`
     """
@@ -73,7 +72,11 @@ async def request_action(
         f"{messages.enrollment_text(enrollment=request.enrollment)}"
     )
     keyboard = [
-        [buttons.back(url, f"/{constants.ACCESSREQUSTS}.*", text="to Pending Requests")]
+        [
+            context.buttons.back(
+                url, f"/{constants.ACCESSREQUSTS}.*", text="to Pending Requests"
+            )
+        ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     success = await query.delete_message()
@@ -87,7 +90,7 @@ async def request_action(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def request(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def request(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.ACCESSREQUSTS}/(?P<request_id>\d+)$`
     """
@@ -110,8 +113,8 @@ async def request(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
     )
     keyboard = [
         [
-            buttons.grant_access(f"{url}?action={Status.GRANTED}"),
-            buttons.reject(f"{url}?action={Status.REJECTED}"),
+            context.buttons.grant_access(f"{url}?action={Status.GRANTED}"),
+            context.buttons.reject(f"{url}?action={Status.REJECTED}"),
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)

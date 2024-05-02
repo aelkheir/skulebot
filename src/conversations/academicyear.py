@@ -11,14 +11,14 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, messages, queries
+from src import messages, queries
 from src.constants import ACADEMICYEAR_, ACADEMICYEARS, ADD, DELETE, EDIT, ONE
+from src.customcontext import CustomContext
 from src.models import AcademicYear, RoleName
 from src.utils import build_menu, roles, session
 
@@ -32,9 +32,7 @@ DATA_KEY = ACADEMICYEAR_
 # ------------------------------- entry_points ---------------------------
 @roles(RoleName.ROOT)
 @session
-async def year_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def year_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/academicyears`"""
     query: None | CallbackQuery = None
 
@@ -45,8 +43,8 @@ async def year_list(
     url = f"{URLPREFIX}/{ACADEMICYEARS}"
 
     academic_years = queries.academic_years(session)
-    menu = buttons.years_list(academic_years, url)
-    keyboard = build_menu(menu, 2, footer_buttons=buttons.add(url, "Year"))
+    menu = context.buttons.years_list(academic_years, url)
+    keyboard = build_menu(menu, 2, footer_buttons=context.buttons.add(url, "Year"))
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = "Academic years"
 
@@ -60,7 +58,7 @@ async def year_list(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def year(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def year(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data ^{URLPREFIX}/{ACADEMICYEARS}/(?P<year_id>\d+)$"""
 
     query: None | CallbackQuery = None
@@ -73,8 +71,8 @@ async def year(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
     year = queries.academic_year(session, year_id)
 
     keyboard = [
-        [buttons.edit(url, "Year"), buttons.delete(url, "Year")],
-        [buttons.back(url, "/\d+")],
+        [context.buttons.edit(url, "Year"), context.buttons.delete(url, "Year")],
+        [context.buttons.back(url, "/\d+")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = f"<b>year</b>: {year.start} - {year.end}"
@@ -89,9 +87,7 @@ async def year(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
 
 
 @session
-async def year_add(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def year_add(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data ^{URLPREFIX}/{ACADEMICYEARS}/{ADD}$"""
 
     query = update.callback_query
@@ -107,7 +103,7 @@ async def year_add(
     return await year_list.__wrapped__.__wrapped__(update, context, session)
 
 
-async def year_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def year_edit(update: Update, context: CustomContext):
     """Runs on callback_data {URLPREFIX}/{ACADEMICYEARS}/(?P<year_id>\d+)/{EDIT}$"""
 
     query = update.callback_query
@@ -125,9 +121,7 @@ async def year_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_year_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_year_edit(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text matching
     `^(?P<start_year>\d{4})\s*-\s*(?P<end_year>\d{4})$`
     """
@@ -147,7 +141,7 @@ async def receive_year_edit(
     year.start = int(start_year)
     year.end = int(end_year)
 
-    keyboard = [[buttons.back(url, f"/{EDIT}", "to Year")]]
+    keyboard = [[context.buttons.back(url, f"/{EDIT}", "to Year")]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = messages.success_updated("Year")
@@ -157,9 +151,7 @@ async def receive_year_edit(
 
 
 @session
-async def year_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def year_delete(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `{URLPREFIX}/{ACADEMICYEARS}/(?P<year_id>\d+)/{DELETE}(?:\?c=(?P<has_confirmed>1|0))?$`
     """
@@ -178,15 +170,17 @@ async def year_delete(
     message: str
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message = messages.delete_confirm(f"Year {year.start} - {year.end}")
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message = messages.delete_reconfirm(f"Year {year.start} - {year.end}")
     elif has_confirmed == "1":
         session.delete(year)
         menu_buttons = [
-            buttons.back(url, text="to Academic Years", pattern=rf"/\d+/{DELETE}")
+            context.buttons.back(
+                url, text="to Academic Years", pattern=rf"/\d+/{DELETE}"
+            )
         ]
         message = messages.success_deleted(f"Year {year.start} - {year.end}")
 

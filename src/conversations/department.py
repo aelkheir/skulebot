@@ -7,13 +7,13 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import Department, RoleName
 from src.utils import build_menu, roles, session
 
@@ -29,9 +29,7 @@ DATA_KEY = constants.DEPARTMENT_
 
 @roles(RoleName.ROOT)
 @session
-async def department_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def department_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/semesters`"""
 
     query: None | CallbackQuery = None
@@ -43,7 +41,7 @@ async def department_list(
     url: str = f"{URLPREFIX}/{constants.DEPARTMENTS}"
 
     departments = queries.departments(session)
-    department_button_list = buttons.departments_list(
+    department_button_list = context.buttons.departments_list(
         departments,
         url=url,
         include_none_department=False,
@@ -51,7 +49,7 @@ async def department_list(
     keyboard = build_menu(
         department_button_list,
         1,
-        footer_buttons=buttons.add(url, "Department"),
+        footer_buttons=context.buttons.add(url, "Department"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -66,9 +64,7 @@ async def department_list(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def department(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def department(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     ^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)$
     """
@@ -82,11 +78,11 @@ async def department(
 
     keyboard = [
         [
-            buttons.edit(url, "Arabic Name", end=f"/{constants.AR}"),
-            buttons.edit(url, "English Name", end=f"/{constants.EN}"),
+            context.buttons.edit(url, "Arabic Name", end=f"/{constants.AR}"),
+            context.buttons.edit(url, "English Name", end=f"/{constants.EN}"),
         ],
-        [buttons.delete(url, "Department")],
-        [buttons.back(url, "/\d+")],
+        [context.buttons.delete(url, "Department")],
+        [context.buttons.back(url, "/\d+")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = messages.multilang_names(ar=department.ar_name, en=department.en_name)
@@ -98,7 +94,7 @@ async def department(
     return constants.ONE
 
 
-async def department_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def department_add(update: Update, context: CustomContext):
     """Runs on callback_data ^{URLPREFIX}/{constants.DEPARTMENTS}/({constants.ADD})$"""
     query = update.callback_query
     await query.answer()
@@ -112,9 +108,7 @@ async def department_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_name_new(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_new(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text matching
     `^(?P<en_name>(?:.)+?)\s*-\s*(?P<ar_name>(?:.)+?)$`
     """
@@ -127,7 +121,7 @@ async def receive_name_new(
 
     keyboard = [
         [
-            buttons.view_added(
+            context.buttons.view_added(
                 "Department",
                 absolute_url=f"{URLPREFIX}/{constants.DEPARTMENTS}/{department.id}",
             )
@@ -141,10 +135,7 @@ async def receive_name_new(
     return constants.ONE
 
 
-async def department_edit_name(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
-):
+async def department_edit_name(update: Update, context: CustomContext):
     """Runs on callback_data
     ^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)/{constants.EDIT}/
     (?P<lang_code>{constants.AR}|{constants.EN})$
@@ -168,9 +159,7 @@ async def department_edit_name(
 
 
 @session
-async def receive_name_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_edit(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text matching `^(.+)$`"""
 
     name = context.match.groups()[0].strip()
@@ -190,7 +179,9 @@ async def receive_name_edit(
 
     keyboard = [
         [
-            buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Department"),
+            context.buttons.back(
+                url, pattern=rf"/{constants.EDIT}.*", text="to Department"
+            ),
         ],
     ]
 
@@ -204,9 +195,7 @@ async def receive_name_edit(
 
 
 @session
-async def department_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def department_delete(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     ^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)
     /{constants.DELETE}(?:\?c=(?P<has_confirmed>1|0))?$
@@ -226,15 +215,15 @@ async def department_delete(
     message: str
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message = messages.delete_confirm(f"Department {department.en_name}")
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message = messages.delete_reconfirm(f"Department {department.en_name}")
     elif has_confirmed == "1":
         session.delete(department)
         menu_buttons = [
-            buttons.back(
+            context.buttons.back(
                 url, text="to Departments", pattern=rf"/\d+/{constants.DELETE}"
             )
         ]

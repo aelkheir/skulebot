@@ -5,9 +5,9 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, InputMedia, Update
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import Enrollment, File, HasNumber, Material, RefFilesMixin, SingleFile
 from src.models.material import __classes__, get_material_class
 from src.utils import build_media_group, session
@@ -24,7 +24,7 @@ TYPES = "|".join(
 @session
 async def send(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
     material_type: Optional[str] = None,
 ):
@@ -79,7 +79,7 @@ async def send(
 
 
 @session
-async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def receive(update: Update, context: CustomContext, session: Session):
     material_number = int(context.match.groups()[0])
 
     url = context.chat_data.get("url")
@@ -96,7 +96,7 @@ async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
 
         keyboard = [
             [
-                buttons.back(
+                context.buttons.back(
                     url,
                     pattern=rf"/{constants.EDIT}.*$",
                     text=f"to {material.type.capitalize()}",

@@ -6,9 +6,10 @@ from typing import List
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import SettingKey
 from src.utils import build_menu, get_setting_value, session, set_setting_value
 
@@ -23,9 +24,7 @@ def first_list_level(text: str):
 
 
 @session
-async def language(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-) -> None:
+async def language(update: Update, context: CustomContext, session: Session) -> None:
     "Runs on `^{URLPREFIX}/{LANGUAGE}$`"
 
     query = update.callback_query
@@ -34,11 +33,11 @@ async def language(
     lang_code = queries.user(session, context.user_data["id"]).language_code
 
     menu = [
-        buttons.arabic(
+        context.buttons.arabic(
             f"{url}/{constants.EDIT}?lang={constants.AR}",
             selected=lang_code == constants.AR,
         ),
-        buttons.english(
+        context.buttons.english(
             f"{url}/{constants.EDIT}?lang={constants.EN}",
             selected=lang_code == constants.EN,
         ),
@@ -46,7 +45,7 @@ async def language(
     keyboard = build_menu(
         menu,
         2,
-        footer_buttons=buttons.back(url, f"/{constants.LANGUAGE}"),
+        footer_buttons=context.buttons.back(url, f"/{constants.LANGUAGE}"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -59,7 +58,7 @@ async def language(
 
 @session
 async def edit_language(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs on callback_data
     `^{URLPREFIX}/{constants.LANGUAGE}/{constants.EDIT}
@@ -84,7 +83,7 @@ async def edit_language(
 
 @session
 async def notifications(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     "Runs on callback_data `^{URLPREFIX}/{NOTIFICATIONS}$`"
     query = update.callback_query
@@ -98,7 +97,7 @@ async def notifications(
             session, context.user_data["id"], notification_setting
         )
         menu.append(
-            buttons.notification_setting_item(
+            context.buttons.notification_setting_item(
                 notification_setting,
                 f"{url}/{constants.EDIT}?{notification_setting.name}={int(not value)}",
                 selected=bool(value),
@@ -107,8 +106,8 @@ async def notifications(
     keyboard = build_menu(
         menu,
         3,
-        header_buttons=buttons.disable_all(f"{url}/{constants.EDIT}?all=0"),
-        footer_buttons=buttons.back(url, f"/{constants.NOTIFICATIONS}"),
+        header_buttons=context.buttons.disable_all(f"{url}/{constants.EDIT}?all=0"),
+        footer_buttons=context.buttons.back(url, f"/{constants.NOTIFICATIONS}"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -121,7 +120,7 @@ async def notifications(
 
 @session
 async def edit_notification(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     "runs on ^{URLPREFIX}/{LANGUAGE}/{EDIT}(?:\?lang=(?P<lang>{AR}|{EN}))?$"
     query = update.callback_query

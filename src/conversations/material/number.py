@@ -2,9 +2,9 @@ import re
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import HasNumber, Material
 from src.models.material import __classes__
 from src.utils import session
@@ -18,7 +18,7 @@ TYPES = "|".join(
 )
 
 
-async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def edit(update: Update, context: CustomContext):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.EDIT}/{NUMBER}$`
@@ -37,7 +37,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def receive(update: Update, context: CustomContext, session: Session):
     material_number = int(context.match.groups()[0])
 
     url = context.chat_data.get("url")
@@ -54,7 +54,7 @@ async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
 
         keyboard = [
             [
-                buttons.back(
+                context.buttons.back(
                     url,
                     pattern=rf"/{constants.EDIT}.*$",
                     text=f"to {material.type.capitalize()}",

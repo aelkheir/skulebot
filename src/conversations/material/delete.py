@@ -4,9 +4,9 @@ from typing import List
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import HasNumber, Material
 from src.models.material import __classes__
 from src.utils import build_menu, session
@@ -21,7 +21,7 @@ TYPES = "|".join(
 
 
 @session
-async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def handler(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.DELETE}$`
@@ -45,19 +45,19 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
         + messages.material_message_text(context.match, session)
     )
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
+        menu_buttons = context.buttons.delete_group(url=url)
         message += "\n" + messages.delete_confirm(
             messages.material_title_text(context.match, material)
         )
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
         message += "\n" + messages.delete_reconfirm(
             messages.material_title_text(context.match, material)
         )
     elif has_confirmed == "1":
         session.delete(material)
         menu_buttons = [
-            buttons.back(
+            context.buttons.back(
                 url,
                 pattern=rf"/\d+/{constants.DELETE}",
                 text=f"to {material.type.capitalize()}s",

@@ -4,10 +4,11 @@ for an application."""
 import os
 
 from telegram import Update
-from telegram.ext import Application
+from telegram.ext import Application, ContextTypes
 
 from src import commands, conversations
 from src.config import Config, ProductionConfig
+from src.customcontext import CustomContext
 from src.errorhandler import error_handler
 from src.persistence import SQLPersistence
 from src.typehandler import typehandler
@@ -16,8 +17,13 @@ from src.typehandler import typehandler
 def create() -> Application:
     """Creates an instance of `telegram.ext.Application` and configures it."""
     persistence = SQLPersistence()
+    context_types = ContextTypes(context=CustomContext)
     return (
-        Application.builder().token(Config.BOT_TOKEN).persistence(persistence).build()
+        Application.builder()
+        .token(Config.BOT_TOKEN)
+        .context_types(context_types)
+        .persistence(persistence)
+        .build()
     )
 
 

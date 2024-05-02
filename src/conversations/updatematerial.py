@@ -5,15 +5,11 @@ import re
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandler
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
 from src.conversations.material import material
+from src.customcontext import CustomContext
 from src.models import MaterialType, RoleName, UserOptionalCourse
 from src.utils import build_menu, roles, session
 
@@ -58,9 +54,7 @@ def title(match: re.Match, session: Session):
 
 @roles(RoleName.EDITOR)
 @session
-async def update_materials(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def update_materials(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `updatematerials`"""
 
     query: None | CallbackQuery = None
@@ -84,7 +78,7 @@ async def update_materials(
     )
 
     url = f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         user_courses,
         url=url,
     )
@@ -94,7 +88,7 @@ async def update_materials(
         semester_id=enrollment.semester.id,
     )
     menu = (
-        [*menu, buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
+        [*menu, context.buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
         if has_optional_courses
         else menu
     )
@@ -113,7 +107,7 @@ async def update_materials(
 
 
 @session
-async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def course(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data `^{PREFIXES}`
     """
@@ -123,8 +117,8 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
 
     url = context.match.group()
 
-    keyboard = buttons.material_groups(url=url, groups=list(MaterialType))
-    keyboard.append([buttons.back(url, "/(\d+)$")])
+    keyboard = context.buttons.material_groups(url=url, groups=list(MaterialType))
+    keyboard.append([context.buttons.back(url, "/(\d+)$")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
@@ -141,9 +135,7 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
 
 
 @session
-async def optional_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def optional_list(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `({constants.UPDATE_MATERIALS_}|{constants.EDITOR_})/{constants.ENROLLMENTS}
     /(?P<enrollment_id>\d+)/{constants.COURSES}/{constants.OPTIONAL}
@@ -198,7 +190,7 @@ async def optional_list(
     selected_ids = [
         optional.program_semester_course_id for optional in user_optional_courses
     ]
-    menu = buttons.program_semester_courses_list(
+    menu = context.buttons.program_semester_courses_list(
         program_optional_courses,
         url=url,
         sep="?psc_id=",
@@ -206,7 +198,7 @@ async def optional_list(
         selected_ids=selected_ids,
     )
     menu += [
-        buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
+        context.buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
     ]
 
     keyboard = build_menu(menu, 1)

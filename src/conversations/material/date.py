@@ -3,16 +3,16 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import Review
 from src.utils import session
 
 TYPES = Review.__mapper_args__.get("polymorphic_identity")
 
 
-async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def edit(update: Update, context: CustomContext):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.EDIT}/{NUMBER}$`
@@ -31,7 +31,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def receive(update: Update, context: CustomContext, session: Session):
     url = context.chat_data.get("url")
     match: re.Match[str] | None = re.search(
         f"/(?P<material_type>{TYPES})/(?P<material_id>\d+)"
@@ -42,7 +42,7 @@ async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
     material_id = int(match.group("material_id"))
     material = session.get(Review, material_id)
     try:
-        keyboard = [[buttons.back(url, rf"/{constants.EDIT}.*$", "to Review")]]
+        keyboard = [[context.buttons.back(url, rf"/{constants.EDIT}.*$", "to Review")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if update.message.text == "/empty":

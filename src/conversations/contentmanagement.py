@@ -1,15 +1,11 @@
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandler
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
 from src.conversations.updatematerial import updatematerials_
+from src.customcontext import CustomContext
 from src.models import RoleName
 from src.utils import build_menu, roles, session
 
@@ -21,9 +17,7 @@ URLPREFIX = constants.CONETENT_MANAGEMENT_
 
 @roles(RoleName.ROOT)
 @session
-async def program_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def program_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `contentmanagement`"""
 
     query: None | CallbackQuery = None
@@ -35,7 +29,7 @@ async def program_list(
     url = f"{URLPREFIX}/{constants.PROGRAMS}"
 
     programs = queries.programs(session)
-    menu = buttons.programs_list(programs, url)
+    menu = context.buttons.programs_list(programs, url)
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -53,7 +47,7 @@ async def program_list(
 # -------------------------- states callbacks ---------------------------
 @session
 async def program_semester_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs on callback_data ^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\\d+)$"""
 
@@ -65,8 +59,8 @@ async def program_semester_list(
     program = queries.program(session, program_id)
     semesters = queries.semesters(session, program_id)
 
-    menu = buttons.semester_list(semesters, url + f"/{constants.SEMESTERS}")
-    keyboard = build_menu(menu, 2, footer_buttons=buttons.back(url, r"/\d+"))
+    menu = context.buttons.semester_list(semesters, url + f"/{constants.SEMESTERS}")
+    keyboard = build_menu(menu, 2, footer_buttons=context.buttons.back(url, r"/\d+"))
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = "<u>Content Management</u>\n\n" + program.get_name()
@@ -79,7 +73,7 @@ async def program_semester_list(
 
 @session
 async def semester_course_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)/{constants.SEMESTERS}/(?P<semester_id>\d+)$`
@@ -97,13 +91,13 @@ async def semester_course_list(
     courses = queries.program_semester_courses(
         session, program_id=program_id, semester_id=semester_id
     )
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         [psc.course for psc in courses],
         f"{url}/{constants.COURSES}",
         end=f"/{constants.ACADEMICYEARS}",
     )
     keyboard = build_menu(
-        menu, 1, footer_buttons=buttons.back(url, rf"/{constants.SEMESTERS}.*")
+        menu, 1, footer_buttons=context.buttons.back(url, rf"/{constants.SEMESTERS}.*")
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -120,9 +114,7 @@ async def semester_course_list(
 
 
 @session
-async def course_year_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def course_year_list(update: Update, context: CustomContext, session: Session):
     """^{URLPREFIX}/{constants.PROGRAMS}/(?P<program_id>\d+)
     /{constants.SEMESTERS}/(?P<semester_id>\d+)
     /{constants.COURSES}/(?P<course_id>\d+)/{constants.ACADEMICYEARS}$
@@ -139,9 +131,9 @@ async def course_year_list(
     course = queries.course(session, course_id)
 
     academic_years = queries.academic_years(session)
-    menu = buttons.years_list(academic_years, url)
+    menu = context.buttons.years_list(academic_years, url)
     keyboard = build_menu(menu, 2)
-    keyboard.extend([[buttons.back(url, rf"/{constants.COURSES}.*")]])
+    keyboard.extend([[context.buttons.back(url, rf"/{constants.COURSES}.*")]])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = (

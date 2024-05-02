@@ -4,9 +4,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages
+from src.customcontext import CustomContext
 from src.models import Assignment
 from src.utils import session
 
@@ -14,7 +14,7 @@ TYPES = Assignment.__mapper_args__.get("polymorphic_identity")
 
 
 @session
-async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def edit(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data
     `^{URLPREFIX}/{COURSES}/(\d+)/{ASSIGNMENTS}/(\d+)
@@ -36,7 +36,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
 
     context.chat_data["url"] = context.match.group()
 
-    picker = buttons.datepicker(context.match, selected=deadline)
+    picker = context.buttons.datepicker(context.match, selected=deadline)
     date_time: datetime = picker.date_time
 
     if date_time:
@@ -48,7 +48,9 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
         await query.message.reply_text(message, parse_mode=ParseMode.HTML)
         return f"{constants.EDIT} {constants.DEADLINE}"
     keyboard = picker.keyboard
-    keyboard += [[buttons.back(path, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]]
+    keyboard += [
+        [context.buttons.back(path, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
         messages.title(context.match, session)
@@ -64,9 +66,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Sess
 
 
 @session
-async def receive_time(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_time(update: Update, context: CustomContext, session: Session):
     url = context.chat_data.get("url")
     match: re.Match[str] | None = re.search(
         f"/(?P<material_id>\d+)/{constants.EDIT}"
@@ -78,7 +78,7 @@ async def receive_time(
     material_id = int(match.group("material_id"))
     material = session.get(Assignment, material_id)
 
-    keyboard = [[buttons.back(url, f"/{constants.EDIT}/.*", "to Assignment")]]
+    keyboard = [[context.buttons.back(url, f"/{constants.EDIT}/.*", "to Assignment")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if update.message.text == "/empty":
