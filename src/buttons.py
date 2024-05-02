@@ -8,7 +8,7 @@ from telegram import InlineKeyboardButton
 from telegram.ext import ContextTypes
 
 from src import constants
-from src.constants import LEVELS
+from src.constants import LEVELS, get_level_name
 from src.models import (
     AcademicYear,
     AccessRequest,
@@ -28,7 +28,7 @@ from src.models import (
     SingleFile,
     Status,
 )
-from src.models.material import REVIEW_TYPES
+from src.models.material import REVIEW_TYPES, get_review_type_name
 from src.utils import build_menu
 
 calendar.setfirstweekday(6)
@@ -236,7 +236,7 @@ class Buttons:
             semester = program_semester.semester
             if semester.number % 2 == 1 and program_semester.available:
                 level = semester.number // 2 + (semester.number % 2)
-                text = LEVELS[level]["en_name"]
+                text = get_level_name(LEVELS[level], self._language_code)
                 buttons.append(
                     InlineKeyboardButton(
                         f"{text}",
@@ -271,7 +271,8 @@ class Buttons:
         """
         buttons = [
             InlineKeyboardButton(
-                department.get_name() + (" ✅" if department.id == selected_id else ""),
+                department.get_name(self._language_code)
+                + (" ✅" if department.id == selected_id else ""),
                 callback_data=f"{url}{sep}{department.id}",
             )
             for department in departments
@@ -310,7 +311,8 @@ class Buttons:
         """
         return [
             InlineKeyboardButton(
-                program.get_name() + (" ✅" if program.id == selected_id else ""),
+                program.get_name(self._language_code)
+                + (" ✅" if program.id == selected_id else ""),
                 callback_data=f"{url}{sep}{program.id}",
             )
             for program in programs
@@ -365,7 +367,7 @@ class Buttons:
         """
         return [
             InlineKeyboardButton(
-                course.get_name()
+                course.get_name(self._language_code)
                 + (" ✅" if selected_ids and course.id in selected_ids else ""),
                 callback_data=f"{url}{sep}{course.id}{end}",
             )
@@ -402,7 +404,7 @@ class Buttons:
                     if course.id in course_semester
                     else ""
                 )
-                + f"{course.get_name()}",
+                + f"{course.get_name(self._language_code)}",
                 callback_data=f"{url}{sep}{course.id}",
             )
             for course in courses
@@ -441,7 +443,7 @@ class Buttons:
             end_ = end(psc) if end and callable(end) else end
             buttons.append(
                 InlineKeyboardButton(
-                    psc.course.get_name()
+                    psc.course.get_name(self._language_code)
                     + (" ✅" if selected_ids and psc.id in selected_ids else ""),
                     callback_data=f"{url}{sep}{psc.id}{end_}",
                 )
@@ -481,7 +483,7 @@ class Buttons:
         elif isinstance(material, SingleFile):
             text = material.file.name
         elif isinstance(material, Review):
-            text = material.get_name() + (
+            text = material.get_name(self._language_code) + (
                 " " + str(d.year) if (d := material.date) else ""
             )
         return InlineKeyboardButton(
@@ -707,7 +709,7 @@ class Buttons:
     def review_types(self, url: str):
         return [
             InlineKeyboardButton(
-                t["en_name"],
+                get_review_type_name(t, self._language_code),
                 callback_data=f"{url}?t={key}",
             )
             for key, t in REVIEW_TYPES.items()

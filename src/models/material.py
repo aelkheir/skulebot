@@ -7,6 +7,7 @@ from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from telegram.constants import InputMediaType
 
+from src import constants
 from src.enum import StringEnum
 
 from .base import Base
@@ -173,8 +174,16 @@ REVIEW_TYPES = {
     "final": {"en_name": "Final", "ar_name": "نهائي"},
     "midterm": {"en_name": "Midterm", "ar_name": "نصفي"},
     "test": {"en_name": "Test", "ar_name": "اختبار"},
-    "quiz": {"en_name": "Quiz", "ar_name": "اختبار قصير"},
+    "quiz": {"en_name": "Quiz", "ar_name": "كويز"},
 }
+
+
+def get_review_type_name(review_type: dict, language_code: str):
+    return (
+        review_type["ar_name"]
+        if language_code == constants.AR
+        else review_type["en_name"]
+    )
 
 
 class Review(HasId, Material, RefFilesMixin):
@@ -189,8 +198,8 @@ class Review(HasId, Material, RefFilesMixin):
         Date, nullable=True, default=None, sort_order=997
     )
 
-    def get_name(self):
-        return self.en_name or self.ar_name
+    def get_name(self, language_code: str):
+        return self.ar_name if language_code == constants.AR else self.en_name
 
     __mapper_args__: ClassVar[dict[str, MaterialType]] = {
         "polymorphic_identity": MaterialType.REVIEW

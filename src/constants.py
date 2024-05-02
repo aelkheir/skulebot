@@ -53,9 +53,13 @@ SETTINGS_ = "stg"
 NOTIFICATION_ = "ntf"
 
 LEVELS = {
-    1: {"en_name": "First Year", "ar": ""},
-    2: {"en_name": "Second Year", "ar": ""},
-    3: {"en_name": "Third Year", "ar": ""},
-    4: {"en_name": "Fourth Year", "ar": ""},
-    5: {"en_name": "Fifth Year", "ar": ""},
+    1: {"en_name": "First Year", "ar_name": "المستوى الأولى"},
+    2: {"en_name": "Second Year", "ar_name": "المستوى الثاني"},
+    3: {"en_name": "Third Year", "ar_name": "المستوى الثالث"},
+    4: {"en_name": "Fourth Year", "ar_name": "المستوى الرابع"},
+    5: {"en_name": "Fifth Year", "ar_name": "المستوى الخامس"},
 }
+
+
+def get_level_name(level: dict, language_code: str):
+    return level["ar_name"] if language_code == AR else level["en_name"]

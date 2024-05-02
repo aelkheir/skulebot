@@ -2,6 +2,8 @@ from sqlalchemy import Boolean, Integer, String
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src import constants
+
 from .base import Base
 from .program_semester import ProgramSemester
 from .semester import Semester
@@ -30,8 +32,8 @@ class Program(Base):
         init=False,
     )
 
-    def get_name(self):
-        return self.en_name or self.ar_name
+    def get_name(self, language_code: str):
+        return self.ar_name if language_code == constants.AR else self.en_name
 
     def __repr__(self) -> str:
         return (

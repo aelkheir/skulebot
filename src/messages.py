@@ -187,7 +187,7 @@ def title(match: re.Match, session: Session):
         year = session.get(AcademicYear, year_id)
         text += (
             "\n\n"
-            + program.get_name()
+            + program.get_name(constants.EN)
             + "\n"
             + f"Semester {semester.number}"
             + "\n"
@@ -200,7 +200,7 @@ def title(match: re.Match, session: Session):
 def course_text(match: re.Match, session: Session):
     course_id = int(match.group("course_id"))
     course = session.get(Course, course_id)
-    return first_list_level(course.get_name())
+    return first_list_level(course.get_name(constants.EN))
 
 
 def material_type_text(match: re.Match):
@@ -242,7 +242,7 @@ def material_message_text(
         )
     elif isinstance(material, Review):
         text = (
-            material.get_name()
+            material.get_name(constants.EN)
             + (" " + str(d.year) if (d := material.date) else "")
             + (f" (Published: {material.published})" if not user_mode(url) else "")
         )
@@ -264,7 +264,7 @@ def material_title_text(match: re.Match, material: Material):
         return (
             m_type.capitalize()
             + " "
-            + str(material.get_name())
+            + str(material.get_name(constants.EN))
             + (" " + str(d.year) if (d := material.date) else "")
         )
     return None
