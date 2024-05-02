@@ -65,7 +65,7 @@ async def list_accesses(
     if most_recent_enrollment not in [r.enrollment for r in requests]:
         buttons_list.insert(
             0,
-            context.buttons._new_access_request(
+            context.buttons.new_access_request(
                 most_recent_enrollment,
                 url=f"{URLPREFIX}/{constants.ENROLLMENTS}"
                 f"/{most_recent_enrollment.id}/{constants.ADD}",

@@ -33,7 +33,7 @@ async def list_enrollments(
     menu = []
     if most_recent_year and most_recent_enrollment_year != most_recent_year:
         menu.append(
-            context.buttons._(
+            context.buttons.new_enrollment(
                 most_recent_year,
                 f"{URLPREFIX}/{constants.ENROLLMENTS}"
                 f"/{constants.ADD}?year_id={most_recent_year.id}",
