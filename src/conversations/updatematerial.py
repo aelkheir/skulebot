@@ -95,7 +95,7 @@ async def update_materials(update: Update, context: CustomContext, session: Sess
     keyboard = build_menu(menu, 1)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "<u>Editor Menu</u>\n\n" + messages.enrollment_text(
+    message = messages.editor_menu() + messages.enrollment_text(
         context.match, session, enrollment=enrollment
     )
     if query:
@@ -203,9 +203,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = (
-        "These courses are optional. Select one or more to add to your /courses menu"
-    )
+    message = messages.select_optionals()
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )

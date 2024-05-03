@@ -29,11 +29,6 @@ STATEADD = f"{constants.PROGRAM_} {constants.ADD}"
 STATEEDIT = f"{constants.PROGRAM_} {constants.EDIT}"
 
 
-# helperes
-def carriculam_title():
-    return "Carriculam\n\n"
-
-
 # ------------------------------- entry_points ---------------------------
 
 
@@ -63,7 +58,7 @@ async def program_list(update: Update, context: CustomContext, session: Session)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "Programs"
+    message = messages.programs()
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
     else:
@@ -195,7 +190,9 @@ async def program_semester_list(
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = carriculam_title() + messages.first_list_level(program.en_name)
+    message = f"{messages.carriculam()}\n\n" + messages.first_list_level(
+        messages.localized_name(program)
+    )
     await query.edit_message_text(message, reply_markup=reply_markup)
 
     return STATEONE
@@ -250,10 +247,10 @@ async def semester_course_list(
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = (
-        carriculam_title()
-        + messages.first_list_level(program.en_name)
+        f"{messages.carriculam()}\n\n"
+        + messages.first_list_level(messages.localized_name(program))
         + messages.second_list_level(
-            f"Semester {semester.number}" + (" ✅" if available else "")
+            f"{messages.semester()} {semester.number}" + (" ✅" if available else "")
         )
     )
     await query.edit_message_text(message, reply_markup=reply_markup)
@@ -331,12 +328,11 @@ async def program_course(update: Update, context: CustomContext, session: Sessio
     psc = queries.program_semester_course(session, course_id)
     optional = bool(int(o)) if (o := context.match.group("optional")) else None
     if optional is not None and optional == psc.optional:
-        await query.answer("Success! Course is set to optional")
+        await query.answer(messages.success())
         return STATEONE
     if optional is not None and optional != psc.optional:
         psc.optional = optional
-        text = "optinoal" if optional else "required"
-        await query.answer(f"Success! Course is set to {text}")
+        await query.answer(messages.success())
 
     await query.answer()
 
@@ -367,12 +363,12 @@ async def program_course(update: Update, context: CustomContext, session: Sessio
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
-        carriculam_title()
-        + messages.first_list_level(program.en_name)
+        f"{messages.carriculam()}\n\n"
+        + messages.first_list_level(messages.localized_name(program))
         + messages.second_list_level(
-            f"Semester {semester.number}" + (" ✅" if available else "")
+            f"{messages.semester()} {semester.number}" + (" ✅" if available else "")
         )
-        + messages.third_list_level(course.get_name())
+        + messages.third_list_level(messages.localized_name(course))
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -407,7 +403,9 @@ async def course_semester_edit(
     old_semester = queries.semester(session, semester_id)
     course = queries.program_semester_course(session, course_id).course
 
-    message = carriculam_title() + messages.first_list_level(program.get_name())
+    message = f"{messages.carriculam()}\n\n" + messages.first_list_level(
+        messages.localized_name(program)
+    )
     if s_id is None:
         semesters = queries.semesters(session, program_id=program_id)
         semester_buttons = context.buttons.semester_list(
@@ -415,8 +413,8 @@ async def course_semester_edit(
         )
         message += (
             messages.second_list_level(f"Semester {old_semester.number}")
-            + messages.third_list_level(course.get_name())
-            + "\nSelect semester"
+            + messages.third_list_level(messages.localized_name(course))
+            + f"\n{messages.select('semester')}"
         )
         keyboard = build_menu(
             semester_buttons,
@@ -430,8 +428,8 @@ async def course_semester_edit(
         psc.semester_id = s_id
         new_semester = queries.semester(session, s_id)
         message += (
-            messages.second_list_level(f"Semester {new_semester.number}")
-            + messages.third_list_level(course.get_name())
+            messages.second_list_level(f"{messages.semester()} {new_semester.number}")
+            + messages.third_list_level(messages.localized_name(course))
             + f"\n{messages.success_updated('Course semester')}"
         )
         course_url = url.replace(
@@ -481,7 +479,7 @@ async def program_course_unlink(
 
     course = psc.course
 
-    await query.answer(messages.success_unlinked(course.get_name()))
+    await query.answer(messages.success_unlinked(messages.localized_name(course)))
     return await semester_course_list.__wrapped__(update, context, session)
 
 
@@ -511,9 +509,9 @@ async def course_link(update: Update, context: CustomContext, session: Session):
     keyboard: List
     message: str
     message = (
-        carriculam_title()
-        + messages.first_list_level(program.en_name)
-        + messages.second_list_level(f"Semester {semester.number}")
+        f"{messages.carriculam()}\n\n"
+        + messages.first_list_level(messages.localized_name(program))
+        + messages.second_list_level(f"{messages.semester()} {semester.number}")
     )
 
     if d_id is None:
@@ -526,7 +524,7 @@ async def course_link(update: Update, context: CustomContext, session: Session):
             context.buttons.back(url, f"/{constants.ADD}"),
         ]
         keyboard = build_menu(menu, 1)
-        message += "\nSelect course"
+        message += f"\n{messages.select('course')}"
     if d_id is not None and c_id is None:
         await query.answer()
         offset = int(page) if page else 0
@@ -563,7 +561,7 @@ async def course_link(update: Update, context: CustomContext, session: Session):
                     )
                 )
         keyboard.extend([[context.buttons.back(url, pattern="\?.*")]])
-        message += "\nSelect course"
+        message += f"\n{messages.select('course')}"
     if c_id:
         course = queries.course(session, c_id)
         psc = queries.program_semester_course(
@@ -578,13 +576,13 @@ async def course_link(update: Update, context: CustomContext, session: Session):
                 optional=False,
             )
             session.add(psc)
-            await query.answer(messages.success_linked(course.get_name()))
+            await query.answer(messages.success_linked(messages.localized_name(course)))
             return await semester_course_list.__wrapped__(update, context, session)
         if psc and psc.semester.number == semester.number:
             await query.answer("Course is already present")
             return STATEONE
         if psc and psc.semester.number != semester.number and should_update != "1":
-            message += f"\nCourse is already linked in Semester {psc.semester.number}"
+            message += f"\n{messages.already_linked()} {psc.semester.number}"
             keyboard = [
                 [
                     context.buttons.update_to_semester(
@@ -595,7 +593,7 @@ async def course_link(update: Update, context: CustomContext, session: Session):
             ]
         else:
             psc.semester_id = semester_id
-            await query.answer(messages.success_linked(course.get_name()))
+            await query.answer(messages.success_linked(messages.localized_name(course)))
             return await semester_course_list.__wrapped__(update, context, session)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -662,10 +660,12 @@ async def program_delete(update: Update, context: CustomContext, session: Sessio
     message: str
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Program {program.en_name}")
+        message = messages.delete_confirm(f"Program {messages.localized_name(program)}")
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Program {program.en_name}")
+        message = messages.delete_reconfirm(
+            f"Program {messages.localized_name(program)}"
+        )
     elif has_confirmed == "1":
         session.delete(program)
         menu_buttons = [
@@ -673,7 +673,9 @@ async def program_delete(update: Update, context: CustomContext, session: Sessio
                 url, text="to Programs", pattern=rf"/\d+/{constants.DELETE}"
             )
         ]
-        message = messages.success_deleted(f"Program {program.en_name}")
+        message = messages.success_deleted(
+            f"Program {messages.localized_name(program)}"
+        )
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)

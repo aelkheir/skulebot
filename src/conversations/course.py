@@ -36,6 +36,7 @@ async def course(update: Update, context: CustomContext, session: Session):
     material_groups = queries.course_material_types(
         session, course_id=course_id, year_id=enrollment.academic_year_id
     )
+    course = queries.course(session, course_id)
 
     lectures = (
         queries.lectures(
@@ -60,7 +61,7 @@ async def course(update: Update, context: CustomContext, session: Session):
     message = (
         messages.title(context.match, session)
         + "\n"
-        + messages.course_text(context.match, session)
+        + messages.first_list_level(messages.localized_name(course))
     )
 
     await query.edit_message_text(
@@ -102,7 +103,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
                 ),
             )
             session.add(user_course)
-            await query.answer("Course added")
+            await query.answer(messages.success_added("course"))
         elif not selected:
             user_course = queries.user_optional_course(
                 session,
@@ -110,7 +111,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
                 programs_semester_course_id=psc_id,
             )
             session.delete(user_course)
-            await query.answer("Course removed")
+            await query.answer(messages.success_deleted("course"))
 
     await query.answer()
     enrollment_id = context.match.group("enrollment_id")
@@ -141,9 +142,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = (
-        "These courses are optional. Select one or more to add to your /courses menu"
-    )
+    message = messages.select_optionals()
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )

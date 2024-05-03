@@ -44,10 +44,7 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
         request.status = Status.GRANTED
         await context.bot.send_message(
             user.chat_id,
-            (
-                "Congratulations 🎉! Now you have access to update materials. "
-                "We appreciate your contributions."
-            ),
+            messages.access_granted(),
         )
         if len(granted_accessess) == 0:
             user.roles.append(queries.role(session, RoleName.EDITOR))
@@ -57,20 +54,14 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
             )
         await context.bot.send_message(
             user.chat_id,
-            "Here is your updated list of commands\n"
-            f"{'\n'.join(help_message.splitlines()[1:])}",
+            messages.updated_commands() + f"{'\n'.join(help_message.splitlines()[1:])}",
             parse_mode=ParseMode.HTML,
         )
     if action == Status.REJECTED:
         session.delete(request)
         request.status = Status(action)
     chat = await context.bot.get_chat(request.enrollment.user.chat_id)
-    mention = chat.mention_html(chat.full_name or "User")
-    message = (
-        f"Success! {request.status.capitalize()} "
-        f"Editor Access to {mention} for\n\n"
-        f"{messages.enrollment_text(enrollment=request.enrollment)}"
-    )
+    message = messages.successfull_request_action(request, chat)
     keyboard = [
         [
             context.buttons.back(
@@ -105,12 +96,7 @@ async def request(update: Update, context: CustomContext, session: Session):
     if request.status != Status.PENDING:
         return constants.ONE
     chat = await context.bot.get_chat(request.enrollment.user.chat_id)
-    mention = chat.mention_html(chat.full_name or "User")
-    caption = (
-        f"Editor Access re-Request: {mention}\n\n"
-        f"{chat.full_name} is requesting editor access for\n"
-        f"{messages.enrollment_text(enrollment=request.enrollment)}"
-    )
+    caption = messages.new_request(request, chat)
     keyboard = [
         [
             context.buttons.grant_access(f"{url}?action={Status.GRANTED}"),

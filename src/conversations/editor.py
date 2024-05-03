@@ -47,7 +47,7 @@ async def list_accesses(
     keyboard = []
     if len(user.enrollments) == 0:
         return None
-    message = "Editor Accesses"
+    message = messages.editor_accesses()
     requests = queries.user_access_requests(
         session,
         user_id=context.user_data["id"],
@@ -73,7 +73,6 @@ async def list_accesses(
         )
     keyboard = build_menu(buttons_list, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Editor Accesses"
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -97,22 +96,13 @@ async def access_add(update: Update, context: CustomContext, session: Session) -
     keyboard = []
     enrollment_text = messages.enrollment_text(context.match, session)
 
-    message = enrollment_text + (
-        "\nThanks for helping update course materials!\n\n"
-        "In order to give you access over content we need to verify that you're"
-        " actually enrolled in this program, or at least that you are a student at our"
-        " faculty.\n\n"
-        "To do that there are two options. You could either send us <i>any</i> document"
-        " that proves this. Or if you don't have any, please reach out to support.\n\n"
-        "Your contribution is truly appreciated!"
-    )
+    message = enrollment_text + messages.new_editor_instructions()
     keyboard = [
         [
             context.buttons.submit_proof(url=f"{url}/{constants.ID}"),
             context.buttons.contact_support(
                 url="https://t.me/skulebotsupport"
-                "?text=Hi! I'd like to have access and"
-                f" upload materials in\n\n{enrollment_text}",
+                "?text=" + messages.new_editor_introduction(enrollment_text)
             ),
         ],
     ]
@@ -135,7 +125,7 @@ async def send_id(update: Update, context: CustomContext) -> None:
     await query.answer()
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
-    message = "Alright. send me your id (photo)"
+    message = messages.send_editor_proof()
     await query.message.reply_text(message)
     return constants.ADD
 
@@ -168,12 +158,7 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
     )
     session.add(request)
 
-    mention = user.mention_html(user.full_name or "User")
-    caption = (
-        f"Editor Access Request: {mention}\n\n"
-        f"{user.full_name} is requesting editor access for\n"
-        f"{messages.enrollment_text(match, session, enrollment=enrollment)}"
-    )
+    caption = messages.new_request(request, chat=user)
     url = f"{constants.REQUEST_MANAGEMENT_}/{constants.ACCESSREQUSTS}/{request.id}"
     keyboard = [
         [
@@ -191,11 +176,7 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
             parse_mode=ParseMode.HTML,
         )
 
-    message = (
-        "Thanks for taking the time."
-        " We have recieved your request and will get back to you soon.\n\n"
-        "Meanwhile your can check your request status in /editor."
-    )
+    message = messages.request_received()
     await update.message.reply_text(message)
 
 
@@ -217,7 +198,7 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
 
     if request.status == Status.PENDING:
         message = messages.enrollment_text(enrollment=enrollment)
-        message += "\nYou're request is pending. We'll get back to you soon. Thanks"
+        message += messages.is_pending()
         keyboard = [[context.buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
@@ -284,7 +265,7 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "<u>Editor Access</u>\n\n" + messages.enrollment_text(
+    message = f"<u>{messages.editor_accesses()}</u>\n\n" + messages.enrollment_text(
         enrollment=request.enrollment
     )
 

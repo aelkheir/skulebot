@@ -1,7 +1,8 @@
 import re
-from typing import Optional, Sequence, Set
+from typing import Optional, Sequence, Set, Union
 
 from sqlalchemy.orm import Session
+from telegram import Chat, User
 from telegram.constants import InputMediaType
 
 from src import constants
@@ -21,7 +22,169 @@ from src.models import (
     Semester,
     SingleFile,
 )
+from src.models.access_request import AccessRequest
+from src.models.department import Department
 from src.utils import user_mode
+
+
+def your_enrollments():
+    return "Your enrollments"
+
+
+def courses():
+    return "courses"
+
+
+def departments():
+    return "Departments"
+
+
+def success():
+    return "Success!"
+
+
+def course_management():
+    return "Course Management"
+
+
+def programs():
+    return "Programs"
+
+
+def carriculam():
+    return "Carriculam"
+
+
+def already_linked():
+    return "Course is already linked in Semester"
+
+
+def academic_years():
+    return "Academic years"
+
+
+def year():
+    return "year"
+
+
+def none_department():
+    return "N/A department"
+
+
+def no_editor():
+    return (
+        "\n\n[there is no one with upload access for this program,"
+        " you can become one here /editor.]"
+    )
+
+
+def editor_menu():
+    return "<u>Editor Menu</u>\n\n"
+
+
+def select_optionals():
+    return "These courses are optional. Select one or more to add to your /courses menu"
+
+
+def semesters():
+    return "Semesters"
+
+
+def semester():
+    return "Semester"
+
+
+def editor_accesses():
+    return "Editor Accesses"
+
+
+def content_management():
+    return "Content Management"
+
+
+def new_editor_introduction(enrollment_text: str):
+    return f"Hi! I'd like to have access and upload materials in\n\n{enrollment_text}"
+
+
+def send_editor_proof():
+    return "Alright. send me your id (photo)"
+
+
+def is_pending():
+    return "\nYou're request is pending. We'll get back to you soon. Thanks"
+
+
+def new_editor_instructions():
+    return (
+        "\nThanks for helping update course materials!\n\n"
+        "In order to give you access over content we need to verify that you're"
+        " actually enrolled in this program, or at least that you are a student at our"
+        " faculty.\n\n"
+        "To do that there are two options. You could either send us <i>any</i> document"
+        " that proves this. Or if you don't have any, please reach out to support.\n\n"
+        "Your contribution is truly appreciated!"
+    )
+
+
+def number():
+    return "Number"
+
+
+def credits():
+    return "Credits"
+
+
+def empty_current(text: str):
+    return f"Type /empty to remove current {text}"
+
+
+def select(text: str):
+    return f"Select {text}"
+
+
+def already_enrolled(text: str):
+    return "Oops, seems like you are already enrolled."
+
+
+def pending_requests():
+    return "Pending Access Requests"
+
+
+def new_request(request: AccessRequest, chat: Union[Chat, User]):
+    mention = chat.mention_html(chat.full_name or "User")
+    return (
+        f"Editor Access re-Request: {mention}\n\n"
+        f"{chat.full_name} is requesting editor access for\n"
+        f"{enrollment_text(enrollment=request.enrollment)}"
+    )
+
+
+def request_received():
+    return (
+        "Thanks for taking the time."
+        " We have recieved your request and will get back to you soon.\n\n"
+        "Meanwhile your can check your request status in /editor."
+    )
+
+
+def successfull_request_action(request: AccessRequest, chat: Chat):
+    mention = chat.mention_html(chat.full_name or "User")
+    return (
+        f"Success! {request.status.capitalize()} "
+        f"Editor Access to {mention} for\n\n"
+        f"{enrollment_text(enrollment=request.enrollment)}"
+    )
+
+
+def access_granted():
+    return (
+        "Congratulations 🎉! Now you have access to update materials. "
+        "We appreciate your contributions."
+    )
+
+
+def updated_commands():
+    return "Here is your updated list of commands\n"
 
 
 def first_list_level(text: str):
@@ -195,6 +358,21 @@ def title(match: re.Match, session: Session):
             + "\n"
         )
     return text
+
+
+def course_name(course: Course):
+    return course.en_name if True else course.ar_name
+
+
+def localized_name(model: Union[Course, Department, Program]):
+    for local_name in ["ar_name", "en_name"]:
+        if not hasattr(model, local_name):
+            raise ValueError(
+                f"cannot get localized name for object {model}. "
+                f"object is missing attribute {local_name}"
+            )
+
+    return model.en_name if True else model.ar_name
 
 
 def course_text(match: re.Match, session: Session):

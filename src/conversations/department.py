@@ -53,7 +53,7 @@ async def department_list(update: Update, context: CustomContext, session: Sessi
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "Departments"
+    message = messages.departments()
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
     else:
@@ -216,10 +216,14 @@ async def department_delete(update: Update, context: CustomContext, session: Ses
 
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Department {department.en_name}")
+        message = messages.delete_confirm(
+            f"Department {messages.localized_name(department)}"
+        )
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Department {department.en_name}")
+        message = messages.delete_reconfirm(
+            f"Department {messages.localized_name(department)}"
+        )
     elif has_confirmed == "1":
         session.delete(department)
         menu_buttons = [
@@ -227,7 +231,9 @@ async def department_delete(update: Update, context: CustomContext, session: Ses
                 url, text="to Departments", pattern=rf"/\d+/{constants.DELETE}"
             )
         ]
-        message = messages.success_deleted(f"Department {department.en_name}")
+        message = messages.success_deleted(
+            f"Department {messages.localized_name(department)}"
+        )
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)

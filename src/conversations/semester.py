@@ -49,7 +49,7 @@ async def semester_list(update: Update, context: CustomContext, session: Session
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Semesters"
+    message = messages.semesters()
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -80,14 +80,14 @@ async def semester(update: Update, context: CustomContext, session: Session):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = f"*Number*: {semester.number}"
+    message = "<b>" + messages.number() + "<\b>" + f": {semester.number}"
 
     if query:
         await query.edit_message_text(
-            message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN_V2
+            message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
         )
     else:
-        await update.message.reply_markdown_v2(message, reply_markup=reply_markup)
+        await update.message.reply_html(message, reply_markup=reply_markup)
 
     return ONE
 

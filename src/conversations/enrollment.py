@@ -43,7 +43,7 @@ async def enrollments_add(
 
     message: str
     if program_id is None:
-        message = "Select program"
+        message = messages.select("program")
         programs = queries.programs(session)
         menu = build_menu(
             context.buttons.programs_list(programs, url, sep="&program_id="),
@@ -57,7 +57,7 @@ async def enrollments_add(
         )
         return constants.ONE
     if program_semester_id is None:
-        message = "Select level"
+        message = messages.select("level")
         program_semesters = queries.program_semesters(session, program_id)
         menu = build_menu(
             context.buttons.program_levels_list(
@@ -96,13 +96,13 @@ async def enrollments_add(
                     user_roles={role.name for role in user.roles}, new=RoleName.STUDENT
                 )
                 await query.message.reply_html(
-                    "Here is your updated list of commands\n"
-                    f"{'\n'.join(help_message.splitlines()[1:])}"
+                    messages.updated_commands()
+                    + f"{'\n'.join(help_message.splitlines()[1:])}"
                 )
             return None
     # enrollment creation has faild because user alread enrolled from another message
     except IntegrityError:
-        await query.message.reply_html("Oops, seems like you are already enrolled.")
+        await query.message.reply_html(messages.already_enrolled())
         return constants.ONE
 
 

@@ -46,7 +46,7 @@ async def year_list(update: Update, context: CustomContext, session: Session):
     menu = context.buttons.years_list(academic_years, url)
     keyboard = build_menu(menu, 2, footer_buttons=context.buttons.add(url, "Year"))
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Academic years"
+    message = messages.academic_years()
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -75,7 +75,7 @@ async def year(update: Update, context: CustomContext, session: Session):
         [context.buttons.back(url, "/\d+")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = f"<b>year</b>: {year.start} - {year.end}"
+    message = f"<b>{messages.year()}</b>: {year.start} - {year.end}"
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML

@@ -46,7 +46,7 @@ async def list_enrollments(
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "Your enrollments"
+    message = messages.your_enrollments()
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -67,13 +67,6 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
     if update.callback_query:
         query = update.callback_query
         await query.answer()
-
-    user = queries.user(session, context.user_data["id"])
-    if len(user.enrollments) == 0:
-        return await update.message.reply_html(
-            "Oops. It seems like you have no current enrollment."
-            " Use /enrollments to enroll in a Program"
-        )
 
     enrollment = queries.user_most_recent_enrollment(
         session, user_id=context.user_data["id"]
@@ -103,25 +96,19 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
     )
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Good morning, " + update.effective_user.mention_html(
-        name=update.effective_user.first_name
-    )
+    message = messages.courses()
     if not queries.all_have_editors(
         session,
         course_ids=[u.id for u in user_courses],
         academic_year=enrollment.academic_year,
     ):
-        message += (
-            "\n\n[there is no one with upload access for this program,"
-            " you can become one here /editor.]"
-        )
+        message += messages.no_editor()
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
         )
     else:
         await update.message.reply_html(message, reply_markup=reply_markup)
-    return None
 
 
 @roles(RoleName.STUDENT)
@@ -177,7 +164,7 @@ async def request_list(update: Update, context: CustomContext, session: Session)
         1,
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Pending Access Requests"
+    message = messages.pending_requests()
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)

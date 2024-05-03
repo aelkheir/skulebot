@@ -33,7 +33,7 @@ async def program_list(update: Update, context: CustomContext, session: Session)
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "<u>Content Management</u>"
+    message = f"<u>{messages.content_management()}</u>"
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -63,7 +63,9 @@ async def program_semester_list(
     keyboard = build_menu(menu, 2, footer_buttons=context.buttons.back(url, r"/\d+"))
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = "<u>Content Management</u>\n\n" + program.get_name()
+    message = f"<u>{messages.content_management()}</u>\n\n" + messages.localized_name(
+        program
+    )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
@@ -102,9 +104,9 @@ async def semester_course_list(
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = (
-        "<u>"
-        "Content Management"
-        "</u>\n\n" + program.get_name() + "\n" + f"Semester {semester.number}"
+        f"<u>{messages.content_management()}</u>\n\n"
+        f"{messages.localized_name(program)}\n"
+        f"{messages.semester()} {semester.number}"
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -137,14 +139,10 @@ async def course_year_list(update: Update, context: CustomContext, session: Sess
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     message = (
-        "<u>"
-        "Content Management"
-        "</u>\n\n"
-        + program.get_name()
-        + "\n"
-        + f"Semester {semester.number}"
-        + "\n\n"
-        + messages.first_list_level(course.get_name())
+        f"<u>{messages.content_management()}</u>\n\n"
+        f"{messages.localized_name(program)}\n"
+        f"{messages.semester()} {semester.number}\n\n"
+        + messages.first_list_level(messages.localized_name(course))
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
