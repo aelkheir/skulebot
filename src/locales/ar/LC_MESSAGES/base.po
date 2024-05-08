@@ -134,7 +134,7 @@ msgstr "اغسطس"
 
 #: src/buttons.py:835
 msgid "Back"
-msgstr "رجوع"
+msgstr "« رجوع"
 
 #: src/buttons.py:835
 msgid "Back to {}"

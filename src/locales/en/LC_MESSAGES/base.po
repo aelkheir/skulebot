@@ -133,7 +133,7 @@ msgstr "August"
 
 #: src/buttons.py:835
 msgid "Back"
-msgstr "Back"
+msgstr "« Back"
 
 #: src/buttons.py:835
 msgid "Back to {}"

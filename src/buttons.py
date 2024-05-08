@@ -868,14 +868,14 @@ class Buttons:
     def show_more(self, callback_data: str):
         _ = self._gettext
         return InlineKeyboardButton(
-            _("Show More"),
+            "⇣ " + _("Show More"),
             callback_data=callback_data,
         )
 
     def show_less(self, callback_data: str):
         _ = self._gettext
         return InlineKeyboardButton(
-            _("Show Less"),
+            "⇡ " + _("Show Less"),
             callback_data=callback_data,
         )
 
