@@ -1,6 +1,5 @@
 """Contains callbacks and handlers for the NOTIFICATION_ conversaion"""
 
-import re
 from typing import List
 
 from sqlalchemy import select
@@ -59,16 +58,16 @@ async def material(
         keyboard += [[context.buttons.send_all(url)]]
 
     keyboard += [[context.buttons.show_less(url + "?collapse=1")]]
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
     message = (
-        "🔔\n"
-        + messages.first_list_level(material.course.get_name())
-        + messages.second_list_level(
-            messages.material_title_text(
-                re.search(r"(?P<material_type>.*)", material.type), material
-            )
-        )
+        _("t-symbol")
+        + "─ 🔔 "
+        + material.course.get_name(context.language_code)
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_title_text(context.match, material, context)
     )
 
     await query.edit_message_text(
@@ -94,15 +93,16 @@ async def collapse_material(
 
     material_id = context.match.group("material_id")
     material = session.get(Material, material_id)
+    _ = context.gettext
 
     message = (
-        "🔔\n"
-        + messages.first_list_level(material.course.get_name())
-        + messages.second_list_level(
-            messages.material_title_text(
-                re.search(r"(?P<material_type>.*)", material.type), material
-            )
-        )
+        _("t-symbol")
+        + "─ 🔔 "
+        + material.course.get_name(context.language_code)
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_title_text(context.match, material, context)
     )
     keyboard = [
         [context.buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]

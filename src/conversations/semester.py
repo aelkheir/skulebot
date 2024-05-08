@@ -15,9 +15,10 @@ from telegram.ext import (
     filters,
 )
 
-from src import messages, queries
-from src.constants import ADD, DELETE, EDIT, NUMBER, ONE, SEMESTER_, SEMESTERS
+from src import queries
+from src.constants import ADD, COMMANDS, DELETE, EDIT, NUMBER, ONE, SEMESTER_, SEMESTERS
 from src.customcontext import CustomContext
+from src.messages import bold
 from src.models import RoleName, Semester
 from src.utils import build_menu, roles, session
 
@@ -49,7 +50,8 @@ async def semester_list(update: Update, context: CustomContext, session: Session
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.semesters()
+    _ = context.gettext
+    message = _("Semesters")
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -80,7 +82,8 @@ async def semester(update: Update, context: CustomContext, session: Session):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "<b>" + messages.number() + "<\b>" + f": {semester.number}"
+    _ = context.gettext
+    message = bold(_("Number")) + f": {semester.number}"
 
     if query:
         await query.edit_message_text(
@@ -103,7 +106,10 @@ async def semester_add(update: Update, context: CustomContext, session: Session)
 
     session.add(Semester(number=max + 1))
     session.flush()
-    await query.answer(messages.success_added(f"Semester {max + 1}"))
+    _ = context.gettext
+    await query.answer(
+        _("Success! {} created").format(_("Semester {}").format(max + 1))
+    )
 
     return await semester_list.__wrapped__.__wrapped__(update, context, session)
 
@@ -117,7 +123,8 @@ async def semester_edit(update: Update, context: CustomContext):
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
 
-    message = messages.type_number()
+    _ = context.gettext
+    message = _("Type number")
     await query.message.reply_text(
         message,
     )
@@ -142,9 +149,10 @@ async def receive_number(update: Update, context: CustomContext, session: Sessio
     semester.number = int(semester_number)
 
     keyboard = [[context.buttons.back(match.group(), f"/{EDIT}", "to Semester")]]
-
+    _ = context.gettext
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.success_updated("Semester number")
+
+    message = _("Success! {} updated").format(_("Semester number"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return ONE
@@ -166,21 +174,26 @@ async def semester_delete(update: Update, context: CustomContext, session: Sessi
     semester = queries.semester(session, semester_id)
     has_confirmed = context.match.group("has_confirmed")
 
+    _ = context.gettext
     menu_buttons: List
     message: str
 
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Semester {semester.number}")
+        message = _("Delete warning {}").format(
+            bold(_("Semester {}").format(semester.number))
+        )
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Semester {semester.number}")
+        message = _("Confirm delete warning {}").format(
+            bold(_("Semester {}").format(semester.number))
+        )
     elif has_confirmed == "1":
         session.delete(semester)
         menu_buttons = [
             context.buttons.back(url, text="to Semesters", pattern=rf"/\d+/{DELETE}")
         ]
-        message = messages.success_deleted(f"Semester {semester.number}")
+        message = _("Success! {} deleted").format("Semester {}").format(semester.number)
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -194,8 +207,9 @@ async def semester_delete(update: Update, context: CustomContext, session: Sessi
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = COMMANDS
 entry_points = [
-    CommandHandler("semesters", semester_list),
+    CommandHandler(cmd.semesters.command, semester_list),
 ]
 
 states = {

@@ -1,3 +1,16 @@
+import gettext as pygettext
+from gettext import translation
+from pathlib import Path
+from typing import Callable, Optional
+
+from telegram import BotCommand
+
+ar_ = translation("base", localedir=Path("src", "locales"), languages=["ar"])
+ar_.install()
+
+en_ = translation("base", localedir=Path("src", "locales"), languages=["en"])
+en_.install()
+
 # Callback data
 PROGRAMS = "pr"
 SEMESTERS = "sm"
@@ -52,14 +65,113 @@ MATERIALS_ = "mat"
 SETTINGS_ = "stg"
 NOTIFICATION_ = "ntf"
 
-LEVELS = {
-    1: {"en_name": "First Year", "ar_name": "المستوى الأولى"},
-    2: {"en_name": "Second Year", "ar_name": "المستوى الثاني"},
-    3: {"en_name": "Third Year", "ar_name": "المستوى الثالث"},
-    4: {"en_name": "Fourth Year", "ar_name": "المستوى الرابع"},
-    5: {"en_name": "Fifth Year", "ar_name": "المستوى الخامس"},
-}
+
+class _Levels:
+    levels = (
+        pygettext.gettext("First Year"),
+        pygettext.gettext("Second Year"),
+        pygettext.gettext("Third Year"),
+        pygettext.gettext("Fourth Year"),
+        pygettext.gettext("Fifth Year"),
+    )
+
+    def __getitem__(self, index):
+        return _Levels.levels[index]
 
 
-def get_level_name(level: dict, language_code: str):
-    return level["ar_name"] if language_code == AR else level["en_name"]
+LEVELS = _Levels()
+
+
+class Commands:
+    def __init__(self, gettext: Optional[Callable[[str], str]] = None) -> None:
+        self._ = gettext or pygettext.gettext
+
+    def user_commands(self):
+        return (self.enrollments1,)
+
+    def root_commands(self):
+        return (
+            self.pending,
+            self.coursemanagement,
+            self.contentmanagement,
+            self.departments,
+            self.programs,
+            self.semesters,
+            self.years,
+        )
+
+    def student_commands(self):
+        return (
+            self.courses,
+            self.settings,
+            self.enrollments2,
+            self.editor1,
+        )
+
+    def editor_commands(self):
+        return (
+            self.courses,
+            self.updatematerials,
+            self.settings,
+            self.enrollments2,
+            self.editor2,
+        )
+
+    @property
+    def pending(self):
+        return BotCommand("pending", self._("/pending description"))
+
+    @property
+    def coursemanagement(self):
+        return BotCommand("coursemanagement", self._("/coursemanagement description"))
+
+    @property
+    def contentmanagement(self):
+        return BotCommand("contentmanagement", self._("/contentmanagement description"))
+
+    @property
+    def departments(self):
+        return BotCommand("departments", self._("/departments description"))
+
+    @property
+    def programs(self):
+        return BotCommand("programs", self._("/programs description"))
+
+    @property
+    def semesters(self):
+        return BotCommand("semesters", self._("/semesters description"))
+
+    @property
+    def years(self):
+        return BotCommand("years", self._("/academicyears description"))
+
+    @property
+    def enrollments1(self):
+        return BotCommand("enrollments", self._("/enrollments1 description"))
+
+    @property
+    def courses(self):
+        return BotCommand("courses", self._("/courses description"))
+
+    @property
+    def settings(self):
+        return BotCommand("settings", self._("/settings description"))
+
+    @property
+    def enrollments2(self):
+        return BotCommand("enrollments", self._("/enrollments2 description"))
+
+    @property
+    def editor1(self):
+        return BotCommand("publish", self._("/editor1 description"))
+
+    @property
+    def updatematerials(self):
+        return BotCommand("updatematerials", self._("/updatematerials description"))
+
+    @property
+    def editor2(self):
+        return BotCommand("publish", self._("/editor2 description"))
+
+
+COMMANDS = Commands()

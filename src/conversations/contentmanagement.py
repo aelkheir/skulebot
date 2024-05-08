@@ -3,14 +3,15 @@ from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandler
 
-from src import constants, messages, queries
+from src import constants, queries
 from src.conversations.updatematerial import updatematerials_
 from src.customcontext import CustomContext
+from src.messages import underline
 from src.models import RoleName
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.CONETENT_MANAGEMENT_
-"""used as a prefix for all `callback_data` s in this conversation module"""
+"""Used as a prefix for all `callback_data` s in this conversation module"""
 
 # ------------------------------- entry_points ---------------------------
 
@@ -32,8 +33,9 @@ async def program_list(update: Update, context: CustomContext, session: Session)
     menu = context.buttons.programs_list(programs, url)
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = f"<u>{messages.content_management()}</u>"
+    message = underline(_("Content Management"))
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -62,9 +64,12 @@ async def program_semester_list(
     menu = context.buttons.semester_list(semesters, url + f"/{constants.SEMESTERS}")
     keyboard = build_menu(menu, 2, footer_buttons=context.buttons.back(url, r"/\d+"))
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = f"<u>{messages.content_management()}</u>\n\n" + messages.localized_name(
-        program
+    message = (
+        underline(_("Content Management"))
+        + "\n\n"
+        + program.get_name(context.language_code)
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -103,10 +108,14 @@ async def semester_course_list(
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    _ = context.gettext
+
     message = (
-        f"<u>{messages.content_management()}</u>\n\n"
-        f"{messages.localized_name(program)}\n"
-        f"{messages.semester()} {semester.number}"
+        underline(_("Content Management"))
+        + "\n\n"
+        + program.get_name(context.language_code)
+        + "\n"
+        + _("Semester {}").format(semester.number)
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -137,12 +146,18 @@ async def course_year_list(update: Update, context: CustomContext, session: Sess
     keyboard = build_menu(menu, 2)
     keyboard.extend([[context.buttons.back(url, rf"/{constants.COURSES}.*")]])
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
     message = (
-        f"<u>{messages.content_management()}</u>\n\n"
-        f"{messages.localized_name(program)}\n"
-        f"{messages.semester()} {semester.number}\n\n"
-        + messages.first_list_level(messages.localized_name(course))
+        underline(_("Content Management"))
+        + "\n\n"
+        + program.get_name(context.language_code)
+        + "\n"
+        + _("Semester {}").format(semester.number)
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -153,8 +168,9 @@ async def course_year_list(update: Update, context: CustomContext, session: Sess
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("contentmanagement", program_list),
+    CommandHandler(cmd.contentmanagement.command, program_list),
 ]
 
 states = {

@@ -35,6 +35,8 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
         return constants.ONE
 
     user = request.enrollment.user
+    _ = context.gettext
+
     if action == Status.GRANTED:
         granted_accessess = [
             e
@@ -44,24 +46,28 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
         request.status = Status.GRANTED
         await context.bot.send_message(
             user.chat_id,
-            messages.access_granted(),
+            _("Congratulations! New access"),
         )
         if len(granted_accessess) == 0:
             user.roles.append(queries.role(session, RoleName.EDITOR))
             await set_my_commands(context.bot, user)
             help_message = messages.help(
-                user_roles={role.name for role in user.roles}, new=RoleName.EDITOR
+                user_roles={role.name for role in user.roles},
+                new=RoleName.EDITOR,
+                context=context,
             )
         await context.bot.send_message(
             user.chat_id,
-            messages.updated_commands() + f"{'\n'.join(help_message.splitlines()[1:])}",
+            _("Your commands have been Updated")
+            + "\n"
+            + f"{'\n'.join(help_message.splitlines()[1:])}",
             parse_mode=ParseMode.HTML,
         )
     if action == Status.REJECTED:
         session.delete(request)
         request.status = Status(action)
     chat = await context.bot.get_chat(request.enrollment.user.chat_id)
-    message = messages.successfull_request_action(request, chat)
+    message = messages.successfull_request_action(request, chat, context=context)
     keyboard = [
         [
             context.buttons.back(
@@ -96,7 +102,15 @@ async def request(update: Update, context: CustomContext, session: Session):
     if request.status != Status.PENDING:
         return constants.ONE
     chat = await context.bot.get_chat(request.enrollment.user.chat_id)
-    caption = messages.new_request(request, chat)
+    caption = context.gettext(
+        "Admin call for action {fullname} {mention} {enrollment}"
+    ).format(
+        fullname=chat.full_name,
+        mention=chat.mention_html(),
+        enrollment=messages.enrollment_text(
+            enrollment=request.enrollment, context=context
+        ),
+    )
     keyboard = [
         [
             context.buttons.grant_access(f"{url}?action={Status.GRANTED}"),
@@ -104,8 +118,13 @@ async def request(update: Update, context: CustomContext, session: Session):
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.message.reply_photo(
-        photo=request.verification_photo.telegram_id,
+    sender = (
+        query.message.reply_photo
+        if request.verification_photo.type == "photo"
+        else query.message.reply_document
+    )
+    await sender(
+        request.verification_photo.telegram_id,
         caption=caption,
         reply_markup=reply_markup,
         parse_mode=ParseMode.HTML,

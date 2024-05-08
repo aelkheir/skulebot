@@ -46,7 +46,7 @@ async def course(update: Update, context: CustomContext, session: Session):
         else []
     )
     menu = context.buttons.material_list(f"{url}/{MaterialType.LECTURE}", lectures)
-    keyboard = build_menu(menu, 3)
+    keyboard = build_menu(menu, 3, reverse=context.language_code == constants.AR)
 
     keyboard.extend(
         context.buttons.material_groups(
@@ -56,12 +56,15 @@ async def course(update: Update, context: CustomContext, session: Session):
     )
 
     keyboard += [[context.buttons.back(url, "/(\d+)$")]]
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
+
     message = (
-        messages.title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + messages.first_list_level(messages.localized_name(course))
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
     )
 
     await query.edit_message_text(
@@ -94,6 +97,8 @@ async def optional_list(update: Update, context: CustomContext, session: Session
     psc_id = context.match.group("psc_id")
     selected = bool(int(o)) if (o := context.match.group("selected")) else None
 
+    _ = context.gettext
+
     if psc_id is not None and selected is not None:
         if selected:
             user_course = UserOptionalCourse(
@@ -103,7 +108,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
                 ),
             )
             session.add(user_course)
-            await query.answer(messages.success_added("course"))
+            await query.answer(_("Success! {} added").format(_("Course")))
         elif not selected:
             user_course = queries.user_optional_course(
                 session,
@@ -111,7 +116,7 @@ async def optional_list(update: Update, context: CustomContext, session: Session
                 programs_semester_course_id=psc_id,
             )
             session.delete(user_course)
-            await query.answer(messages.success_deleted("course"))
+            await query.answer(_("Success! {} removed").format(_("Course")))
 
     await query.answer()
     enrollment_id = context.match.group("enrollment_id")
@@ -142,7 +147,8 @@ async def optional_list(update: Update, context: CustomContext, session: Session
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.select_optionals()
+    _ = context.gettext
+    message = _("Select optional courses")
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )

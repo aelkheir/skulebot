@@ -5,7 +5,8 @@ from telegram.ext import CommandHandler
 
 from src import constants, messages, queries
 from src.customcontext import CustomContext
-from src.models import RoleName, Status
+from src.messages import bold
+from src.models import Course, RoleName, Status
 from src.utils import build_menu, roles, session
 
 # ------------------------------- Callbacks ---------------------------
@@ -45,8 +46,9 @@ async def list_enrollments(
     )
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = messages.your_enrollments()
+    message = _("Your enrollments")
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -77,6 +79,9 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
         program_id=enrollment.program.id,
         semester_id=enrollment.semester.id,
         user_id=context.user_data["id"],
+        sort_attr=(
+            Course.ar_name if context.language_code == constants.AR else Course.en_name
+        ),
     )
 
     url = f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.COURSES}"
@@ -96,13 +101,14 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
     )
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.courses()
+    _ = context.gettext
+    message = _("Courses") + "\n\n"
     if not queries.all_have_editors(
         session,
         course_ids=[u.id for u in user_courses],
         academic_year=enrollment.academic_year,
     ):
-        message += messages.no_editor()
+        message += _("No editor warning {}").format(constants.COMMANDS.editor1.command)
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -111,7 +117,7 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
         await update.message.reply_html(message, reply_markup=reply_markup)
 
 
-@roles(RoleName.STUDENT)
+@roles([RoleName.STUDENT, RoleName.ROOT])
 async def settings(update: Update, context: CustomContext):
     """Runs with Message.text `/settings`. This is an entry point to
     `constans.SETTINGS_` conversation"""
@@ -130,8 +136,9 @@ async def settings(update: Update, context: CustomContext):
     ]
     keyboard = build_menu(menu, 2)
 
+    _ = context.gettext
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.bot_settings()
+    message = _("t-symbol") + " ⚙️ " + bold(_("Bot Settings"))
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -143,7 +150,7 @@ async def settings(update: Update, context: CustomContext):
 @roles(RoleName.ROOT)
 @session
 async def request_list(update: Update, context: CustomContext, session: Session):
-    """Runs with Message.text `/requestmanagement`. This is an entry point to
+    """Runs with Message.text `/pending`. This is an entry point to
     `constans.REQUEST_MANAGEMENT_` conversation"""
 
     query: None | CallbackQuery = None
@@ -164,7 +171,8 @@ async def request_list(update: Update, context: CustomContext, session: Session)
         1,
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.pending_requests()
+    _ = context.gettext
+    message = _("Pending access requests")
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -179,8 +187,7 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
 
     user = queries.user(session, user_id=context.user_data["id"])
     user_roles = {r.name for r in user.roles}
-
-    message = messages.help(user_roles)
+    message = messages.help(user_roles, context=context)
 
     await update.message.reply_html(message)
 
@@ -192,10 +199,11 @@ async def echo(update: Update, context: CustomContext) -> None:
 
 # ------------------------------- CommandHandlers ---------------------------
 
+cmd = constants.COMMANDS
 handlers = [
-    CommandHandler(["enrollments"], list_enrollments),
-    CommandHandler("courses", user_course_list),
-    CommandHandler(["settings"], settings),
-    CommandHandler(["requestmanagement"], request_list),
+    CommandHandler(cmd.enrollments1.command, list_enrollments),
+    CommandHandler(cmd.courses.command, user_course_list),
+    CommandHandler(cmd.settings.command, settings),
+    CommandHandler(cmd.pending.command, request_list),
     CommandHandler(["help", "start"], help),
 ]

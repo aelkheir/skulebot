@@ -10,44 +10,12 @@ from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandl
 from src import constants, messages, queries
 from src.conversations.material import material
 from src.customcontext import CustomContext
-from src.models import MaterialType, RoleName, UserOptionalCourse
+from src.messages import underline
+from src.models import Course, MaterialType, RoleName, UserOptionalCourse
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.UPDATE_MATERIALS_
 """Used as a prefix for all `callback data` in this conversation"""
-
-
-# helpers
-def title(match: re.Match, session: Session):
-    url: str = match.group()
-    text = ""
-    if url.startswith(constants.UPDATE_MATERIALS_):
-        text += "<u>Editor Menu</u>"
-    elif url.startswith(constants.EDITOR_):
-        text += "<u>Editor Access</u>"
-    elif url.startswith(constants.CONETENT_MANAGEMENT_):
-        text += "<u>Content Management</u>"
-
-    if match.group("enrollment_id"):
-        text += "\n\n" + messages.enrollment_text(match, session)
-    elif match.group("year_id"):
-        program_id = match.group("program_id")
-        program = queries.program(session, program_id)
-        semester_id = match.group("semester_id")
-        semester = queries.semester(session, semester_id)
-        year_id = match.group("year_id")
-        year = queries.academic_year(session, year_id)
-        text += (
-            "\n\n"
-            + program.get_name()
-            + "\n"
-            + f"Semester {semester.number}"
-            + "\n"
-            + f"{year.start} - {year.end}"
-            + "\n"
-        )
-    return text
-
 
 # ------------------------------- entry_points ---------------------------
 
@@ -75,6 +43,9 @@ async def update_materials(update: Update, context: CustomContext, session: Sess
         program_id=enrollment.program.id,
         semester_id=enrollment.semester.id,
         user_id=context.user_data["id"],
+        sort_attr=(
+            Course.ar_name if context.language_code == constants.AR else Course.en_name
+        ),
     )
 
     url = f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.COURSES}"
@@ -93,10 +64,15 @@ async def update_materials(update: Update, context: CustomContext, session: Sess
         else menu
     )
     keyboard = build_menu(menu, 1)
-
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.editor_menu() + messages.enrollment_text(
-        context.match, session, enrollment=enrollment
+    _ = context.gettext
+
+    message = (
+        underline(_("Editor Menu"))
+        + "\n\n"
+        + messages.enrollment_text(
+            context.match, session, enrollment=enrollment, context=context
+        )
     )
     if query:
         await query.edit_message_text(
@@ -116,15 +92,19 @@ async def course(update: Update, context: CustomContext, session: Session):
     await query.answer()
 
     url = context.match.group()
+    course_id = int(context.match.group("course_id"))
+    course = queries.course(session, course_id)
 
     keyboard = context.buttons.material_groups(url=url, groups=list(MaterialType))
     keyboard.append([context.buttons.back(url, "/(\d+)$")])
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
     message = (
-        title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + messages.course_text(context.match, session)
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
     )
 
     await query.edit_message_text(
@@ -203,7 +183,8 @@ async def optional_list(update: Update, context: CustomContext, session: Session
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.select_optionals()
+    _ = context.gettext
+    message = _("Select optional courses")
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
@@ -230,8 +211,9 @@ PREFIXES = (
 )
 
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("updatematerials", update_materials),
+    CommandHandler(cmd.updatematerials.command, update_materials),
     CallbackQueryHandler(course, pattern=f"^{PREFIXES}$"),
     CallbackQueryHandler(
         optional_list,

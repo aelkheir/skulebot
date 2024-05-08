@@ -1,14 +1,13 @@
-import re
 from itertools import groupby
 from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from telegram import InlineKeyboardMarkup, InputMedia, Update
+from telegram import InputMedia, Update
 
-from src import constants, messages
+from src import constants
 from src.customcontext import CustomContext
-from src.models import Enrollment, File, HasNumber, Material, RefFilesMixin, SingleFile
+from src.models import Enrollment, File, HasNumber, RefFilesMixin, SingleFile
 from src.models.material import __classes__, get_material_class
 from src.utils import build_media_group, session
 
@@ -76,37 +75,3 @@ async def send(
             await query.message.reply_media_group(media=album)
 
     return constants.ONE
-
-
-@session
-async def receive(update: Update, context: CustomContext, session: Session):
-    material_number = int(context.match.groups()[0])
-
-    url = context.chat_data.get("url")
-    match: re.Match[str] | None = re.search(
-        f"/(?P<material_type>{TYPES})/(?P<material_id>\d+)"
-        f"/{constants.EDIT}/{constants.NUMBER}$",
-        url,
-    )
-
-    material_id = int(match.group("material_id"))
-    material = session.get(Material, material_id)
-    if isinstance(material, HasNumber):
-        material.number = material_number
-
-        keyboard = [
-            [
-                context.buttons.back(
-                    url,
-                    pattern=rf"/{constants.EDIT}.*$",
-                    text=f"to {material.type.capitalize()}",
-                )
-            ]
-        ]
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        message = messages.success_updated(f"{material.type.capitalize()} number")
-        await update.message.reply_text(message, reply_markup=reply_markup)
-
-        return constants.ONE
-    return None

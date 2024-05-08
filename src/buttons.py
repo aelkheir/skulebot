@@ -4,11 +4,12 @@ import re
 from datetime import date, datetime, timedelta
 from typing import Callable, Dict, List, NamedTuple, Optional, Sequence, Union
 
+from babel.dates import format_date
 from telegram import InlineKeyboardButton
 from telegram.ext import ContextTypes
 
 from src import constants
-from src.constants import LEVELS, get_level_name
+from src.constants import LEVELS
 from src.models import (
     AcademicYear,
     AccessRequest,
@@ -29,7 +30,7 @@ from src.models import (
     Status,
 )
 from src.models.material import REVIEW_TYPES, get_review_type_name
-from src.utils import build_menu
+from src.utils import build_menu, user_locale
 
 calendar.setfirstweekday(6)
 
@@ -37,6 +38,7 @@ calendar.setfirstweekday(6)
 class Buttons:
     def __init__(self, language_code: Union[constants.AR, constants.EN]) -> None:
         self._language_code = language_code
+        self._gettext = user_locale(language_code).gettext
 
     def __setattr__(self, key: str, value: object) -> None:
         """Overrides :meth:`object.__setattr__` to prevent the overriding of attributes.
@@ -67,20 +69,27 @@ class Buttons:
         )
 
     def optional_courses(self, url: str) -> InlineKeyboardButton:
-        return InlineKeyboardButton(text="[Optional Courses]", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(
+            text="[" + _("Optional Courses") + "]", callback_data=url
+        )
 
     def new_access_request(
         self, enrollment: Enrollment, url: str
     ) -> InlineKeyboardButton:
-        year = enrollment.academic_year
+        _ = self._gettext
+        semester = enrollment.program_semester.semester
+        level = (semester.number // 2 + (semester.number % 2)) - 1
+        text = _(LEVELS[level])
         return InlineKeyboardButton(
-            f"{year.start} - {year.end} [Request Access]",
+            f"{text} [" + _("Request Access") + "]",
             callback_data=url,
         )
 
     def new_enrollment(self, year: AcademicYear, url: str) -> InlineKeyboardButton:
+        _ = self._gettext
         return InlineKeyboardButton(
-            f"{year.start} - {year.end} [Enroll Now]",
+            f"{year.start} - {year.end} [" + _("Enroll Now") + "]",
             callback_data=url,
         )
 
@@ -100,13 +109,16 @@ class Buttons:
                 `InlineKeyboardButton.callback_data`.
         """
         buttons = []
+        _ = self._gettext
         for request in access_requests:
             enrollment = request.enrollment
-            year = enrollment.academic_year
+            semester = enrollment.program_semester.semester
+            level = (semester.number // 2 + (semester.number % 2)) - 1
+            text = _(LEVELS[level])
             ispending = request.status == Status.PENDING
             buttons.append(
                 InlineKeyboardButton(
-                    f"{year.start} - {year.end}" + (" [Pending]" if ispending else ""),
+                    f"{text}" + (" [" + _("Pending") + "]" if ispending else ""),
                     callback_data=f"{url}/{enrollment.id}",
                 )
             )
@@ -169,9 +181,11 @@ class Buttons:
         """
         if isinstance(selected_ids, int):
             selected_ids = (selected_ids,)
+        _ = self._gettext
         return [
             InlineKeyboardButton(
-                f"Semester {semester.number}"
+                _("Semester")
+                + f" {semester.number}"
                 + (" ✅" if selected_ids and semester.id in selected_ids else ""),
                 callback_data=f"{url}{sep}{semester.id}",
             )
@@ -203,9 +217,11 @@ class Buttons:
         """
         if isinstance(selected_ids, int):
             selected_ids = (selected_ids,)
+        _ = self._gettext
         return [
             InlineKeyboardButton(
-                f"Semester {ps.semester.number}"
+                _("Semester")
+                + f" {ps.semester.number}"
                 + (" ✅" if selected_ids and ps.id in selected_ids else ""),
                 callback_data=f"{url}{sep}{ps.id}",
             )
@@ -232,11 +248,12 @@ class Buttons:
             sep (:obj:`str`): String to append  to :paramref:`url`. Defaults to `"\\"`
         """
         buttons = []
+        _ = self._gettext
         for program_semester in program_semesters:
             semester = program_semester.semester
             if semester.number % 2 == 1 and program_semester.available:
-                level = semester.number // 2 + (semester.number % 2)
-                text = get_level_name(LEVELS[level], self._language_code)
+                level = (semester.number // 2 + (semester.number % 2)) - 1
+                text = _(LEVELS[level])
                 buttons.append(
                     InlineKeyboardButton(
                         f"{text}",
@@ -278,10 +295,11 @@ class Buttons:
             for department in departments
         ]
 
+        _ = self._gettext
         if include_none_department:
             buttons += [
                 InlineKeyboardButton(
-                    "N/A" + (" ✅" if selected_id == 0 else ""),
+                    _("General Department") + (" ✅" if selected_id == 0 else ""),
                     callback_data=f"{url}{sep}0",
                 ),
             ]
@@ -411,8 +429,9 @@ class Buttons:
         ]
 
     def update_to_semester(self, url: str, semester_number: int):
+        _ = self._gettext
         return InlineKeyboardButton(
-            f"Update to Semeter {semester_number}", callback_data=url
+            _("Update to Semeter {}").format(semester_number), callback_data=url
         )
 
     def program_semester_courses_list(
@@ -476,10 +495,11 @@ class Buttons:
 
     # TODO: add docs
     def material(self, url: str, material: Material):
-        type_: str = material.type.capitalize()
+        _ = self._gettext
+        type_: str = material.type
         text: str = None
         if isinstance(material, HasNumber):
-            text = type_ + " " + str(material.number)
+            text = _(type_) + " " + str(material.number)
         elif isinstance(material, SingleFile):
             text = material.file.name
         elif isinstance(material, Review):
@@ -499,7 +519,8 @@ class Buttons:
     def material_groups(
         self, url: str, groups: List[MaterialType]
     ) -> List[List[InlineKeyboardButton]]:
-        keyboard = []
+        _ = self._gettext
+        keyboard: List[List[InlineKeyboardButton]] = []
         first_row = []
         second_row = []
         third_row = []
@@ -511,7 +532,7 @@ class Buttons:
             ]:
                 first_row.append(
                     InlineKeyboardButton(
-                        group.capitalize() + "s",
+                        _(f"{group}s"),
                         callback_data=f"{url}/{group}",
                     )
                 )
@@ -522,27 +543,31 @@ class Buttons:
             ]:
                 second_row.append(
                     InlineKeyboardButton(
-                        group.capitalize() + "s",
+                        _(f"{group}s"),
                         callback_data=f"{url}/{group}",
                     )
                 )
             if group == MaterialType.ASSIGNMENT:
                 third_row.append(
                     InlineKeyboardButton(
-                        group.capitalize() + "s",
+                        _(f"{group}s"),
                         callback_data=f"{url}/{group}",
                     )
                 )
             if group == MaterialType.REVIEW:
+                title = f"{group}s" if self._language_code == constants.AR else group
                 third_row.append(
                     InlineKeyboardButton(
-                        group.capitalize(),
+                        _(title),
                         callback_data=f"{url}/{group}",
                     )
                 )
         first_row and keyboard.append(first_row)
         second_row and keyboard.append(second_row)
         third_row and keyboard.append(third_row)
+        for row in keyboard:
+            if self._language_code == constants.AR:
+                row.reverse()
         return keyboard
 
     def files_list(self, url: str, files: List[File]):
@@ -555,11 +580,12 @@ class Buttons:
         ]
 
     def disenroll(self, url: str):
-        return InlineKeyboardButton("Disenroll", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Disenroll"), callback_data=url)
 
     def arabic(self, url: str, selected: bool):
         return InlineKeyboardButton(
-            "Arabic" + (" ✅" if selected else ""), callback_data=url
+            "العربية" + (" ✅" if selected else ""), callback_data=url
         )
 
     def english(self, url: str, selected: bool):
@@ -570,43 +596,55 @@ class Buttons:
     def notification_setting_item(
         self, setting_key: SettingKey, url: str, selected: bool
     ):
+        _ = self._gettext
+        key: str = setting_key.value[0]
+        type_ = key.replace(SettingKey.NOTIFICATION_PREFIX.value, "")
         return InlineKeyboardButton(
-            setting_key.name.capitalize() + (" ✅" if selected else ""),
+            _(type_) + (" ✅" if selected else ""),
             callback_data=url,
         )
 
     def disable_all(self, url: str):
-        return InlineKeyboardButton("Disable All", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Disable All"), callback_data=url)
 
     def submit_proof(self, url: str):
-        return InlineKeyboardButton("Submit Proof", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Submit Proof"), callback_data=url)
 
     def contact_support(self, url: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Contact Support",
+            _("Contact"),
             url=url,
         )
 
     def grant_access(self, url: str):
-        return InlineKeyboardButton("Grant Access", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Grant Access"), callback_data=url)
 
     def reject(self, url: str):
-        return InlineKeyboardButton("Reject", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Reject"), callback_data=url)
 
     def unlink_course(self, url: str):
-        return InlineKeyboardButton("Unlink Course", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Unlink Course"), callback_data=url)
 
     def link_course(self, url: str):
-        return InlineKeyboardButton("Link Course", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Link Course"), callback_data=url)
 
     def optional(self, url: str, selected: bool):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Optional" + (" ✅" if selected else ""), callback_data=url
+            _("Optional") + (" ✅" if selected else ""), callback_data=url
         )
 
     def required(self, url: str, selected: bool):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Required" + (" ✅" if selected else ""), callback_data=url
+            _("Required") + (" ✅" if selected else ""), callback_data=url
         )
 
     def next_page(self, callback_data: str):
@@ -618,8 +656,9 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
         return InlineKeyboardButton(
-            ">>",
+            _("next-page-symbol"),
             callback_data=callback_data,
         )
 
@@ -632,8 +671,9 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
         return InlineKeyboardButton(
-            "<<",
+            _("prev-page-symbol"),
             callback_data=callback_data,
         )
 
@@ -648,8 +688,9 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
         return InlineKeyboardButton(
-            f"Add {text}",
+            _("Add {}").format(text),
             callback_data=f"{callback_data}/{constants.ADD}",
         )
 
@@ -666,8 +707,9 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
         return InlineKeyboardButton(
-            f"Edit {text}",
+            _("Edit {}").format(text),
             callback_data=f"{callback_data}/{constants.EDIT}{end}",
         )
 
@@ -683,8 +725,10 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
+        title = _("Delete") if not text else _("Delete {}").format(text)
         return InlineKeyboardButton(
-            f"Delete{(' ' + text) if text else ''}",
+            title,
             callback_data=f"{callback_data}/{constants.DELETE}",
         )
 
@@ -698,14 +742,17 @@ class Buttons:
         Returns:
             :class:`InlineKeyboardButton`
         """
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Publish",
+            _("Publish"),
             callback_data=f"{callback_data}/{constants.PUBLISH}",
         )
 
     def source(self, url: str):
-        return InlineKeyboardButton("Source", url=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Source"), url=url)
 
+    # TODO: come here
     def review_types(self, url: str):
         return [
             InlineKeyboardButton(
@@ -716,41 +763,51 @@ class Buttons:
         ]
 
     def carriculum(self, url: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Curriculum",
+            _("Carriculam"),
             callback_data=url,
         )
 
     def activate(self, url: str):
-        return InlineKeyboardButton("Activate", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Activate"), callback_data=url)
 
     def deactivate(self, url: str):
-        return InlineKeyboardButton("Deactivate", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Deactivate"), callback_data=url)
 
     def send_all(self, url: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Get All",
+            _("Get All"),
             callback_data=f"{url}/{constants.ALL}",
         )
 
     def view_source(self, url: str):
-        return InlineKeyboardButton("Source", url=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Source"), url=url)
 
     def language(self, url: str):
-        return InlineKeyboardButton("Language", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Language"), callback_data=url)
 
     def notifications(self, url: str):
-        return InlineKeyboardButton("Notifications", callback_data=url)
+        _ = self._gettext
+        return InlineKeyboardButton(_("Notifications"), callback_data=url)
 
     def with_notification(self, url: str):
-        return InlineKeyboardButton("Notify", callback_data=f"{url}?n=1")
+        _ = self._gettext
+        return InlineKeyboardButton(_("Notify"), callback_data=f"{url}?n=1")
 
     def without_notification(self, url: str):
-        return InlineKeyboardButton("Don't Notify", callback_data=f"{url}?n=0")
+        _ = self._gettext
+        return InlineKeyboardButton(_("Don't Notify"), callback_data=f"{url}?n=0")
 
     def revoke(self, url: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Revoke Access", callback_data=f"{url}/{constants.REVOKE}"
+            _("Revoke Access"), callback_data=f"{url}/{constants.REVOKE}"
         )
 
     def back(
@@ -768,14 +825,20 @@ class Buttons:
             )
 
         data = absolute_url or re.sub(pattern, "", url)
+        _ = self._gettext
+        if text.startswith("ال"):
+            text = text[1:]
+        title = _("Back") if not text else _("Back to {}").format(text)
         return InlineKeyboardButton(
-            f"Back{(' ' + text) if text else ''}",
+            title,
             callback_data=data,
         )
 
     def add_file(self, url: str):
-        return self.add(url, "File")
+        _ = self._gettext
+        return self.add(url, _("File"))
 
+    # TODO: come here
     def view_added(
         self,
         id: Optional[int | str] = None,
@@ -797,49 +860,50 @@ class Buttons:
         )
 
     def display(self, callback_data: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Display", callback_data=f"{callback_data}/{constants.DISPLAY}"
+            _("Display"), callback_data=f"{callback_data}/{constants.DISPLAY}"
         )
 
     def show_more(self, callback_data: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Show More",
+            _("Show More"),
             callback_data=callback_data,
         )
 
     def show_less(self, callback_data: str):
+        _ = self._gettext
         return InlineKeyboardButton(
-            "Show Less",
+            _("Show Less"),
             callback_data=callback_data,
         )
 
     def file_menu(self, url: str, can_publish: bool = False):
+        _ = self._gettext
         buttons = [
             self.display(url),
             self.delete(callback_data=url),
-            self.edit(f"{url}/{constants.SOURCE}", "Source"),
+            self.edit(f"{url}/{constants.SOURCE}", _("Source")),
         ]
         if can_publish:
             buttons.insert(1, self.publish(callback_data=url))
         return buttons
 
     def delete_group(self, url: str):
+        _ = self._gettext
         d_type = re.search(f"{constants.DELETE}|{constants.REVOKE}", url).group()
         buttons = [
             InlineKeyboardButton(
-                (
-                    "Yes that's correct"
-                    if d_type == constants.DELETE
-                    else "Yes that's Okay"
-                ),
+                (_("Yes that's correct")),
                 callback_data=f"{url}?c=0",
             ),
             InlineKeyboardButton(
-                "Nope",
+                _("Nope"),
                 callback_data=re.sub(rf"/{d_type}", "", url),
             ),
             InlineKeyboardButton(
-                "No",
+                _("No"),
                 callback_data=re.sub(rf"/{d_type}", "", url),
             ),
         ]
@@ -848,18 +912,19 @@ class Buttons:
         return buttons
 
     def confirm_delete_group(self, url: str):
+        _ = self._gettext
         d_type = re.search(f"{constants.DELETE}|{constants.REVOKE}", url).group()
         buttons = [
             InlineKeyboardButton(
-                "Yes, I'm 100% sure!",
+                _("Yes, I'm 100% sure!"),
                 callback_data=f"{url}?c=1",
             ),
             InlineKeyboardButton(
-                "No",
+                _("No"),
                 callback_data=re.sub(rf"/{d_type}", "", url),
             ),
             InlineKeyboardButton(
-                "Hell no",
+                _("Hell no"),
                 callback_data=re.sub(rf"/{d_type}", "", url),
             ),
         ]
@@ -890,54 +955,80 @@ class Buttons:
 
         keyboard: List[List[InlineKeyboardButton]] = None
         date_time: datetime = None
+        _ = self._gettext
         if year and month and not day:
             currentmonth = date(year, month, 15)
             nextmonth = currentmonth + timedelta(days=31)
             prevmonth = currentmonth - timedelta(days=31)
             monthcalendar = calendar.monthcalendar(year, month)
-            keyboard = [
+            weekdays = [
+                _("Sun"),
+                _("Mon"),
+                _("Tue"),
+                _("Wed"),
+                _("Thu"),
+                _("Fri"),
+                _("Sat"),
+            ]
+            keyboard = build_menu(
                 [
                     InlineKeyboardButton(
-                        "<<",
+                        _("prev-page-symbol"),
                         callback_data=f"{url}?y={prevmonth.year}&m={prevmonth.month}",
                     ),
                     InlineKeyboardButton(
-                        currentmonth.strftime("%B %Y"),
+                        format_date(currentmonth, "MMM Y", locale=self._language_code),
                         callback_data=f"{url}?y={year}",
                     ),
                     InlineKeyboardButton(
-                        ">>",
+                        _("next-page-symbol"),
                         callback_data=f"{url}?y={nextmonth.year}&m={nextmonth.month}",
                     ),
                 ],
+                3,
+                reverse=self._language_code == constants.AR,
+            )
+            keyboard += build_menu(
                 [
                     InlineKeyboardButton(
                         day,
                         callback_data=f"{url}/{constants.IGNORE}",
                     )
-                    for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                    for day in weekdays
                 ],
-            ]
-            keyboard += [
-                [
-                    InlineKeyboardButton(
-                        (
-                            str(day)
-                            + (" " + "⚪️" if date(year, month, day) == today else "")
-                            + (" " + "✅" if date(year, month, day) == selected else "")
-                            if day
-                            else " "
-                        ),
-                        callback_data=(
-                            f"{url}?y={year}&m={month}&d={day}"
-                            if day
-                            else f"{url}/{constants.IGNORE}"
-                        ),
-                    )
-                    for day in week
-                ]
-                for week in monthcalendar
-            ]
+                7,
+                reverse=self._language_code == constants.AR,
+            )
+            for week in monthcalendar:
+                keyboard += build_menu(
+                    [
+                        InlineKeyboardButton(
+                            (
+                                str(day)
+                                + (
+                                    " " + "⚪️"
+                                    if date(year, month, day) == today
+                                    else ""
+                                )
+                                + (
+                                    " " + "✅"
+                                    if date(year, month, day) == selected
+                                    else ""
+                                )
+                                if day
+                                else " "
+                            ),
+                            callback_data=(
+                                f"{url}?y={year}&m={month}&d={day}"
+                                if day
+                                else f"{url}/{constants.IGNORE}"
+                            ),
+                        )
+                        for day in week
+                    ],
+                    7,
+                    reverse=self._language_code == constants.AR,
+                )
         elif year and not month and not day:
             menu = [
                 InlineKeyboardButton(
@@ -946,26 +1037,26 @@ class Buttons:
                 )
                 for i, month in enumerate(
                     [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December",
+                        _("January"),
+                        _("February"),
+                        _("March"),
+                        _("April"),
+                        _("May"),
+                        _("June"),
+                        _("July"),
+                        _("August"),
+                        _("September"),
+                        _("October"),
+                        _("November"),
+                        _("December"),
                     ]
                 )
             ]
-            keyboard = build_menu(menu, 3)
-            keyboard += [
+            keyboard = build_menu(menu, 3, reverse=self._language_code == constants.AR)
+            keyboard += build_menu(
                 [
                     InlineKeyboardButton(
-                        "<<",
+                        _("prev-page-symbol"),
                         callback_data=f"{url}?y={year-1}",
                     ),
                     InlineKeyboardButton(
@@ -973,11 +1064,13 @@ class Buttons:
                         callback_data=f"{url}?y={year}&m={1}",
                     ),
                     InlineKeyboardButton(
-                        ">>",
+                        _("next-page-symbol"),
                         callback_data=f"{url}?y={year+1}",
                     ),
                 ],
-            ]
+                3,
+                reverse=self._language_code == constants.AR,
+            )
         if day:
             date_time = datetime(year, month, day)
         return self.Picker(keyboard=keyboard, date_time=date_time)

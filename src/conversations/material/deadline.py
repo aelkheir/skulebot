@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+from babel.dates import format_date, format_datetime
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -29,22 +30,21 @@ async def edit(update: Update, context: CustomContext, session: Session):
 
     material_id = int(context.match.group("material_id"))
     material = session.get(Assignment, material_id)
+    course = material.course
     deadline = m.date() if (m := material.deadline) else None
     path = re.search(
         rf".*/{constants.EDIT}/{constants.DEADLINE}", context.match.group()
     ).group()
 
     context.chat_data["url"] = context.match.group()
+    _ = context.gettext
 
     picker = context.buttons.datepicker(context.match, selected=deadline)
     date_time: datetime = picker.date_time
 
     if date_time:
-        message = (
-            f"Alright, you selected"
-            f" <b>{date_time.strftime('%A %d %B %Y')}</b>,"
-            " now type in the time in 24 hour format"
-        )
+        datestr = format_date(date_time, "E d MMM", locale=context.language_code)
+        message = _("Deadline date selected {}").format(datestr)
         await query.message.reply_text(message, parse_mode=ParseMode.HTML)
         return f"{constants.EDIT} {constants.DEADLINE}"
     keyboard = picker.keyboard
@@ -53,11 +53,20 @@ async def edit(update: Update, context: CustomContext, session: Session):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
-        messages.title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + f"{messages.course_text(context.match, session)}"
-        + f"{messages.material_message_text(context.match, session)}"
-        + "\nSelect deadline date.\nType /empty to remove current deadline"
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
+        + "\n"
+        + messages.material_type_text(context.match, context=context)
+        + messages.material_message_text(
+            context.match, session, material=material, context=context
+        )
+        + "\n\n"
+        + _("Select {}").format(_("Date"))
+        + " "
+        + _("/empty to clear {}").format(_("Date"))
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -77,13 +86,14 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
 
     material_id = int(match.group("material_id"))
     material = session.get(Assignment, material_id)
+    _ = context.gettext
 
-    keyboard = [[context.buttons.back(url, f"/{constants.EDIT}/.*", "to Assignment")]]
+    keyboard = [[context.buttons.back(url, f"/{constants.EDIT}/.*")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if update.message.text == "/empty":
         material.deadline = None
-        message = messages.success_deleted("deadline")
+        message = _("Success! {} removed").format(_("Deadline"))
         await update.message.reply_text(message, reply_markup=reply_markup)
         return constants.ONE
 
@@ -101,6 +111,9 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     message = (
         f"Success! Assignment deadline"
         f" set to <b>{d.strftime('%A %d %B %Y %H:%M')}</b>."
+    )
+    message = _("Success! Deadline set {}").format(
+        format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
     )
     await update.message.reply_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML

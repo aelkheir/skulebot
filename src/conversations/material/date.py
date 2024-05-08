@@ -3,8 +3,9 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
+from telegram.constants import ParseMode
 
-from src import constants, messages
+from src import constants
 from src.customcontext import CustomContext
 from src.models import Review
 from src.utils import session
@@ -21,11 +22,10 @@ async def edit(update: Update, context: CustomContext):
     await query.answer()
 
     context.chat_data["url"] = context.match.group()
+    _ = context.gettext
 
-    message = messages.type_date() + ". Type /empty to remove current date"
-    await query.message.reply_text(
-        message,
-    )
+    message = _("Type date") + _("/empty to clear {}").format(_("Date"))
+    await query.message.reply_text(message, parse_mode=ParseMode.HTML)
 
     return f"{constants.EDIT} {constants.DATE}"
 
@@ -41,13 +41,14 @@ async def receive(update: Update, context: CustomContext, session: Session):
 
     material_id = int(match.group("material_id"))
     material = session.get(Review, material_id)
+    _ = context.gettext
     try:
-        keyboard = [[context.buttons.back(url, rf"/{constants.EDIT}.*$", "to Review")]]
+        keyboard = [[context.buttons.back(url, rf"/{constants.EDIT}.*$")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if update.message.text == "/empty":
             material.date = None
-            message = messages.success_deleted("date")
+            message = _("Success! {} removed").format(_("Date"))
             await update.message.reply_text(message, reply_markup=reply_markup)
             return constants.ONE
 
@@ -60,7 +61,7 @@ async def receive(update: Update, context: CustomContext, session: Session):
             int(day) if day else 1
         )
         material.date = date(year, month, day)
-        message = messages.success_updated("Review date")
+        message = _("Success! {} updated").format(_("Date"))
         await update.message.reply_text(message, reply_markup=reply_markup)
         return constants.ONE
     # Invalid date values

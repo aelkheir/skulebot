@@ -1,458 +1,240 @@
+import gettext as pygettext
 import re
-from typing import Optional, Sequence, Set, Union
+from typing import Optional, Set
 
+from babel.dates import format_datetime
 from sqlalchemy.orm import Session
-from telegram import Chat, User
-from telegram.constants import InputMediaType
+from telegram import Chat
 
-from src import constants
+from src import constants, queries
 from src.constants import LEVELS
+from src.customcontext import CustomContext
 from src.models import (
-    AcademicYear,
+    AccessRequest,
     Assignment,
-    Course,
     Enrollment,
     File,
     HasNumber,
+    Lecture,
     Material,
     MaterialType,
-    Program,
     Review,
     RoleName,
-    Semester,
     SingleFile,
 )
-from src.models.access_request import AccessRequest
-from src.models.department import Department
 from src.utils import user_mode
 
 
-def your_enrollments():
-    return "Your enrollments"
-
-
-def courses():
-    return "courses"
-
-
-def departments():
-    return "Departments"
-
-
-def success():
-    return "Success!"
-
-
-def course_management():
-    return "Course Management"
-
-
-def programs():
-    return "Programs"
-
-
-def carriculam():
-    return "Carriculam"
-
-
-def already_linked():
-    return "Course is already linked in Semester"
-
-
-def academic_years():
-    return "Academic years"
-
-
-def year():
-    return "year"
-
-
-def none_department():
-    return "N/A department"
-
-
-def no_editor():
-    return (
-        "\n\n[there is no one with upload access for this program,"
-        " you can become one here /editor.]"
-    )
-
-
-def editor_menu():
-    return "<u>Editor Menu</u>\n\n"
-
-
-def select_optionals():
-    return "These courses are optional. Select one or more to add to your /courses menu"
-
-
-def semesters():
-    return "Semesters"
-
-
-def semester():
-    return "Semester"
-
-
-def editor_accesses():
-    return "Editor Accesses"
-
-
-def content_management():
-    return "Content Management"
-
-
-def new_editor_introduction(enrollment_text: str):
-    return f"Hi! I'd like to have access and upload materials in\n\n{enrollment_text}"
-
-
-def send_editor_proof():
-    return "Alright. send me your id (photo)"
-
-
-def is_pending():
-    return "\nYou're request is pending. We'll get back to you soon. Thanks"
-
-
-def new_editor_instructions():
-    return (
-        "\nThanks for helping update course materials!\n\n"
-        "In order to give you access over content we need to verify that you're"
-        " actually enrolled in this program, or at least that you are a student at our"
-        " faculty.\n\n"
-        "To do that there are two options. You could either send us <i>any</i> document"
-        " that proves this. Or if you don't have any, please reach out to support.\n\n"
-        "Your contribution is truly appreciated!"
-    )
-
-
-def number():
-    return "Number"
-
-
-def credits():
-    return "Credits"
-
-
-def empty_current(text: str):
-    return f"Type /empty to remove current {text}"
-
-
-def select(text: str):
-    return f"Select {text}"
-
-
-def already_enrolled(text: str):
-    return "Oops, seems like you are already enrolled."
-
-
-def pending_requests():
-    return "Pending Access Requests"
-
-
-def new_request(request: AccessRequest, chat: Union[Chat, User]):
-    mention = chat.mention_html(chat.full_name or "User")
-    return (
-        f"Editor Access re-Request: {mention}\n\n"
-        f"{chat.full_name} is requesting editor access for\n"
-        f"{enrollment_text(enrollment=request.enrollment)}"
-    )
-
-
-def request_received():
-    return (
-        "Thanks for taking the time."
-        " We have recieved your request and will get back to you soon.\n\n"
-        "Meanwhile your can check your request status in /editor."
-    )
-
-
-def successfull_request_action(request: AccessRequest, chat: Chat):
+def successfull_request_action(
+    request: AccessRequest, chat: Chat, context: CustomContext
+):
     mention = chat.mention_html(chat.full_name or "User")
     return (
         f"Success! {request.status.capitalize()} "
         f"Editor Access to {mention} for\n\n"
-        f"{enrollment_text(enrollment=request.enrollment)}"
+        f"{enrollment_text(enrollment=request.enrollment, context=context)}"
     )
 
 
-def access_granted():
-    return (
-        "Congratulations 🎉! Now you have access to update materials. "
-        "We appreciate your contributions."
-    )
+def bold(text):
+    return f"<b>{text}</b>"
 
 
-def updated_commands():
-    return "Here is your updated list of commands\n"
+def italic(text):
+    return f"<i>{text}</i>"
 
 
-def first_list_level(text: str):
-    return f"├── {text}\n"
+def underline(text):
+    return f"<u>{text}</u>"
 
 
-def second_list_level(text: str):
-    return f"│ └── {text}\n"
-
-
-def third_list_level(text: str):
-    return f"│   └── {text}\n"
-
-
-def delete_confirm(text: str):
-    return f"You are about to delete <b>{text}</b>. Is that correct?"
-
-
-def revoke_confirm(text: str):
-    return (
-        f"You are about to revoke your editor access of <b>{text}</b>."
-        " If the academic year had passed, you will not be able to request it again."
-        " Is that Okay?"
-    )
-
-
-def delete_reconfirm(text: str):
-    return f"Are you <b>TOTALLY</b> sure you want to delete {text}?"
-
-
-def revoke_reconfirm(text: str):
-    return (
-        f"Are you <b>TOTALLY</b> sure you want to revoke your editor access of {text}?"
-    )
-
-
-def success_deleted(text: str):
-    return f"Success! {text} deleted"
-
-
-def success_revoked(text: str):
-    return f"Success! Editor Access of {text} revoked"
-
-
-def success_added(text: str):
-    return f"Success! {text} added."
-
-
-def success_created(text: str):
-    return f"Success! {text} created."
-
-
-def success_updated(text: str):
-    return f"Success! {text} updated."
-
-
-def success_unlinked(text: str):
-    return f"Success! {text} unlinked"
-
-
-def success_linked(text: str):
-    return f"Success! {text} linked"
-
-
-def type_number():
-    return "Type a number"
-
-
-def type_date():
-    return "Type date in the form yyyy-mm-dd"
-
-
-def type_name():
-    # this always accepts dual lang names
-    return "Type name"
-
-
-def type_year():
-    # this always accepts dual lang names
-    return "Type year range"
-
-
-def type_name_in_lang(lang: str):
-    return f"Type name in {lang}"
-
-
-def send_link():
-    return "Send me the link"
-
-
-def send_files(media_types: Sequence[InputMediaType]):
-    types = ", ".join(list(media_types))
-    return f"Send me the files ({types})"
-
-
-def multilang_names(ar: str, en: str):
-    return f"Arabic Name: {ar}\nEnglish Name: {en}\n"
-
-
-def bot_settings():
-    return "├ ⚙️ <b>Bot Settings</b>\n"
-
-
-def help(user_roles: Set[RoleName], new: Optional[RoleName] = None):
+def help(
+    user_roles: Set[RoleName],
+    new: Optional[RoleName] = None,
+    context: CustomContext = None,
+):
     message: str
+    _ = context.gettext
+    cmds = constants.Commands(context.gettext)
+
+    message = bold(_("Commands")) + "\n\n"
+
     if user_roles == {RoleName.USER}:
-        message = "<b>Commands</b>\n\n/enrollments - enroll yourself to a program."
+        cells = sorted(
+            [f"/{cmds.enrollments1.command}", cmds.enrollments1.description],
+            reverse=context.language_code == constants.AR,
+        )
+        message += f"• {' - '.join(cells)}\n"
+
     elif user_roles == {RoleName.USER, RoleName.ROOT}:
-        message = (
-            "<b>Commands</b>\n\n"
-            "• /requestmanagement - grant or reject pending requests from users\n"
-            "• /coursemanagement - update course info.\n"
-            "• /contentmanagement - moderate materials that users are uploading.\n"
-            "• /departments - update department info.\n"
-            "• /programs - update programs info, manage carriculams.\n"
-            "• /semesters - update semester info\n"
-            "• /academicyears - update academic years\n"
-        )
+        for cmd in cmds.root_commands():
+            cells = sorted(
+                [f"/{cmd.command}", cmd.description],
+                reverse=context.language_code == constants.AR,
+            )
+            message += f"• {' - '.join(cells)}\n"
+
     elif user_roles == {RoleName.USER, RoleName.STUDENT}:
-        message = (
-            "• <b>Commands</b>\n\n"
-            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
-            "/courses - list current courses.\n"
-            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
-            f"/settings - customize bot settings.\n"
-            "• /enrollments - update your enrollments.\n"
-            f"•{' [<i><u>new</u></i>] ' if new==RoleName.STUDENT else ' '}"
-            f"/editor - apply for access to upload content."
-        )
+        for cmd in cmds.student_commands():
+            cells = sorted(
+                [f"/{cmd.command}", cmd.description],
+                reverse=context.language_code == constants.AR,
+            )
+            pre = (
+                "[" + italic(underline(_("new"))) + "]"
+                if new == RoleName.STUDENT
+                and cmd in [cmds.courses, cmds.settings, cmds.editor1]
+                else ""
+            )
+            message += f"• {pre} {' - '.join(cells)}\n"
+
     elif user_roles == {RoleName.USER, RoleName.STUDENT, RoleName.EDITOR}:
-        message = (
-            "<b>Commands</b>\n\n"
-            "• /courses - list current courses.\n"
-            f"•{' [<i><u>new</u></i>] ' if new==RoleName.EDITOR else ' '}"
-            "/updatematerials - update current courses.\n"
-            "• /settings - tweak bot settings.\n"
-            "• /enrollments - update your enrollments.\n"
-            "• /editor - control, revoke your access rights."
-        )
+        for cmd in cmds.editor_commands():
+            cells = sorted(
+                [f"/{cmd.command}", cmd.description],
+                reverse=context.language_code == constants.AR,
+            )
+            pre = (
+                "[" + italic(underline(_("new"))) + "]"
+                if new == RoleName.EDITOR and cmd in [cmds.updatematerials]
+                else ""
+            )
+            message += f"• {pre} {' - '.join(cells)}\n"
 
     return message
 
 
-def title(match: re.Match, session: Session):
+def title(match: re.Match, session: Session, context: CustomContext):
+    _ = context.gettext
     url: str = match.group()
+
+    if url.startswith(constants.COURSES_):
+        return ""
+
     text = ""
+
     if url.startswith(constants.UPDATE_MATERIALS_):
-        text += "<u>Editor Menu</u>"
+        text += underline(_("Editor Menu"))
     elif url.startswith(constants.EDITOR_):
-        text += "<u>Editor Access</u>"
+        text += underline(_("Editor Access"))
     elif url.startswith(constants.CONETENT_MANAGEMENT_):
-        text += "<u>Content Management</u>"
+        text += underline(_("Content Management"))
 
     if match.group("enrollment_id"):
-        if not url.startswith(constants.COURSES_):
-            text += "\n\n" + enrollment_text(match, session)
+        text += "\n\n" + enrollment_text(match, session, context=context)
     elif match.group("year_id"):
-        program_id = match.group("program_id")
-        program = session.get(Program, program_id)
-        semester_id = match.group("semester_id")
-        semester = session.get(Semester, semester_id)
         year_id = match.group("year_id")
-        year = session.get(AcademicYear, year_id)
+        program_id = match.group("program_id")
+        semester_id = match.group("semester_id")
+        program = queries.program(session, program_id)
+        semester = queries.semester(session, semester_id)
+        year = queries.academic_year(session, year_id)
         text += (
             "\n\n"
-            + program.get_name(constants.EN)
+            + program.get_name(context.language_code)
             + "\n"
-            + f"Semester {semester.number}"
+            + _("Semester {}").format(semester.number)
             + "\n"
-            + f"{year.start} - {year.end}"
+            + _("Year {} - {}").format(year.start, year.end)
             + "\n"
         )
     return text
 
 
-def course_name(course: Course):
-    return course.en_name if True else course.ar_name
-
-
-def localized_name(model: Union[Course, Department, Program]):
-    for local_name in ["ar_name", "en_name"]:
-        if not hasattr(model, local_name):
-            raise ValueError(
-                f"cannot get localized name for object {model}. "
-                f"object is missing attribute {local_name}"
-            )
-
-    return model.en_name if True else model.ar_name
-
-
-def course_text(match: re.Match, session: Session):
-    course_id = int(match.group("course_id"))
-    course = session.get(Course, course_id)
-    return first_list_level(course.get_name(constants.EN))
-
-
-def material_type_text(match: re.Match):
+def material_type_text(match: re.Match, context: CustomContext):
     material_type: str = match.group("material_type")
-    message = ""
-    if user_mode(match.group()) or material_type in [
-        MaterialType.REFERENCE,
-        MaterialType.SHEET,
-        MaterialType.TOOL,
-    ]:
-        if material_type == MaterialType.REVIEW:
-            return second_list_level(material_type.capitalize())
-        return second_list_level(material_type.capitalize() + "s")
-    return message
+    if user_mode(match.group()) and material_type == MaterialType.LECTURE:
+        return ""
+    _ = context.gettext
+    type_name = f"{material_type}s"
+    return "│ " + _("corner-symbol") + "── " + _(type_name) + "\n"
 
 
 def material_message_text(
-    match: Optional[re.Match] = None, session: Session = None, material: Material = None
+    match: Optional[re.Match] = None,
+    session: Session = None,
+    material: Material = None,
+    context: CustomContext = None,
 ):
+    _ = context.gettext
+
     url = match.group()
     if match and material is None:
         material_id: str = match.group("material_id")
         material = session.get(Material, material_id)
-    if isinstance(material, Assignment):
-        datestr = d.strftime("%A %d %B %Y %H:%M") if (d := material.deadline) else "N/A"
-        text = f"Assignment {material.number} due by {datestr}" + (
-            f" (Published: {material.published})" if not user_mode(url) else ""
+
+    is_published = ""
+    if not user_mode(url):
+        is_published = (
+            italic(_("Published true"))
+            if material.published
+            else italic(_("Published false"))
         )
+
+    material_type = _(material.type)
+    if isinstance(material, Assignment):
+        datestr = (
+            format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
+            if (d := material.deadline)
+            else "[" + _("No value") + "]"
+        )
+        text = f"{material_type} {material.number} " + _("due by") + f" {datestr}"
         message = text
     elif isinstance(material, HasNumber):
-        text = f"{material.type.capitalize()} {material.number}" + (
-            f" (Published: {material.published})" if not user_mode(url) else ""
-        )
+        text = f"{material_type} {material.number}"
         message = text
     elif isinstance(material, SingleFile):
         file = session.get(File, material.file_id)
-        message = file_text(match, file).replace("\n", "") + (
-            f" (Published: {material.published})\n" if not user_mode(url) else "\n"
-        )
+        return file_text(match, file, context) + " " + is_published
     elif isinstance(material, Review):
-        text = (
-            material.get_name(constants.EN)
-            + (" " + str(d.year) if (d := material.date) else "")
-            + (f" (Published: {material.published})" if not user_mode(url) else "")
+        text = material.get_name(context.language_code) + (
+            " " + str(d.year) if (d := material.date) else ""
         )
         message = text
-    if user_mode(url) or isinstance(material, SingleFile):
-        message = third_list_level(message)
+
+    message += " " + is_published
+
+    if user_mode(url) and isinstance(material, Lecture):
+        message = "│ " + _("corner-symbol") + "── " + message
     else:
-        message = second_list_level(message)
+        message = "│   " + _("corner-symbol") + "── " + message
     return message
 
 
-def material_title_text(match: re.Match, material: Material):
-    m_type: str = match.group("material_type")
+def material_title_text(
+    match: Optional[re.Match] = None,
+    material: Material = None,
+    context: CustomContext = None,
+):
+    _ = context.gettext if context else pygettext.gettext
+    if not material:
+        m_type: str = _(match.group("material_type"))
+    else:
+        m_type = material.type
+    m_type = _(m_type)
+
     if isinstance(material, HasNumber):
-        return m_type.capitalize() + " " + str(material.number)
+        return m_type + " " + str(material.number)
     if isinstance(material, SingleFile):
-        return m_type.capitalize() + " " + str(material.file.name)
+        return m_type + " " + str(material.file.name)
     if isinstance(material, Review):
         return (
-            m_type.capitalize()
+            m_type
             + " "
-            + str(material.get_name(constants.EN))
+            + str(material.get_name(context.language_code))
             + (" " + str(d.year) if (d := material.date) else "")
         )
     return None
 
 
-def file_text(match: re.Match, file: File):
+def file_text(match: re.Match, file: File, context: CustomContext):
+    _ = context.gettext
     return (
         file.name
         + " "
-        + (f'[<a href="{s}">Source</a>]' if (s := file.source) else "[No Source]")
+        + _("Source")
+        + " "
+        + (f'[<a href="{s}">url</a>]' if (s := file.source) else _("No value"))
     )
 
 
@@ -460,7 +242,10 @@ def enrollment_text(
     match: Optional[re.Match] = None,
     session: Session = None,
     enrollment: Enrollment = None,
+    context: CustomContext = None,
 ):
+    _ = context.gettext if context else pygettext.gettext
+
     if match and enrollment is None:
         enrollment_id = int(id) if (id := match.group("enrollment_id")) else None
         enrollment = session.get(Enrollment, enrollment_id)
@@ -469,13 +254,16 @@ def enrollment_text(
     semester = enrollment.semester
     year = enrollment.academic_year
 
-    level = semester.number // 2 + (semester.number % 2)
-    level_name = LEVELS[level]["en_name"]
+    level = (semester.number // 2 + (semester.number % 2)) - 1
+    level_name = _(LEVELS[level])
+
+    program_name = (
+        program.en_name
+        if context.user_data["language_code"] == constants.EN
+        else program.ar_name
+    )
 
     return (
-        ""
-        f"{year.start} - {year.end} Enrollment\n"
-        f"{program.en_name}\n"
-        f"{level_name}"
-        "\n"
+        _("Year {} - {}").format(year.start, year.end)
+        + f"\n{program_name}\n{level_name}\n"
     )

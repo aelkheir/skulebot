@@ -1,4 +1,4 @@
-"""Contains callbacks and handlers for the /academicyears conversaion"""
+"""Contains callbacks and handlers for the /years conversaion"""
 
 import re
 from datetime import date
@@ -16,9 +16,10 @@ from telegram.ext import (
     filters,
 )
 
-from src import messages, queries
-from src.constants import ACADEMICYEAR_, ACADEMICYEARS, ADD, DELETE, EDIT, ONE
+from src import queries
+from src.constants import ACADEMICYEAR_, ACADEMICYEARS, ADD, COMMANDS, DELETE, EDIT, ONE
 from src.customcontext import CustomContext
+from src.messages import bold
 from src.models import AcademicYear, RoleName
 from src.utils import build_menu, roles, session
 
@@ -33,7 +34,7 @@ DATA_KEY = ACADEMICYEAR_
 @roles(RoleName.ROOT)
 @session
 async def year_list(update: Update, context: CustomContext, session: Session):
-    """Runs with Message.text `/academicyears`"""
+    """Runs with Message.text `/years`"""
     query: None | CallbackQuery = None
 
     if update.callback_query:
@@ -46,7 +47,9 @@ async def year_list(update: Update, context: CustomContext, session: Session):
     menu = context.buttons.years_list(academic_years, url)
     keyboard = build_menu(menu, 2, footer_buttons=context.buttons.add(url, "Year"))
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.academic_years()
+
+    _ = context.gettext
+    message = _("Academic years")
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -75,7 +78,8 @@ async def year(update: Update, context: CustomContext, session: Session):
         [context.buttons.back(url, "/\d+")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = f"<b>{messages.year()}</b>: {year.start} - {year.end}"
+    _ = context.gettext
+    message = bold(_("Year")) + f": {year.start} - {year.end}"
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -98,7 +102,10 @@ async def year_add(update: Update, context: CustomContext, session: Session):
     session.add(AcademicYear(start=max, end=max + 1))
     session.flush()
 
-    await query.answer(messages.success_added(f"Year {max} - {max+1}"))
+    _ = context.gettext
+    await query.answer(
+        _("Success! {} created").format(_("Year {} - {}").format(max, max + 1))
+    )
 
     return await year_list.__wrapped__.__wrapped__(update, context, session)
 
@@ -112,7 +119,8 @@ async def year_edit(update: Update, context: CustomContext):
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
 
-    message = messages.type_year()
+    _ = context.gettext
+    message = _("Type year")
     await query.message.reply_text(
         message,
     )
@@ -142,9 +150,10 @@ async def receive_year_edit(update: Update, context: CustomContext, session: Ses
     year.end = int(end_year)
 
     keyboard = [[context.buttons.back(url, f"/{EDIT}", "to Year")]]
-
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.success_updated("Year")
+    _ = context.gettext
+
+    message = _("Success! {} updated").format(_("Year"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return ONE
@@ -168,13 +177,18 @@ async def year_delete(update: Update, context: CustomContext, session: Session):
 
     menu_buttons: List
     message: str
+    _ = context.gettext
 
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Year {year.start} - {year.end}")
+        message = _("Delete warning {}").format(
+            bold(_("Year {} - {}").format(year.start, year.end))
+        )
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Year {year.start} - {year.end}")
+        message = _("Confirm delete warning {}").format(
+            bold(_("Year {} - {}").format(year.start, year.end))
+        )
     elif has_confirmed == "1":
         session.delete(year)
         menu_buttons = [
@@ -182,7 +196,9 @@ async def year_delete(update: Update, context: CustomContext, session: Session):
                 url, text="to Academic Years", pattern=rf"/\d+/{DELETE}"
             )
         ]
-        message = messages.success_deleted(f"Year {year.start} - {year.end}")
+        message = _("Success! {} deleted").format(
+            _("Year {} - {}").format(year.start, year.end)
+        )
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -196,8 +212,9 @@ async def year_delete(update: Update, context: CustomContext, session: Session):
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = COMMANDS
 entry_points = [
-    CommandHandler("academicyears", year_list),
+    CommandHandler(cmd.years.command, year_list),
 ]
 
 states = {

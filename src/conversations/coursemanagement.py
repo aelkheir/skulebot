@@ -12,8 +12,9 @@ from telegram.ext import (
     filters,
 )
 
-from src import constants, messages, queries
+from src import constants, queries
 from src.customcontext import CustomContext
+from src.messages import bold, underline
 from src.models import Course, RoleName
 from src.utils import Pager, build_menu, roles, session
 
@@ -50,8 +51,9 @@ async def department_list(update: Update, context: CustomContext, session: Sessi
     ]
     keyboard = build_menu(button_list, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = f"<u>{messages.course_management()}</u>"
+    message = underline(_("Course Management"))
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -106,10 +108,18 @@ async def course_list(update: Update, context: CustomContext, session: Session):
         ]
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = f"<u>{messages.course_management()}</u>\n\n" + messages.first_list_level(
-        messages.localized_name(department)
-        if department
-        else messages.none_department()
+    _ = context.gettext
+
+    message = (
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
+            if department
+            else _("General Department")
+        )
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -151,17 +161,25 @@ async def course(update: Update, context: CustomContext, session: Session):
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
     message = (
-        f"<u>{messages.course_management()}</u>\n\n"
-        + messages.first_list_level(
-            messages.localized_name(department)
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
             if department
-            else messages.none_department()
+            else _("General Department")
         )
-        + messages.second_list_level(messages.localized_name(course))
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course.get_name(context.language_code)
+        + "\n\n"
+        + _("Name in Arabic {} and English {}").format(course.ar_name, course.en_name)
         + "\n"
-        + messages.multilang_names(ar=course.ar_name, en=course.en_name)
-        + f"{messages.credits()}: {course.credits or ''}"
+        + _("Credits: {}").format(course.credits or "")
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -180,10 +198,9 @@ async def course_add(update: Update, context: CustomContext):
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
 
-    message = messages.type_name()
-    await query.message.reply_text(
-        message,
-    )
+    _ = context.gettext
+    message = _("Type multilingual name")
+    await query.message.reply_text(message, parse_mode=ParseMode.HTML)
 
     return constants.ADD
 
@@ -211,8 +228,9 @@ async def receive_name_new(update: Update, context: CustomContext, session: Sess
 
     keyboard = [[context.buttons.view_added(course.id, url)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = messages.success_created("Course")
+    message = _("Success! {} created").format(_("Course"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
@@ -231,9 +249,10 @@ async def course_edit_name(update: Update, context: CustomContext):
     lang_code = context.match.group("lang_code")
 
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
+    _ = context.gettext
 
-    language = "Arabic" if lang_code == constants.AR else "English"
-    message = messages.type_name_in_lang(language)
+    language = _("Arabic") if lang_code == constants.AR else _("English")
+    message = _("Type name in {}").format(language)
     await query.message.reply_text(
         message,
     )
@@ -268,9 +287,10 @@ async def receive_name_edit(update: Update, context: CustomContext, session: Ses
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    language = "Arabic" if lang_code == constants.AR else "English"
-    message = messages.success_updated(f"{language} name")
+    language = _("Arabic") if lang_code == constants.AR else _("English")
+    message = _("Success! {} updated").format(_("Name in {}")).format(language)
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
@@ -286,8 +306,9 @@ async def course_edit_credits(update: Update, context: CustomContext):
 
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
+    _ = context.gettext
 
-    message = messages.type_number() + f". {messages.empty_current('credits')}"
+    message = _("Type number") + _("/empty to clear {}").format(_("Credits"))
     await query.message.reply_text(
         message,
     )
@@ -313,10 +334,11 @@ async def receive_credits_edit(
         [context.buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
     if update.message.text == "/empty":
         course.credits = None
-        message = messages.success_deleted("Credits")
+        message = _("Success! {} deleted").format(_("Credits"))
         await update.message.reply_text(message, reply_markup=reply_markup)
         return constants.ONE
 
@@ -329,7 +351,7 @@ async def receive_credits_edit(
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages.success_updated("Credits")
+    message = _("Success! {} updated").format(_("Credits"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
@@ -362,18 +384,25 @@ async def course_change_department(
     )
     menu += [context.buttons.back(url, pattern=rf"/{constants.DEPARTMENTS}$")]
     keyboard = build_menu(menu, 1)
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
+
     message = (
-        f"<u>{messages.course_management()}</u>\n\n"
-        + messages.first_list_level(
-            messages.localized_name(department)
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
             if department
-            else messages.none_department()
+            else _("General Department")
         )
-        + messages.second_list_level(messages.localized_name(course))
-        + "\n"
-        + messages.select("department")
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course.get_name(context.language_code)
+        + "\n\n"
+        + _("Select {}").format(_("Department"))
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -404,10 +433,12 @@ async def course_set_department(
     course.department_id = new_department_id if new_department_id else None
 
     course_url = url.replace(f"/{old_department_id}/", f"/{new_department_id}/")
-    keyboard = [[context.buttons.back(course_url, f"/{constants.EDIT}.*", "to Course")]]
 
+    keyboard = [[context.buttons.back(course_url, f"/{constants.EDIT}.*", "to Course")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.success_updated("Course department")
+    _ = context.gettext
+
+    message = _("Success! {} updated").format(_("Department"))
     await query.edit_message_text(message, reply_markup=reply_markup)
 
     return constants.ONE
@@ -432,26 +463,36 @@ async def course_delete(update: Update, context: CustomContext, session: Session
     course = queries.course(session, course_id)
     has_confirmed = context.match.group("has_confirmed")
 
+    course_name = course.get_name(context.language_code)
+
     menu_buttons: List
+    _ = context.gettext
     message = (
-        f"<u>{messages.course_management()}</u>\n\n"
-        + messages.first_list_level(
-            messages.localized_name(department)
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
             if department
-            else messages.none_department()
+            else _("General Department")
         )
-        + messages.second_list_level(messages.localized_name(course))
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course_name
+        + "\n\n"
     )
 
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message += "\n" + messages.delete_confirm(
-            f"Course {messages.localized_name(course)}"
+        message = _("Delete warning {}").format(
+            bold(_("Course {}").format(course_name))
         )
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message += "\n" + messages.delete_reconfirm(
-            f"Course {messages.localized_name(course)}"
+        message = _("Confirm delete warning {}").format(
+            bold(_("Course {}").format(course_name))
         )
     elif has_confirmed == "1":
         session.delete(course)
@@ -460,7 +501,7 @@ async def course_delete(update: Update, context: CustomContext, session: Session
                 url, text="to Courses", pattern=rf"/\d+/{constants.DELETE}"
             )
         ]
-        message = messages.success_deleted(f"Course {messages.localized_name(course)}")
+        message = _("Success! {} deleted").format(course_name)
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -474,8 +515,9 @@ async def course_delete(update: Update, context: CustomContext, session: Session
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("coursemanagement", department_list),
+    CommandHandler(cmd.coursemanagement.command, department_list),
 ]
 
 states = {

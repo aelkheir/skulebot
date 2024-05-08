@@ -1,7 +1,7 @@
 from typing import List, Optional, Sequence, Union
 
 from sqlalchemy import and_, case, or_, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
 
 from src.models import (
     AcademicYear,
@@ -318,7 +318,11 @@ def course(session: Session, course_id: int) -> Course:
 
 
 def user_courses(
-    session: Session, program_id: int, semester_id: int, user_id: int
+    session: Session,
+    program_id: int,
+    semester_id: int,
+    user_id: int,
+    sort_attr: InstrumentedAttribute[str] = Course.en_name,
 ) -> List[Course]:
     """
     Query multiple :obj:`Course`s that are relevant to user in a specific program
@@ -360,7 +364,7 @@ def user_courses(
                 ),
             ),
         )
-        .order_by(ProgramSemesterCourse.optional, Course.en_name)
+        .order_by(ProgramSemesterCourse.optional, sort_attr)
     ).all()
 
 
@@ -561,7 +565,7 @@ def has_optional_courses(
             and_(
                 ProgramSemesterCourse.program_id == program_id,
                 ProgramSemesterCourse.semester_id == semester_id,
-                ProgramSemesterCourse.optional == True,  # noqa: E712
+                ProgramSemesterCourse.optional,
             )
         )
         .exists()
@@ -737,7 +741,11 @@ def course_material_types(session: Session, course_id: int, year_id: int) -> Lis
     """
     return session.scalars(
         select(Material.type)
-        .where(Material.course_id == course_id, Material.academic_year_id == year_id)
+        .where(
+            Material.course_id == course_id,
+            Material.academic_year_id == year_id,
+            Material.published,
+        )
         .group_by(Material.type)
     ).all()
 

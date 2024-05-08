@@ -7,7 +7,7 @@ from telegram.constants import ParseMode
 
 from src import constants, messages
 from src.customcontext import CustomContext
-from src.models import HasNumber, Material
+from src.models import HasNumber, Material, SingleFile
 from src.models.material import __classes__
 from src.utils import build_menu, session
 
@@ -30,42 +30,48 @@ async def handler(update: Update, context: CustomContext, session: Session):
     query = update.callback_query
     await query.answer()
 
-    # url here is calculated because this handler reenter with query params
     url = re.search(rf".*/{constants.DELETE}", context.match.group()).group()
 
     has_confirmed = context.match.group("has_confirmed")
     material_id = context.match.group("material_id")
     material = session.get(Material, material_id)
+    course = material.course
+
+    material_title = messages.material_title_text(context.match, material, context)
+
+    _ = context.gettext
 
     menu_buttons: List
     message = (
-        messages.title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + messages.course_text(context.match, session)
-        + messages.material_message_text(context.match, session)
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
+        + "\n"
+        + messages.material_type_text(context.match, context=context)
+        + ("\n" if isinstance(material, SingleFile) else "")
+        + messages.material_message_text(
+            context.match, session, material=material, context=context
+        )
+        + "\n\n"
     )
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message += "\n" + messages.delete_confirm(
-            messages.material_title_text(context.match, material)
-        )
+        message += _("Delete warning {}").format(material_title)
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message += "\n" + messages.delete_reconfirm(
-            messages.material_title_text(context.match, material)
-        )
+        message += _("Confirm delete warning {}").format(material_title)
     elif has_confirmed == "1":
         session.delete(material)
         menu_buttons = [
             context.buttons.back(
                 url,
                 pattern=rf"/\d+/{constants.DELETE}",
-                text=f"to {material.type.capitalize()}s",
+                text=_(f"{material.type}s"),
             )
         ]
-        message = messages.success_deleted(
-            messages.material_title_text(context.match, material)
-        )
+        message = _("Success! {} deleted").format(material_title)
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)

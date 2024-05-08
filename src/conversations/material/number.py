@@ -3,7 +3,7 @@ import re
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 
-from src import constants, messages
+from src import constants
 from src.customcontext import CustomContext
 from src.models import HasNumber, Material
 from src.models.material import __classes__
@@ -27,8 +27,9 @@ async def edit(update: Update, context: CustomContext):
     await query.answer()
 
     context.chat_data["url"] = context.match.group()
+    _ = context.gettext
 
-    message = messages.type_number()
+    message = _("Type number")
     await query.message.reply_text(
         message,
     )
@@ -49,6 +50,8 @@ async def receive(update: Update, context: CustomContext, session: Session):
 
     material_id = int(match.group("material_id"))
     material = session.get(Material, material_id)
+    _ = context.gettext
+
     if isinstance(material, HasNumber):
         material.number = material_number
 
@@ -57,13 +60,12 @@ async def receive(update: Update, context: CustomContext, session: Session):
                 context.buttons.back(
                     url,
                     pattern=rf"/{constants.EDIT}.*$",
-                    text=f"to {material.type.capitalize()}",
                 )
             ]
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        message = messages.success_updated(f"{material.type.capitalize()} number")
+        message = _("Success! {} updated").format(_("Number"))
         await update.message.reply_text(message, reply_markup=reply_markup)
 
         return constants.ONE

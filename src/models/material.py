@@ -1,3 +1,4 @@
+import gettext
 from datetime import date as datetype
 from datetime import datetime
 from enum import unique
@@ -20,14 +21,29 @@ if TYPE_CHECKING:
 
 @unique
 class MaterialType(StringEnum):
-    LECTURE = "lecture"
-    TUTORIAL = "tutorial"
-    LAB = "lab"
-    REFERENCE = "reference"
-    SHEET = "sheet"
-    TOOL = "tool"
-    ASSIGNMENT = "assignment"
-    REVIEW = "review"
+    LECTURE = gettext.gettext("lecture")
+    gettext.gettext("lectures")
+
+    TUTORIAL = gettext.gettext("tutorial")
+    gettext.gettext("tutorials")
+
+    LAB = gettext.gettext("lab")
+    gettext.gettext("labs")
+
+    REFERENCE = gettext.gettext("reference")
+    gettext.gettext("references")
+
+    SHEET = gettext.gettext("sheet")
+    gettext.gettext("sheets")
+
+    TOOL = gettext.gettext("tool")
+    gettext.gettext("tools")
+
+    ASSIGNMENT = gettext.gettext("assignment")
+    gettext.gettext("assignments")
+
+    REVIEW = gettext.gettext("review")
+    gettext.gettext("reviews")
 
 
 class Material(Base):
@@ -54,7 +70,7 @@ class Material(Base):
 
     def __repr__(self) -> str:
         return (
-            f"Material(id={self.id!r}, published={self.puPlished!r}"
+            f"Material(id={self.id!r}, published={self.published!r}"
             " course={self.course!r}, academic_year={self.academic_year!r})"
         )
 

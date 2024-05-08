@@ -4,7 +4,7 @@ import re
 from typing import List
 
 from sqlalchemy.orm import Session
-from telegram import CallbackQuery, InlineKeyboardMarkup, Update
+from telegram import CallbackQuery, Document, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
@@ -18,7 +18,8 @@ from src import constants, messages, queries
 from src.config import Config
 from src.conversations.updatematerial import updatematerials_
 from src.customcontext import CustomContext
-from src.models import AccessRequest, File, RoleName, Status
+from src.messages import bold, underline
+from src.models import AccessRequest, Course, File, RoleName, Status
 from src.utils import build_menu, roles, session, set_my_commands
 
 # ------------------------- Callbacks -----------------------------
@@ -45,9 +46,11 @@ async def list_accesses(
     user = queries.user(session, context.user_data["id"])
     message: str
     keyboard = []
+    _ = context.gettext
+
     if len(user.enrollments) == 0:
         return None
-    message = messages.editor_accesses()
+    message = underline(_("Editor Access"))
     requests = queries.user_access_requests(
         session,
         user_id=context.user_data["id"],
@@ -75,9 +78,11 @@ async def list_accesses(
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if query:
-        await query.edit_message_text(message, reply_markup=reply_markup)
+        await query.edit_message_text(
+            message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+        )
     else:
-        await update.message.reply_text(message, reply_markup=reply_markup)
+        await update.message.reply_html(message, reply_markup=reply_markup)
 
     return constants.ONE
 
@@ -94,15 +99,16 @@ async def access_add(update: Update, context: CustomContext, session: Session) -
     url = context.match.group()
 
     keyboard = []
-    enrollment_text = messages.enrollment_text(context.match, session)
+    enrollment_text = messages.enrollment_text(context.match, session, context=context)
+    _ = context.gettext
 
-    message = enrollment_text + messages.new_editor_instructions()
+    message = enrollment_text + "\n" + _("How editing works")
     keyboard = [
         [
             context.buttons.submit_proof(url=f"{url}/{constants.ID}"),
             context.buttons.contact_support(
                 url="https://t.me/skulebotsupport"
-                "?text=" + messages.new_editor_introduction(enrollment_text)
+                "?text=" + _("No id intro message {}").format(enrollment_text)
             ),
         ],
     ]
@@ -125,7 +131,7 @@ async def send_id(update: Update, context: CustomContext) -> None:
     await query.answer()
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
-    message = messages.send_editor_proof()
+    message = context.gettext("Send me your proof")
     await query.message.reply_text(message)
     return constants.ADD
 
@@ -141,7 +147,12 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
     )
     message = update.message
     user = update.effective_user
-    file_id = message.photo[-1].file_id
+    attachment = message.effective_attachment
+    file_id = (
+        attachment.file_id
+        if isinstance(attachment, Document)
+        else message.photo[-1].file_id
+    )
     enrollment_id = int(match.group("enrollment_id"))
 
     enrollment = queries.enrollment(session, enrollment_id)
@@ -151,14 +162,19 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
         enrollment=enrollment,
         verification_photo=File(
             telegram_id=file_id,
-            name=user.full_name + " verification",
-            type="photo",
+            name=user.full_name + "_verification",
+            type="document" if isinstance(attachment, Document) else "photo",
             uploader=queries.user(session, context.user_data["id"]),
         ),
     )
     session.add(request)
 
-    caption = messages.new_request(request, chat=user)
+    _ = context.gettext
+    caption = _("Admin call for action {fullname} {mention} {enrollment}").format(
+        fullname=user.full_name,
+        mention=user.mention_html(),
+        enrollment=messages.enrollment_text(enrollment=enrollment, context=context),
+    )
     url = f"{constants.REQUEST_MANAGEMENT_}/{constants.ACCESSREQUSTS}/{request.id}"
     keyboard = [
         [
@@ -167,16 +183,21 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    sender = (
+        context.bot.send_document
+        if isinstance(attachment, Document)
+        else (context.bot.send_photo)
+    )
     for id_ in Config.ROOTIDS:
-        await context.bot.sendPhoto(
+        await sender(
             id_,
-            photo=file_id,
+            file_id,
             caption=caption,
             reply_markup=reply_markup,
             parse_mode=ParseMode.HTML,
         )
 
-    message = messages.request_received()
+    message = _("Thanks for applying {}").format(constants.COMMANDS.editor1.command)
     await update.message.reply_text(message)
 
 
@@ -195,10 +216,11 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
     enrollment_id = int(context.match.group("enrollment_id"))
     enrollment = queries.enrollment(session, enrollment_id)
     request = enrollment.access_request
+    _ = context.gettext
 
     if request.status == Status.PENDING:
-        message = messages.enrollment_text(enrollment=enrollment)
-        message += messages.is_pending()
+        message = messages.enrollment_text(enrollment=enrollment, context=context)
+        message += "\n\n" + _("Your request is pending")
         keyboard = [[context.buttons.back(url, f"/{constants.ENROLLMENTS}.*")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
@@ -228,10 +250,12 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
         program_id=enrollment.program.id,
         semester_id=enrollment.semester.id,
         user_id=context.user_data["id"],
+        sort_attr=(
+            Course.ar_name if context.language_code == constants.AR else Course.en_name
+        ),
     )
-
     courses_url = f"{url}/{constants.COURSES}"
-    menu = context.buttons.courses_list(
+    courses_buttons = context.buttons.courses_list(
         user_courses,
         url=courses_url,
     )
@@ -240,33 +264,31 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
         program_id=enrollment.program.id,
         semester_id=enrollment.semester.id,
     )
-    menu = (
-        [*menu, context.buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
+    courses_buttons += (
+        [context.buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
         if has_optional_courses
-        else menu
+        else []
     )
     level = enrollment.semester.number // 2 + (enrollment.semester.number % 2)
-    program_semesters = queries.program_semesters(
+    semesters_buttons = queries.program_semesters(
         session, enrollment.program.id, level=level
     )
     keyboard = build_menu(
-        menu,
+        courses_buttons,
         1,
-        header_buttons=context.buttons.program_semesters_list(
-            program_semesters,
-            url,
-            selected_ids=enrollment.program_semester.id,
-            sep=f"/{constants.EDIT}?program_semester_id=",
-        ),
+        header_buttons=semesters_buttons,
         footer_buttons=[
             context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
             context.buttons.revoke(url),
         ],
+        reverse=context.language_code == constants.AR,
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = f"<u>{messages.editor_accesses()}</u>\n\n" + messages.enrollment_text(
-        enrollment=request.enrollment
+    message = (
+        underline(_("Editor Access"))
+        + "\n\n"
+        + messages.enrollment_text(enrollment=request.enrollment, context=context)
     )
 
     await query.edit_message_text(
@@ -295,12 +317,22 @@ async def revoke_access(update: Update, context: CustomContext, session: Session
 
     menu_buttons: List
     message: str
+    _ = context.gettext
+
     if has_confirmed is None:
         menu_buttons = context.buttons.delete_group(url=url)
-        message = messages.revoke_confirm(f"Enrollment {year.start} - {year.end}")
+        message = (
+            _("Revoke {}")
+            .format(bold(_("Access for year {}")))
+            .format(f"{year.start} - {year.end}")
+        )
     elif has_confirmed == "0":
         menu_buttons = context.buttons.confirm_delete_group(url=url)
-        message = messages.revoke_reconfirm(f"Enrollment {year.start} - {year.end}")
+        message = (
+            _("Confirm revoke {}")
+            .format(bold(_("Access for year {}")))
+            .format(f"{year.start} - {year.end}")
+        )
     elif has_confirmed == "1":
         del enrollment.access_request
         session.flush()
@@ -318,10 +350,14 @@ async def revoke_access(update: Update, context: CustomContext, session: Session
             await set_my_commands(context.bot, user)
         menu_buttons = [
             context.buttons.back(
-                url, text="to Editor Accesses", pattern=rf"/{constants.ENROLLMENTS}.*"
+                url, text=_("Editor Access"), pattern=rf"/{constants.ENROLLMENTS}.*"
             )
         ]
-        message = messages.success_revoked(f"Enrollment {year.start} - {year.end}")
+        message = (
+            _("Success! {} revoked")
+            .format(_("Access for year {}"))
+            .format(f"{year.start} - {year.end}")
+        )
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -335,8 +371,9 @@ async def revoke_access(update: Update, context: CustomContext, session: Session
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("editor", list_accesses),
+    CommandHandler(cmd.editor1.command, list_accesses),
 ]
 
 states = {
@@ -368,7 +405,7 @@ states = {
 states.update(
     {
         constants.ADD: states[constants.ONE]
-        + [MessageHandler(filters.PHOTO, receive_id_file)]
+        + [MessageHandler(filters.PHOTO | filters.Document.ALL, receive_id_file)]
     }
 )
 

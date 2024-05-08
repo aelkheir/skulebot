@@ -9,8 +9,7 @@ from telegram.ext import DictPersistence, PersistenceInput
 
 from src import queries
 from src.database import engine
-from src.models import ChatData, Conversation, UserData
-from src.models.user import User
+from src.models import ChatData, Conversation, User, UserData
 
 
 class SQLPersistence(DictPersistence):
