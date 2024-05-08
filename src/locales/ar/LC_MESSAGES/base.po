@@ -1,0 +1,919 @@
+# Arabic translations for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-05-08 03:35+0300\n"
+"PO-Revision-Date: 2024-05-07 16:04+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ar\n"
+"Language-Team: ar <LL@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : "
+"n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: src/constants.py:146
+msgid "/academicyears description"
+msgstr "تحديث الاعوام الدراسية"
+
+#: src/constants.py:130
+msgid "/contentmanagement description"
+msgstr "الاشراف على المحتويات المرفوعة"
+
+#: src/constants.py:126
+msgid "/coursemanagement description"
+msgstr "تحديث اوصاف المواد"
+
+#: src/constants.py:154
+msgid "/courses description"
+msgstr "اعرض المواد الحالية"
+
+#: src/constants.py:134
+msgid "/departments description"
+msgstr "تحديث اوصاف الاقسام"
+
+#: src/constants.py:166
+msgid "/editor1 description"
+msgstr "تقدم بطلب صلاحية لرفع المحتويات"
+
+#: src/constants.py:174
+msgid "/editor2 description"
+msgstr "التحكم في صلاحيات النشر"
+
+#: src/conversations/coursemanagement.py:311
+#: src/conversations/material/date.py:27
+#: src/conversations/material/deadline.py:69
+#: src/conversations/material/files.py:245
+msgid "/empty to clear {}"
+msgstr "اكتب /empty لحذف قيمة {} الحالية"
+
+#: src/constants.py:150
+msgid "/enrollments1 description"
+msgstr "سجل في تخصصك ومستواك"
+
+#: src/constants.py:162
+msgid "/enrollments2 description"
+msgstr "تحديث التسجيل"
+
+#: src/constants.py:122
+msgid "/pending description"
+msgstr "قبول ورفض طلبات المحررين"
+
+#: src/constants.py:138
+msgid "/programs description"
+msgstr "تحديث اوصاف التخصصات ومناهجها"
+
+#: src/constants.py:142
+msgid "/semesters description"
+msgstr "تحديث السمسترات"
+
+#: src/constants.py:158
+msgid "/settings description"
+msgstr "اضبط اعدادات البوت"
+
+#: src/constants.py:170
+msgid "/updatematerials description"
+msgstr "رفع محتويات للمواد الحالية"
+
+#: src/conversations/academicyear.py:52
+msgid "Academic years"
+msgstr "الاعوام الاكاديمية"
+
+#: src/conversations/editor.py:327 src/conversations/editor.py:334
+#: src/conversations/editor.py:359
+msgid "Access for year {}"
+msgstr "صلاحية النشر {}"
+
+#: src/buttons.py:778
+msgid "Activate"
+msgstr "تفعيل"
+
+#: src/buttons.py:697
+msgid "Add {}"
+msgstr "اضافة {}"
+
+#: src/conversations/editor.py:174 src/conversations/requestmanagement.py:105
+msgid "Admin call for action {fullname} {mention} {enrollment}"
+msgstr ""
+"طلب صلاحية نشر: {mention}\n"
+"\n"
+"يطلب {fullname} صلاحية للنشر في التسجيل\n"
+"{enrollment}"
+
+#: src/conversations/enrollment.py:112
+msgid "Already enrolled"
+msgstr ""
+"عفواً، يبدو انه قد تم تسجيلك لهذا العام. حاول /courses لعرض قائمة المواد "
+"الحالية."
+
+#: src/conversations/material/publish.py:55
+msgid "Already published"
+msgstr "تم نشره من قبل"
+
+#: src/buttons.py:1100
+msgid "April"
+msgstr "ابريل"
+
+#: src/conversations/coursemanagement.py:254
+#: src/conversations/coursemanagement.py:292
+#: src/conversations/department.py:156 src/conversations/department.py:195
+#: src/conversations/program.py:158 src/conversations/program.py:698
+msgid "Arabic"
+msgstr "العربية"
+
+#: src/buttons.py:1104
+msgid "August"
+msgstr "اغسطس"
+
+#: src/buttons.py:835
+msgid "Back"
+msgstr "رجوع"
+
+#: src/buttons.py:835
+msgid "Back to {}"
+msgstr "رجوع ل{}"
+
+#: src/commands.py:142 src/conversations/setting.py:58
+#: src/conversations/setting.py:132
+msgid "Bot Settings"
+msgstr "اعدادات البوت"
+
+#: src/conversations/material/publish.py:49
+msgid "Can't publish no files"
+msgstr "لايمكن النشر بدون ملفات!"
+
+#: src/buttons.py:772 src/conversations/program.py:201
+#: src/conversations/program.py:262 src/conversations/program.py:384
+#: src/conversations/program.py:434 src/conversations/program.py:562
+msgid "Carriculam"
+msgstr "المنهج"
+
+#: src/messages.py:60
+msgid "Commands"
+msgstr "الاوامر"
+
+#: src/conversations/academicyear.py:189
+#: src/conversations/coursemanagement.py:494
+#: src/conversations/department.py:232 src/conversations/enrollment.py:234
+#: src/conversations/material/delete.py:64 src/conversations/program.py:732
+#: src/conversations/semester.py:188
+msgid "Confirm delete warning {}"
+msgstr "هل انت متاكد <b>تماماَ</b> انك تود ان تحذف {}؟"
+
+#: src/conversations/editor.py:333
+msgid "Confirm revoke {}"
+msgstr "هل انت متاكد <b>تماماَ</b> انك تود ان تسحب {}؟"
+
+#: src/conversations/requestmanagement.py:49
+msgid "Congratulations! New access"
+msgstr "تم قبول طلبك لنشر المحتويات 🎉! "
+
+#: src/buttons.py:620
+msgid "Contact"
+msgstr "تواصل"
+
+#: src/conversations/contentmanagement.py:38
+#: src/conversations/contentmanagement.py:70
+#: src/conversations/contentmanagement.py:114
+#: src/conversations/contentmanagement.py:152 src/messages.py:121
+msgid "Content Management"
+msgstr "ادارة المحتويات"
+
+#: src/conversations/course.py:111 src/conversations/course.py:119
+#: src/conversations/coursemanagement.py:233 src/conversations/program.py:583
+#: src/conversations/program.py:620
+msgid "Course"
+msgstr "المادة"
+
+#: src/conversations/coursemanagement.py:56
+#: src/conversations/coursemanagement.py:114
+#: src/conversations/coursemanagement.py:166
+#: src/conversations/coursemanagement.py:391
+#: src/conversations/coursemanagement.py:471
+msgid "Course Management"
+msgstr "ادارة المواد"
+
+#: src/conversations/program.py:640
+msgid "Course already present"
+msgstr "المادة مبروطة مع نفس السمستر مسبقاً"
+
+#: src/conversations/program.py:643
+msgid "Course linked to other semester {}"
+msgstr "المادة مربوطة في سمستر مختلف ({})، هل ترغب في التحديث؟"
+
+#: src/conversations/coursemanagement.py:490
+#: src/conversations/coursemanagement.py:495
+msgid "Course {}"
+msgstr "مادة {}"
+
+#: src/commands.py:106
+msgid "Courses"
+msgstr "المواد"
+
+#: src/conversations/coursemanagement.py:311
+#: src/conversations/coursemanagement.py:341
+#: src/conversations/coursemanagement.py:354
+msgid "Credits"
+msgstr "الساعات"
+
+#: src/conversations/coursemanagement.py:182
+msgid "Credits: {}"
+msgstr "الساعات: {}"
+
+#: src/conversations/material/date.py:27 src/conversations/material/date.py:51
+#: src/conversations/material/date.py:64
+#: src/conversations/material/deadline.py:67
+#: src/conversations/material/deadline.py:69
+#: src/conversations/material/material.py:245
+msgid "Date"
+msgstr "التاريخ"
+
+#: src/buttons.py:782
+msgid "Deactivate"
+msgstr "الغاء التفعيل"
+
+#: src/conversations/material/deadline.py:96
+#: src/conversations/material/material.py:271
+msgid "Deadline"
+msgstr "اخر موعد"
+
+#: src/conversations/material/deadline.py:47
+msgid "Deadline date selected {}"
+msgstr ""
+"حسناً، قمت باختيار <b>{}</b>، الان ادخل الوقت بنظام ال 24 ساعة "
+"<pre>[h]h:[m]m</pre>"
+
+#: src/buttons.py:1108
+msgid "December"
+msgstr "ديسمبر"
+
+#: src/buttons.py:733
+msgid "Delete"
+msgstr "حذف"
+
+#: src/conversations/academicyear.py:184
+#: src/conversations/coursemanagement.py:489
+#: src/conversations/department.py:227 src/conversations/enrollment.py:229
+#: src/conversations/material/delete.py:61 src/conversations/program.py:727
+#: src/conversations/semester.py:183
+msgid "Delete warning {}"
+msgstr "انت على وشك حذف {}. هل هذا صحيح؟"
+
+#: src/buttons.py:733
+msgid "Delete {}"
+msgstr "حذف ال{}"
+
+#: src/conversations/coursemanagement.py:405
+#: src/conversations/coursemanagement.py:441
+#: src/conversations/department.py:135
+msgid "Department"
+msgstr "القسم"
+
+#: src/conversations/department.py:228 src/conversations/department.py:233
+msgid "Department {}"
+msgstr "قسم {}"
+
+#: src/conversations/department.py:58
+msgid "Departments"
+msgstr "الاقسام"
+
+#: src/buttons.py:611
+msgid "Disable All"
+msgstr "الغاء الكل"
+
+#: src/buttons.py:586
+msgid "Disenroll"
+msgstr "الغاء التسجل"
+
+#: src/buttons.py:869
+msgid "Display"
+msgstr "عرض"
+
+#: src/buttons.py:809
+msgid "Don't Notify"
+msgstr "بدون تنبيهات"
+
+#: src/conversations/material/publish.py:254
+msgid "Done sending notifications"
+msgstr "تم ارسال التنبيهات!"
+
+#: src/conversations/setting.py:172 src/conversations/setting.py:177
+msgid "Done! Updated successfully"
+msgstr "تم التحديث بنجاح"
+
+#: src/buttons.py:716
+msgid "Edit {}"
+msgstr "تعديل {}"
+
+#: src/conversations/editor.py:54 src/conversations/editor.py:290
+#: src/conversations/editor.py:354 src/messages.py:119
+msgid "Editor Access"
+msgstr "صلاحيات النشر"
+
+#: src/conversations/updatematerial.py:75 src/messages.py:117
+msgid "Editor Menu"
+msgstr "قائمة النشر"
+
+#: src/conversations/coursemanagement.py:254
+#: src/conversations/coursemanagement.py:292
+#: src/conversations/department.py:156 src/conversations/department.py:195
+#: src/conversations/program.py:158 src/conversations/program.py:698
+msgid "English"
+msgstr "الانجليزية"
+
+#: src/buttons.py:94
+msgid "Enroll Now"
+msgstr "سجِّل الان"
+
+#: src/conversations/enrollment.py:230 src/conversations/enrollment.py:235
+#: src/conversations/enrollment.py:260
+msgid "Enrollment {} - {}"
+msgstr "تسجيل {} - {}"
+
+#: src/buttons.py:1098
+msgid "February"
+msgstr "فبراير"
+
+#: src/constants.py:75
+msgid "Fifth Year"
+msgstr "المستوى الخامس"
+
+#: src/buttons.py:843
+msgid "File"
+msgstr "ملف"
+
+#: src/constants.py:71
+msgid "First Year"
+msgstr "المستوى الأول"
+
+#: src/constants.py:74
+msgid "Fourth Year"
+msgstr "المستوى الرابع"
+
+#: src/buttons.py:978
+msgid "Fri"
+msgstr "جمعة"
+
+#: src/buttons.py:304 src/conversations/coursemanagement.py:121
+#: src/conversations/coursemanagement.py:173
+#: src/conversations/coursemanagement.py:398
+#: src/conversations/coursemanagement.py:478
+msgid "General Department"
+msgstr "القسم العام"
+
+#: src/buttons.py:787
+msgid "Get All"
+msgstr "ارسل الكل"
+
+#: src/buttons.py:626
+msgid "Grant Access"
+msgstr "امنح الصلاحية"
+
+#: src/buttons.py:935
+msgid "Hell no"
+msgstr "قطعاً لا"
+
+#: src/conversations/editor.py:106
+msgid "How editing works"
+msgstr ""
+"شكراَ للمسعادة في تحديث المحتويات!\n"
+"\n"
+"اذا كان لديك انترنت مستقر نسبياً، يمكنك ان تشارك في  رفع محتويات المواد "
+"مما سيسهل الوصول اليها لك ولزملائك. نبحث عن شخص على الاستعداد بالتزام "
+"طويل الامد، اي على الاقل سمستر كامل بدلاً عن بضعة ايام.\n"
+"لنمنحك هذه الصلاحية، وبما ان البوت مفتوح للجميع، نحتاج ان نتحقق اولاً انك"
+" بالفعل طالب بالكلية.\n"
+"\n"
+"يوجد طيرقتان لاتمام التحقيق. يمكنك ان ترسل اي ما تراه يثبت ذلك، أو اذا لم"
+" يكن لديك وسيلية تحقيق تواصل معنا."
+
+#: src/buttons.py:1097
+msgid "January"
+msgstr "ياناير"
+
+#: src/buttons.py:1103
+msgid "July"
+msgstr "يوليو"
+
+#: src/buttons.py:1102
+msgid "June"
+msgstr "يونيو"
+
+#: src/buttons.py:797 src/conversations/setting.py:62
+#: src/conversations/setting.py:88 src/conversations/setting.py:93
+msgid "Language"
+msgstr "اللغة"
+
+#: src/conversations/enrollment.py:64
+msgid "Level"
+msgstr "المستوى"
+
+#: src/buttons.py:638
+msgid "Link Course"
+msgstr "اربط مادة"
+
+#: src/buttons.py:1099
+msgid "March"
+msgstr "مارس"
+
+#: src/buttons.py:1101
+msgid "May"
+msgstr "مايو"
+
+#: src/buttons.py:974
+msgid "Mon"
+msgstr "أثنين"
+
+#: src/conversations/coursemanagement.py:180 src/conversations/department.py:91
+#: src/conversations/program.py:101
+msgid "Name in Arabic {} and English {}"
+msgstr ""
+"الاسم بالعربية: {}\n"
+"الاسم بالانجليزية: {}"
+
+#: src/conversations/coursemanagement.py:293
+#: src/conversations/department.py:196 src/conversations/program.py:699
+msgid "Name in {}"
+msgstr "الاسم ب{}"
+
+#: src/buttons.py:914 src/buttons.py:931
+msgid "No"
+msgstr "لا"
+
+#: src/commands.py:112
+msgid "No editor warning {}"
+msgstr "[لا يوجد احد معه صلاحية رفع المحتويات، يمكنك ان تصبح احدهم هنا /{}.]"
+
+#: src/conversations/editor.py:112
+msgid "No id intro message {}"
+msgstr ""
+"سلام! عاوز صلاحية نشر في\n"
+"\n"
+"{}"
+
+#: src/messages.py:179 src/messages.py:237
+msgid "No value"
+msgstr "لا يوجد"
+
+#: src/buttons.py:910
+msgid "Nope"
+msgstr "كلا"
+
+#: src/buttons.py:801 src/conversations/setting.py:136
+msgid "Notifications"
+msgstr "التنبيهات"
+
+#: src/buttons.py:805
+msgid "Notify"
+msgstr "ارسل تنبيهاً"
+
+#: src/buttons.py:1107
+msgid "November"
+msgstr "نوفمبر"
+
+#: src/conversations/material/material.py:240
+#: src/conversations/material/number.py:68 src/conversations/semester.py:86
+msgid "Number"
+msgstr "الرقم"
+
+#: src/buttons.py:1106
+msgid "October"
+msgstr "اكتوبر"
+
+#: src/buttons.py:643
+msgid "Optional"
+msgstr "اختياري"
+
+#: src/buttons.py:76
+msgid "Optional Courses"
+msgstr "المواد الاختيارية"
+
+#: src/buttons.py:123
+msgid "Pending"
+msgstr "جارٍ"
+
+#: src/commands.py:176
+msgid "Pending access requests"
+msgstr "طلبات الصلاحية المعلقة"
+
+#: src/conversations/enrollment.py:50 src/conversations/program.py:728
+#: src/conversations/program.py:733
+msgid "Program"
+msgstr "التخصص"
+
+#: src/conversations/program.py:63
+msgid "Programs"
+msgstr "التخصصات"
+
+#: src/buttons.py:751
+msgid "Publish"
+msgstr "نشر"
+
+#: src/messages.py:171
+msgid "Published false"
+msgstr "(غير منشور)"
+
+#: src/messages.py:169
+msgid "Published true"
+msgstr "(تم نشره)"
+
+#: src/conversations/material/publish.py:94
+msgid "Publishing Options"
+msgstr "هل ترغب في ارسال تنبيهات؟"
+
+#: src/buttons.py:630
+msgid "Reject"
+msgstr "رفض"
+
+#: src/buttons.py:87
+msgid "Request Access"
+msgstr "اطلب صلاحية"
+
+#: src/buttons.py:649
+msgid "Required"
+msgstr "اجباري"
+
+#: src/buttons.py:814
+msgid "Revoke Access"
+msgstr "سحب الصلاحية"
+
+#: src/conversations/editor.py:326
+msgid "Revoke {}"
+msgstr "انت على وشك ان تسحب {}. هل هذا صحيح؟"
+
+#: src/buttons.py:979
+msgid "Sat"
+msgstr "سبت"
+
+#: src/constants.py:72
+msgid "Second Year"
+msgstr "المستوى الثاني"
+
+#: src/conversations/course.py:151 src/conversations/updatematerial.py:191
+msgid "Select optional courses"
+msgstr "هذه المواد اختياربة. اختر منها للاضافة لقائمة /courses."
+
+#: src/conversations/coursemanagement.py:405 src/conversations/enrollment.py:50
+#: src/conversations/enrollment.py:64 src/conversations/material/add.py:114
+#: src/conversations/material/deadline.py:67 src/conversations/program.py:455
+#: src/conversations/program.py:583 src/conversations/program.py:620
+msgid "Select {}"
+msgstr "اختر {}"
+
+#: src/buttons.py:189 src/buttons.py:225 src/conversations/program.py:455
+#: src/conversations/program.py:478
+msgid "Semester"
+msgstr "سمستر"
+
+#: src/conversations/semester.py:155
+msgid "Semester number"
+msgstr "رقم السمستر"
+
+#: src/conversations/contentmanagement.py:118
+#: src/conversations/contentmanagement.py:156 src/conversations/program.py:270
+#: src/conversations/program.py:392 src/conversations/program.py:449
+#: src/conversations/program.py:472 src/conversations/program.py:570
+#: src/conversations/semester.py:111 src/conversations/semester.py:184
+#: src/conversations/semester.py:189 src/messages.py:136
+msgid "Semester {}"
+msgstr "سمستر {}"
+
+#: src/conversations/semester.py:54
+msgid "Semesters"
+msgstr "السمسترات"
+
+#: src/conversations/material/add.py:70 src/conversations/material/files.py:154
+msgid "Send files ({})"
+msgstr "ارسل الملفات ({})"
+
+#: src/conversations/editor.py:135
+msgid "Send me your proof"
+msgstr "حسناً. ارسل ما ياكد تسجيلك (صورة، ملف)"
+
+#: src/buttons.py:1105
+msgid "September"
+msgstr "سبتمبر"
+
+#: src/buttons.py:882
+msgid "Show Less"
+msgstr "عرض القليل"
+
+#: src/buttons.py:875
+msgid "Show More"
+msgstr "عرض المزيد"
+
+#: src/buttons.py:757 src/buttons.py:793 src/buttons.py:891
+#: src/conversations/material/add.py:189
+#: src/conversations/material/files.py:214
+#: src/conversations/material/files.py:245
+#: src/conversations/material/files.py:269
+#: src/conversations/material/files.py:283
+#: src/conversations/material/material.py:253 src/messages.py:235
+msgid "Source"
+msgstr "المصدر"
+
+#: src/conversations/material/publish.py:212
+msgid "Started sending notifications"
+msgstr "بدأ ارسال التنبيهات"
+
+#: src/buttons.py:615
+msgid "Submit Proof"
+msgstr "ارسل اثبات"
+
+#: src/conversations/program.py:349 src/conversations/program.py:353
+msgid "Success!"
+msgstr "نجاح!"
+
+#: src/conversations/setting.py:163 src/conversations/setting.py:165
+msgid "Success! All notifications are Off"
+msgstr "تم! كل التنبيهات ملغية"
+
+#: src/conversations/material/deadline.py:115
+msgid "Success! Deadline set {}"
+msgstr "نجاح! موعد التسليم وضع ل <b>{}</b>."
+
+#: src/conversations/course.py:111 src/conversations/material/add.py:61
+#: src/conversations/material/add.py:207
+#: src/conversations/material/files.py:225
+msgid "Success! {} added"
+msgstr "نجاح! تمت اضافة {}"
+
+#: src/conversations/academicyear.py:107
+#: src/conversations/coursemanagement.py:233
+#: src/conversations/department.py:135 src/conversations/material/add.py:87
+#: src/conversations/program.py:143 src/conversations/semester.py:111
+msgid "Success! {} created"
+msgstr "نجاح! تم انشاء {}"
+
+#: src/conversations/academicyear.py:199
+#: src/conversations/coursemanagement.py:341
+#: src/conversations/coursemanagement.py:504
+#: src/conversations/department.py:242 src/conversations/enrollment.py:259
+#: src/conversations/material/delete.py:74
+#: src/conversations/material/files.py:90 src/conversations/program.py:742
+#: src/conversations/semester.py:196
+msgid "Success! {} deleted"
+msgstr "نجاح! تم حذف {}"
+
+#: src/conversations/program.py:636
+msgid "Success! {} linked"
+msgstr "نجاح! تم ربط {}"
+
+#: src/conversations/material/publish.py:59
+#: src/conversations/material/publish.py:67
+#: src/conversations/material/publish.py:103
+#: src/conversations/material/publish.py:109
+msgid "Success! {} published"
+msgstr "نجاح! تم نشر {}"
+
+#: src/conversations/course.py:119 src/conversations/material/date.py:51
+#: src/conversations/material/deadline.py:96
+#: src/conversations/material/files.py:269
+msgid "Success! {} removed"
+msgstr "نجاح! تم حذف {}"
+
+#: src/conversations/editor.py:358
+msgid "Success! {} revoked"
+msgstr "نجاح! تم سحب {}"
+
+#: src/conversations/program.py:529
+msgid "Success! {} unlinked"
+msgstr "نجاح! تم الغاء ربط {}"
+
+#: src/conversations/academicyear.py:156
+#: src/conversations/coursemanagement.py:293
+#: src/conversations/coursemanagement.py:354
+#: src/conversations/coursemanagement.py:441
+#: src/conversations/department.py:196 src/conversations/material/date.py:64
+#: src/conversations/material/files.py:283
+#: src/conversations/material/number.py:68 src/conversations/program.py:478
+#: src/conversations/program.py:657 src/conversations/program.py:699
+#: src/conversations/semester.py:155 src/conversations/setting.py:88
+#: src/conversations/setting.py:93
+msgid "Success! {} updated"
+msgstr "نجاح! تم تحديث {}"
+
+#: src/buttons.py:973
+msgid "Sun"
+msgstr "أحد"
+
+#: src/conversations/editor.py:201
+msgid "Thanks for applying {}"
+msgstr ""
+"مجهودك مقدّر! استلمنا طلبك وسنعاودك الاتصال قريبا.\n"
+"\n"
+"في الوقت الحالي يمكنك متابعة حالة الطلب على /{}."
+
+#: src/constants.py:73
+msgid "Third Year"
+msgstr "المستوى الثالث"
+
+#: src/buttons.py:977
+msgid "Thu"
+msgstr "خميس"
+
+#: src/buttons.py:975
+msgid "Tue"
+msgstr "ثلاث"
+
+#: src/conversations/material/add.py:114
+msgid "Type"
+msgstr "النوع"
+
+#: src/conversations/material/date.py:27
+msgid "Type date"
+msgstr "ادخل التاريخ على الصورة <pre>[20]yy-mm[-dd]</pre>"
+
+#: src/conversations/material/files.py:245
+msgid "Type link"
+msgstr "ارسل رابط"
+
+#: src/conversations/coursemanagement.py:202
+#: src/conversations/department.py:107 src/conversations/program.py:115
+msgid "Type multilingual name"
+msgstr "اكتب الاسم على الشكل <pre>الاسم بالانجليزية - الاسم بالعربية</pre>"
+
+#: src/conversations/coursemanagement.py:255
+#: src/conversations/department.py:157 src/conversations/program.py:159
+msgid "Type name in {}"
+msgstr "اكتب الاسم ب{}"
+
+#: src/conversations/coursemanagement.py:311
+#: src/conversations/material/number.py:32 src/conversations/semester.py:127
+msgid "Type number"
+msgstr "ادخل رقم"
+
+#: src/conversations/academicyear.py:123
+msgid "Type year"
+msgstr "اكتب العام على الشكل yyyy - yyyy"
+
+#: src/buttons.py:634
+msgid "Unlink Course"
+msgstr "الغاء الربط"
+
+#: src/buttons.py:436
+msgid "Update to Semeter {}"
+msgstr "حدث لسمستر {}"
+
+#: src/buttons.py:976
+msgid "Wed"
+msgstr "أربع"
+
+#: src/conversations/academicyear.py:82 src/conversations/academicyear.py:156
+msgid "Year"
+msgstr "العام"
+
+#: src/conversations/academicyear.py:107 src/conversations/academicyear.py:185
+#: src/conversations/academicyear.py:190 src/conversations/academicyear.py:200
+#: src/messages.py:138 src/messages.py:267
+msgid "Year {} - {}"
+msgstr "العام {} - {}"
+
+#: src/buttons.py:903
+msgid "Yes that's correct"
+msgstr "نعم هذا صحيح"
+
+#: src/buttons.py:927
+#, python-format
+msgid "Yes, I'm 100% sure!"
+msgstr "نعم، انا متاكد 100%!"
+
+#: src/conversations/enrollment.py:95
+msgid "You have been enrolled"
+msgstr "تم تسجيلك 🎉!"
+
+#: src/conversations/enrollment.py:105
+#: src/conversations/requestmanagement.py:61
+msgid "Your commands have been Updated"
+msgstr "هذه قائمة محدثة من الاوامر. يمكنك عرضها دوماً باستعمال /help."
+
+#: src/commands.py:52 src/conversations/enrollment.py:255
+msgid "Your enrollments"
+msgstr "التسجيل"
+
+#: src/conversations/editor.py:224
+msgid "Your request is pending"
+msgstr "طلبك قيد الاجراء. سنعاودك الاتصال قريباً. مع الشكر"
+
+#: src/models/material.py:42
+msgid "assignment"
+msgstr "تسليم"
+
+#: src/models/material.py:43
+msgid "assignments"
+msgstr "التساليم"
+
+#: src/conversations/coursemanagement.py:176
+#: src/conversations/coursemanagement.py:401
+#: src/conversations/coursemanagement.py:481
+#: src/conversations/material/publish.py:223
+#: src/conversations/notification.py:68 src/conversations/notification.py:103
+#: src/conversations/program.py:268 src/conversations/program.py:390
+#: src/conversations/program.py:395 src/conversations/program.py:447
+#: src/conversations/program.py:451 src/conversations/program.py:470
+#: src/conversations/program.py:474 src/conversations/program.py:568
+#: src/conversations/setting.py:60 src/conversations/setting.py:134
+#: src/messages.py:150 src/messages.py:198 src/messages.py:200
+msgid "corner-symbol"
+msgstr "┘"
+
+#: src/messages.py:181
+msgid "due by"
+msgstr "بحلول"
+
+#: src/models/material.py:30
+msgid "lab"
+msgstr "معمل"
+
+#: src/models/material.py:31
+msgid "labs"
+msgstr "المعامل"
+
+#: src/models/material.py:24
+msgid "lecture"
+msgstr "محاضرة"
+
+#: src/models/material.py:25
+msgid "lectures"
+msgstr "المحاضرات"
+
+#: src/messages.py:84 src/messages.py:98
+msgid "new"
+msgstr "جديد"
+
+#: src/buttons.py:664 src/buttons.py:995 src/buttons.py:1126
+msgid "next-page-symbol"
+msgstr "<<"
+
+#: src/buttons.py:680 src/buttons.py:985 src/buttons.py:1117
+msgid "prev-page-symbol"
+msgstr ">>"
+
+#: src/models/material.py:33
+msgid "reference"
+msgstr "مرجع"
+
+#: src/models/material.py:34
+msgid "references"
+msgstr "المراجع"
+
+#: src/models/material.py:45
+msgid "review"
+msgstr "اختبار"
+
+#: src/models/material.py:46
+msgid "reviews"
+msgstr "الاختبارات"
+
+#: src/models/material.py:36
+msgid "sheet"
+msgstr "شيت"
+
+#: src/models/material.py:37
+msgid "sheets"
+msgstr "الشيتات"
+
+#: src/commands.py:142 src/conversations/contentmanagement.py:158
+#: src/conversations/course.py:65 src/conversations/coursemanagement.py:116
+#: src/conversations/coursemanagement.py:168
+#: src/conversations/coursemanagement.py:393
+#: src/conversations/coursemanagement.py:473
+#: src/conversations/material/add.py:108
+#: src/conversations/material/deadline.py:58
+#: src/conversations/material/delete.py:48
+#: src/conversations/material/files.py:50
+#: src/conversations/material/material.py:169
+#: src/conversations/material/material.py:294
+#: src/conversations/material/publish.py:84
+#: src/conversations/material/publish.py:219
+#: src/conversations/notification.py:64 src/conversations/notification.py:99
+#: src/conversations/program.py:203 src/conversations/program.py:264
+#: src/conversations/program.py:386 src/conversations/program.py:436
+#: src/conversations/program.py:564 src/conversations/setting.py:56
+#: src/conversations/setting.py:130 src/conversations/updatematerial.py:109
+msgid "t-symbol"
+msgstr "┤"
+
+#: src/models/material.py:39
+msgid "tool"
+msgstr "أداة"
+
+#: src/models/material.py:40
+msgid "tools"
+msgstr "الأدوات"
+
+#: src/models/material.py:27
+msgid "tutorial"
+msgstr "تمرين"
+
+#: src/models/material.py:28
+msgid "tutorials"
+msgstr "التمارين"
+
