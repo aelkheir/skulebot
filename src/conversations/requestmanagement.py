@@ -6,7 +6,7 @@ from telegram.ext import CallbackQueryHandler, ConversationHandler
 from src import commands, constants, messages, queries
 from src.customcontext import CustomContext
 from src.models import RoleName, Status
-from src.utils import session, set_my_commands
+from src.utils import session, set_my_commands, user_locale
 
 URLPREFIX = constants.REQUEST_MANAGEMENT_
 """Used as a prefix for all `callback data` in this conversation"""
@@ -36,6 +36,7 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
 
     user = request.enrollment.user
     _ = context.gettext
+    gettext = user_locale(user.language_code).gettext
 
     if action == Status.GRANTED:
         granted_accessess = [
@@ -46,7 +47,7 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
         request.status = Status.GRANTED
         await context.bot.send_message(
             user.chat_id,
-            _("Congratulations! New access"),
+            gettext("Congratulations! New access"),
         )
         if len(granted_accessess) == 0:
             user.roles.append(queries.role(session, RoleName.EDITOR))
@@ -58,7 +59,7 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
             )
         await context.bot.send_message(
             user.chat_id,
-            _("Your commands have been Updated")
+            gettext("Your commands have been Updated")
             + "\n"
             + f"{'\n'.join(help_message.splitlines()[1:])}",
             parse_mode=ParseMode.HTML,
