@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from telegram import InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardMarkup, LinkPreviewOptions, Update
 from telegram.constants import ParseMode
 from telegram.ext import CallbackQueryHandler, ConversationHandler
 
@@ -48,6 +48,16 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
         await context.bot.send_message(
             user.chat_id,
             gettext("Congratulations! New access"),
+        )
+        await context.bot.send_message(
+            user.chat_id,
+            gettext("publish-guide"),
+            parse_mode=ParseMode.HTML,
+            link_preview_options=LinkPreviewOptions(
+                url=constants.PUBLISH_GUIDE_URL,
+                prefer_small_media=True,
+                show_above_text=True,
+            ),
         )
         if len(granted_accessess) == 0:
             user.roles.append(queries.role(session, RoleName.EDITOR))
