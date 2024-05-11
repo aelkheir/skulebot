@@ -67,13 +67,13 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
                 language_code=user.language_code,
                 new=RoleName.EDITOR,
             )
-        await context.bot.send_message(
-            user.chat_id,
-            gettext("Your commands have been Updated")
-            + "\n"
-            + f"{'\n'.join(help_message.splitlines()[1:])}",
-            parse_mode=ParseMode.HTML,
-        )
+            await context.bot.send_message(
+                user.chat_id,
+                gettext("Your commands have been Updated")
+                + "\n"
+                + f"{'\n'.join(help_message.splitlines()[1:])}",
+                parse_mode=ParseMode.HTML,
+            )
     if action == Status.REJECTED:
         session.delete(request)
         request.status = Status(action)
