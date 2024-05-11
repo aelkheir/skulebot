@@ -97,8 +97,8 @@ async def enrollments_add(
                 await set_my_commands(context.bot, user)
                 help_message = messages.help(
                     user_roles={role.name for role in user.roles},
+                    language_code=context.language_code,
                     new=RoleName.STUDENT,
-                    context=context,
                 )
                 await query.message.reply_html(
                     _("Your commands have been Updated")

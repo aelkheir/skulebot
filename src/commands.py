@@ -187,7 +187,7 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
 
     user = queries.user(session, user_id=context.user_data["id"])
     user_roles = {r.name for r in user.roles}
-    message = messages.help(user_roles, context=context)
+    message = messages.help(user_roles, language_code=context.language_code)
 
     await update.message.reply_html(message)
 

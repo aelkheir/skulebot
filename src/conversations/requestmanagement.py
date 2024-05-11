@@ -53,8 +53,8 @@ async def request_action(update: Update, context: CustomContext, session: Sessio
             await set_my_commands(context.bot, user)
             help_message = messages.help(
                 user_roles={role.name for role in user.roles},
+                language_code=user.language_code,
                 new=RoleName.EDITOR,
-                context=context,
             )
         await context.bot.send_message(
             user.chat_id,

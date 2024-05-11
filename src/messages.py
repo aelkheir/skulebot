@@ -22,7 +22,7 @@ from src.models import (
     RoleName,
     SingleFile,
 )
-from src.utils import user_mode
+from src.utils import user_locale, user_mode
 
 
 def successfull_request_action(
@@ -50,19 +50,19 @@ def underline(text):
 
 def help(
     user_roles: Set[RoleName],
+    language_code: str,
     new: Optional[RoleName] = None,
-    context: CustomContext = None,
 ):
     message: str
-    _ = context.gettext
-    cmds = constants.Commands(context.gettext)
+    _ = user_locale(language_code).gettext
+    cmds = constants.Commands(_)
 
     message = bold(_("Commands")) + "\n\n"
 
     if user_roles == {RoleName.USER}:
         cells = sorted(
             [f"/{cmds.enrollments1.command}", cmds.enrollments1.description],
-            reverse=context.language_code == constants.AR,
+            reverse=language_code == constants.AR,
         )
         message += f"• {' - '.join(cells)}\n"
 
@@ -70,7 +70,7 @@ def help(
         for cmd in cmds.root_commands():
             cells = sorted(
                 [f"/{cmd.command}", cmd.description],
-                reverse=context.language_code == constants.AR,
+                reverse=language_code == constants.AR,
             )
             message += f"• {' - '.join(cells)}\n"
 
@@ -78,7 +78,7 @@ def help(
         for cmd in cmds.student_commands():
             cells = sorted(
                 [f"/{cmd.command}", cmd.description],
-                reverse=context.language_code == constants.AR,
+                reverse=language_code == constants.AR,
             )
             pre = (
                 "[" + italic(underline(_("new"))) + "]"
@@ -92,7 +92,7 @@ def help(
         for cmd in cmds.editor_commands():
             cells = sorted(
                 [f"/{cmd.command}", cmd.description],
-                reverse=context.language_code == constants.AR,
+                reverse=language_code == constants.AR,
             )
             pre = (
                 "[" + italic(underline(_("new"))) + "]"
