@@ -270,13 +270,19 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
         else []
     )
     level = enrollment.semester.number // 2 + (enrollment.semester.number % 2)
-    semesters_buttons = queries.program_semesters(
+    program_semesters = queries.program_semesters(
         session, enrollment.program.id, level=level
+    )
+    semester_buttons = context.buttons.program_semesters_list(
+        program_semesters,
+        url,
+        selected_ids=enrollment.program_semester.id,
+        sep=f"/{constants.EDIT}?program_semester_id=",
     )
     keyboard = build_menu(
         courses_buttons,
         1,
-        header_buttons=semesters_buttons,
+        header_buttons=semester_buttons,
         footer_buttons=[
             context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
             context.buttons.revoke(url),
