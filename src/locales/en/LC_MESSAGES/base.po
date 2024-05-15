@@ -101,9 +101,9 @@ msgstr "Add {}"
 #: src/conversations/editor.py:173 src/conversations/requestmanagement.py:116
 msgid "Admin call for action {fullname} {mention} {enrollment}"
 msgstr ""
-"Editor Access request: {mention}\n"
+"Publish Access request: {mention}\n"
 "\n"
-"{fullname} is requesting editor access for\n"
+"{fullname} is requesting publish access for\n"
 "{enrollment}"
 
 #: src/conversations/enrollment.py:111
@@ -314,11 +314,11 @@ msgstr "Edit {}"
 #: src/conversations/editor.py:53 src/conversations/editor.py:295
 #: src/conversations/editor.py:359 src/messages.py:119
 msgid "Editor Access"
-msgstr "Editor Access"
+msgstr "Publish Access"
 
 #: src/conversations/updatematerial.py:71 src/messages.py:117
 msgid "Editor Menu"
-msgstr "Editor Menu"
+msgstr "Publish Menu"
 
 #: src/conversations/coursemanagement.py:254
 #: src/conversations/coursemanagement.py:292
