@@ -1,4 +1,5 @@
 import os
+import re
 
 if os.getenv("ENV") != "production":
     from dotenv import load_dotenv
@@ -8,7 +9,11 @@ if os.getenv("ENV") != "production":
 
 class Config:
     BOT_TOKEN = os.getenv("BOT_TOKEN")
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASE_URL = (
+        os.getenv("DATABASE_URL")
+        if os.getenv("ENV") != "production"
+        else re.sub(r"^postgres", "postgresql+psycopg2", os.getenv("DATABASE_URL"))
+    )
     ROOTIDS = tuple(
         (int(id_.strip()) for id_ in ids.split(","))
         if (ids := os.getenv("ROOTIDS"))

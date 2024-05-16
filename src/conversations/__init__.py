@@ -1,3 +1,13 @@
+# ruff: noqa: E402
+
+from warnings import filterwarnings
+
+from telegram.warnings import PTBUserWarning
+
+filterwarnings(
+    action="ignore", message=r".*CallbackQueryHandler", category=PTBUserWarning
+)
+
 from .academicyear import academicyear_
 from .contentmanagement import contentmanagement_
 from .course import usercourses_
