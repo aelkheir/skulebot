@@ -4,14 +4,26 @@ for an application."""
 import os
 
 from telegram import Update
-from telegram.ext import Application, ContextTypes
+from telegram.ext import Application, ContextTypes, ExtBot
 
-from src import commands, conversations
+from src import commands, constants, conversations
 from src.config import Config, ProductionConfig
 from src.customcontext import CustomContext
 from src.errorhandler import error_handler
 from src.persistence import SQLPersistence
 from src.typehandler import typehandler
+
+
+async def post_init(application: Application):
+    """Set bot bio, description in supported locales"""
+    bot: ExtBot = application.bot
+    for language_code, translation in constants.Locales:
+        _ = translation.gettext
+        await bot.set_my_description(_("Bot description"), language_code)
+        await bot.set_my_short_description(_("Bot bio"), language_code)
+        if language_code == constants.EN:
+            await bot.set_my_description(_("Bot description"))
+            await bot.set_my_short_description(_("Bot bio"))
 
 
 def create() -> Application:
@@ -21,6 +33,7 @@ def create() -> Application:
     return (
         Application.builder()
         .token(Config.BOT_TOKEN)
+        .post_init(post_init)
         .context_types(context_types)
         .persistence(persistence)
         .build()

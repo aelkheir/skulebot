@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-11 15:28+0300\n"
+"POT-Creation-Date: 2024-05-16 17:07+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: src/constants.py:148
+#: src/constants.py:150
 msgid "/academicyears description"
 msgstr ""
 
-#: src/constants.py:132
+#: src/constants.py:134
 msgid "/contentmanagement description"
 msgstr ""
 
-#: src/constants.py:128
+#: src/constants.py:130
 msgid "/coursemanagement description"
 msgstr ""
 
-#: src/constants.py:156
+#: src/constants.py:158
 msgid "/courses description"
 msgstr ""
 
-#: src/constants.py:136
+#: src/constants.py:138
 msgid "/departments description"
 msgstr ""
 
-#: src/constants.py:168
+#: src/constants.py:170
 msgid "/editor1 description"
 msgstr ""
 
-#: src/constants.py:176
+#: src/constants.py:178
 msgid "/editor2 description"
 msgstr ""
 
@@ -52,31 +52,31 @@ msgstr ""
 msgid "/empty to clear {}"
 msgstr ""
 
-#: src/constants.py:152
+#: src/constants.py:154
 msgid "/enrollments1 description"
 msgstr ""
 
-#: src/constants.py:164
+#: src/constants.py:166
 msgid "/enrollments2 description"
 msgstr ""
 
-#: src/constants.py:124
+#: src/constants.py:126
 msgid "/pending description"
 msgstr ""
 
-#: src/constants.py:140
+#: src/constants.py:142
 msgid "/programs description"
 msgstr ""
 
-#: src/constants.py:144
+#: src/constants.py:146
 msgid "/semesters description"
 msgstr ""
 
-#: src/constants.py:160
+#: src/constants.py:162
 msgid "/settings description"
 msgstr ""
 
-#: src/constants.py:172
+#: src/constants.py:174
 msgid "/updatematerials description"
 msgstr ""
 
@@ -135,6 +135,14 @@ msgstr ""
 #: src/commands.py:141 src/conversations/setting.py:58
 #: src/conversations/setting.py:132
 msgid "Bot Settings"
+msgstr ""
+
+#: src/application.py:23 src/application.py:26
+msgid "Bot bio"
+msgstr ""
+
+#: src/application.py:22 src/application.py:25
+msgid "Bot description"
 msgstr ""
 
 #: src/conversations/material/publish.py:49
@@ -331,7 +339,7 @@ msgstr ""
 msgid "February"
 msgstr ""
 
-#: src/constants.py:77
+#: src/constants.py:79
 msgid "Fifth Year"
 msgstr ""
 
@@ -339,11 +347,11 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: src/constants.py:73
+#: src/constants.py:75
 msgid "First Year"
 msgstr ""
 
-#: src/constants.py:76
+#: src/constants.py:78
 msgid "Fourth Year"
 msgstr ""
 
@@ -527,7 +535,7 @@ msgstr ""
 msgid "Sat"
 msgstr ""
 
-#: src/constants.py:74
+#: src/constants.py:76
 msgid "Second Year"
 msgstr ""
 
@@ -683,7 +691,7 @@ msgstr ""
 msgid "Thanks for applying {}"
 msgstr ""
 
-#: src/constants.py:75
+#: src/constants.py:77
 msgid "Third Year"
 msgstr ""
 
