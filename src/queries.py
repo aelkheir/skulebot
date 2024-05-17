@@ -107,6 +107,21 @@ def semester(
     )
 
 
+def users(
+    session: Session,
+) -> List[User]:
+    """
+    Query all :obj:`User`s
+
+    Args:
+        session (:obj:`Session`): An `sqlalchemy.orm.Session` instance.
+
+    Returns:
+        List[:obj:`User`]
+    """
+    return session.scalars(select(User)).all()
+
+
 def user(
     session: Session,
     user_id: Optional[int] = None,

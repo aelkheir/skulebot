@@ -42,5 +42,10 @@ async def register_user(
 
         await set_my_commands(update.get_bot(), user)
 
+    if (user := update.effective_user) and context.user_data.get(
+        "full_name"
+    ) != user.full_name:
+        context.user_data["full_name"] = user.full_name
+
 
 typehandler = TypeHandler(Update, callback=register_user)

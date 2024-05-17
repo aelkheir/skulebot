@@ -16,6 +16,7 @@ PROGRAMS = "pr"
 SEMESTERS = "sm"
 ACADEMICYEARS = "ys"
 DEPARTMENTS = "dp"
+USERS = "usrs"
 COURSES = "cr"
 OPTIONAL = "op"
 CREDITS = "ct"
@@ -38,6 +39,7 @@ ACTIVATE = "act"
 ADD = "add"
 EDIT = "edit"
 DELETE = "delete"
+SEARCH = "search"
 REVOKE = "revoke"
 CONFIRM = "confirm"
 PUBLISH = "publish"
@@ -64,6 +66,7 @@ UPDATE_MATERIALS_ = "uma"
 MATERIALS_ = "mat"
 SETTINGS_ = "stg"
 NOTIFICATION_ = "ntf"
+USER_ = "usr"
 
 PUBLISH_GUIDE_URL = "https://telegra.ph/%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85-%D8%A7%D9%84%D8%A8%D9%88%D8%AA-%D9%84%D8%A7%D8%B6%D8%A7%D9%81%D8%A9-%D9%85%D8%AD%D8%AA%D9%88%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF-05-01-2"
 
@@ -102,6 +105,7 @@ class Commands:
             self.programs,
             self.semesters,
             self.years,
+            self.users,
         )
 
     def student_commands(self):
@@ -176,6 +180,10 @@ class Commands:
     @property
     def editor2(self):
         return BotCommand("publish", self._("/editor2 description"))
+
+    @property
+    def users(self):
+        return BotCommand("users", self._("/users description"))
 
 
 COMMANDS = Commands()
