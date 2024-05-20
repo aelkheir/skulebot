@@ -16,7 +16,7 @@ class File(Base):
     telegram_id: Mapped[str] = mapped_column(String(200), nullable=False)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     type: Mapped[str] = mapped_column(String(30), nullable=False)
-    source: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    source: Mapped[str] = mapped_column(String(200), nullable=True, default=None)
 
     material_id: Mapped[int] = mapped_column(
         ForeignKey("material.id"),
