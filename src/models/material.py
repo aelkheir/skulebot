@@ -5,7 +5,7 @@ from datetime import datetime
 from enum import unique
 from typing import TYPE_CHECKING, ClassVar
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import TIMESTAMP, Boolean, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from telegram.constants import InputMediaType
 
@@ -134,7 +134,7 @@ class Lab(HasId, Material, HasNumber, RefFilesMixin):
 class Assignment(HasId, Material, HasNumber, RefFilesMixin):
     __tablename__ = "assignment"
     deadline: Mapped[datetime] = mapped_column(
-        DateTime, nullable=True, default=None, sort_order=999
+        TIMESTAMP(timezone=True), nullable=True, default=None, sort_order=999
     )
     __mapper_args__: ClassVar[dict[str, MaterialType]] = {
         "polymorphic_identity": MaterialType.ASSIGNMENT

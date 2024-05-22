@@ -175,8 +175,16 @@ def material_message_text(
     material_type = _(material.type)
     if isinstance(material, Assignment):
         datestr = (
-            format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
-            if (d := material.deadline.astimezone(ZoneInfo("Africa/Khartoum")))
+            (
+                "<b>"
+                + format_datetime(
+                    d.astimezone(ZoneInfo("Africa/Khartoum")),
+                    "E d MMM hh:mm a ZZZZ",
+                    locale=context.language_code,
+                )
+                + "</b>"
+            )
+            if (d := material.deadline)
             else "[" + _("No value") + "]"
         )
         text = f"{material_type} {material.number} " + _("due by") + f" {datestr}"

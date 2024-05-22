@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from babel.dates import format_date, format_datetime
 from sqlalchemy.orm import Session
@@ -66,6 +67,8 @@ async def edit(update: Update, context: CustomContext, session: Session):
         + "\n\n"
         + _("Select {}").format(_("Date"))
         + " "
+        + _("in Khartoum timezone")
+        + " "
         + _("/empty to clear {}").format(_("Date"))
     )
     await query.edit_message_text(
@@ -105,15 +108,11 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     month = int(match.group("m"))
     day = int(match.group("d"))
 
-    d = datetime(year, month, day, hour, minute)
+    d = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("Africa/Khartoum"))
     material.deadline = d
 
-    message = (
-        f"Success! Assignment deadline"
-        f" set to <b>{d.strftime('%A %d %B %Y %H:%M')}</b>."
-    )
     message = _("Success! Deadline set {}").format(
-        format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
+        format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
     )
     await update.message.reply_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
