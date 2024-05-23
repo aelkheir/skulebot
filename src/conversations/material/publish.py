@@ -7,7 +7,7 @@ from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.error import Forbidden
 
-from src import constants, messages, queries
+from src import constants, jobs, messages, queries
 from src.buttons import ar_buttons, en_buttons
 from src.customcontext import CustomContext
 from src.database import Session as DBSession
@@ -116,16 +116,6 @@ async def handler(update: Update, context: CustomContext, session: Session, back
     return None
 
 
-def remove_job_if_exists(name: str, context: CustomContext) -> bool:
-    """Remove job with given name. Returns whether job was removed."""
-    current_jobs = context.job_queue.get_jobs_by_name(name)
-    if not current_jobs:
-        return False
-    for job in current_jobs:
-        job.schedule_removal()
-    return True
-
-
 @session
 async def register_jobs(update: Update, context: CustomContext, session: Session):
     material_id = context.match.group("material_id")
@@ -178,7 +168,7 @@ async def register_jobs(update: Update, context: CustomContext, session: Session
             + "_M_"
             + str(material.id)
         )
-        remove_job_if_exists(JOBNAME, context)
+        jobs.remove_job_if_exists(JOBNAME, context)
 
         session.expunge_all()
         is_last = i == len(users) - 1

@@ -17,6 +17,7 @@ from .editor import editor_
 from .enrollment import enrolments_
 from .notification import notifications_
 from .program import program_
+from .reminder import reminder_
 from .requestmanagement import requestmanagement_
 from .semester import semester_
 from .setting import settings_
@@ -27,6 +28,7 @@ handlers = [
     enrolments_,
     settings_,
     notifications_,
+    reminder_,
     updatematerials_,
     editor_,
     academicyear_,

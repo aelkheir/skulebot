@@ -77,6 +77,7 @@ def user_mode(url: str):
             constants.COURSES_,
             constants.ENROLLMENT_,
             constants.NOTIFICATION_,
+            constants.REMINDER_,
         )
     )
 

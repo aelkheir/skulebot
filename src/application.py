@@ -2,7 +2,9 @@
 for an application."""
 
 import os
+from datetime import time
 from typing import cast
+from zoneinfo import ZoneInfo
 
 from telegram import Chat, Update
 from telegram.ext import (
@@ -14,9 +16,10 @@ from telegram.ext import (
     filters,
 )
 
-from src import commands, constants, conversations
+from src import commands, constants, conversations, jobs, queries
 from src.config import Config, ProductionConfig
 from src.customcontext import CustomContext
+from src.database import Session
 from src.errorhandler import error_handler
 from src.persistence import SQLPersistence
 from src.typehandler import typehandler
@@ -83,6 +86,32 @@ def register_handlers(application: Application):
 
     # Error Handler
     application.add_error_handler(error_handler)
+
+
+def schedule_jobs(application: Application):
+    job_queue = application.job_queue
+    zone = ZoneInfo("Africa/Khartoum")
+
+    # Assignment deadline reminders
+    with Session.begin() as session:
+        root = queries.user(session=session, telegram_id=Config.ROOTIDS[0])
+        if root is None:
+            return
+        for point in [
+            time(hour=6, tzinfo=zone),
+            time(hour=18, tzinfo=zone),
+        ]:
+            JOB_NAME = f"DEADLINE_REMINDER_{point}"
+            jobs.remove_job_if_exists(
+                JOB_NAME, CustomContext(application, root.chat_id, root.telegram_id)
+            )
+            job_queue.run_daily(
+                jobs.deadline_reminder,
+                point,
+                name=JOB_NAME,
+                user_id=root.telegram_id,
+                chat_id=root.chat_id,
+            )
 
 
 def run(application: Application):

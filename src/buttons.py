@@ -4,6 +4,7 @@ import re
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from typing import Callable, NamedTuple, Optional, Union
+from zoneinfo import ZoneInfo
 
 from babel.dates import format_date
 from telegram import InlineKeyboardButton
@@ -947,7 +948,7 @@ class Buttons:
             int(m) if (m := match.group("m")) else None,
             int(d) if (d := match.group("d")) else None,
         )
-        today = date.today()
+        today = datetime.now(ZoneInfo("Africa/Khartoum")).date()
         if not year and not month and not day:
             if not selected:
                 year, month = today.year, today.month
