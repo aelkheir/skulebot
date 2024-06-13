@@ -93,7 +93,11 @@ class Buttons:
         return InlineKeyboardButton(text=_("Search"), callback_data=url)
 
     async def user_list(
-        self, users: Sequence[User], url: str, context: "CustomContext"
+        self,
+        users: Sequence[User],
+        url: str,
+        context: "CustomContext",
+        end: Optional[str] = None,
     ):
         """Builds a list of :class:`InlineKeyboardButton` for model :class:`User`
 
@@ -104,18 +108,13 @@ class Buttons:
         """
         _ = self._gettext
         user_data = await context.application.persistence.get_user_data()
-        bot = context.bot
-        for user in users:
-            data = user_data.get(user.telegram_id, {})
-            full_name = data.get("full_name")
         return [
             InlineKeyboardButton(
                 (
-                    full_name
-                    or (await bot.get_chat(user.chat_id)).full_name
+                    user_data.get(user.telegram_id, {}).get("full_name")
                     or "[" + _("User") + "]"
                 ),
-                callback_data=f"{url}/{user.id}",
+                callback_data=f"{url}/{user.id}{end or ''}",
             )
             for user in users
         ]

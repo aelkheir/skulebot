@@ -1,6 +1,6 @@
 """Contains callbacks and handlers for the /users conversaion"""
 
-import re
+from typing import Optional
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
@@ -14,9 +14,8 @@ from telegram.ext import (
 )
 
 from src import constants, queries
-from src.constants import COMMANDS, EDIT, ONE, SEMESTERS
+from src.constants import COMMANDS
 from src.customcontext import CustomContext
-from src.messages import bold
 from src.models import RoleName
 from src.models.user import User
 from src.utils import Pager, build_menu, roles, session
@@ -31,9 +30,16 @@ DATA_KEY = constants.USER_
 # ------------------------------- entry_points ---------------------------
 @roles(RoleName.ROOT)
 @session
-async def user_list(update: Update, context: CustomContext, session: Session):
+async def user_list(
+    update: Update,
+    context: CustomContext,
+    session: Session,
+    search_query: Optional[str] = None,
+):
     """Runs with messages.test `'/users'` or on callback_data
-    `^{URLPREFIX}/{constants.USERS}/(?:\?p=(?P<page>\d+))?$`
+    `^{URLPREFIX}/{constants.USERS}
+    (?:\?(p=(?P<page>\d+))?(?:&)?(?:q=(?P<query>\w+))?)?
+    (?:/{constants.IGNORE})?$`
     """
 
     query: None | CallbackQuery = None
@@ -50,11 +56,18 @@ async def user_list(update: Update, context: CustomContext, session: Session):
             return constants.ONE
 
         offset = int(page) if (page := context.match.group("page")) else 0
-    users = queries.users(session)
-    users = [user for user in users for i in range(200)]
+        if search_query is None:
+            search_query = context.match.group("query") or None
+    users = queries.users(session, query=search_query)
+
     pager = Pager[User](users, offset, 30)
 
-    user_button_list = await context.buttons.user_list(pager.items, url, context)
+    user_button_list = await context.buttons.user_list(
+        pager.items,
+        url,
+        context=context,
+        end=f"?q={search_query}" if search_query else None,
+    )
     keyboard = build_menu(
         user_button_list,
         3,
@@ -63,9 +76,12 @@ async def user_list(update: Update, context: CustomContext, session: Session):
     if pager.has_next or pager.has_previous:
         pager_keyboard = []
         keyboard.append(pager_keyboard)
+        search_param = f"&q={search_query}" if search_query else ""
         if pager.has_previous:
             pager_keyboard.append(
-                context.buttons.previous_page(f"{url}?p={pager.previous_offset}")
+                context.buttons.previous_page(
+                    f"{url}?p={pager.previous_offset}{search_param}"
+                )
             )
         pager_keyboard.append(
             context.buttons.current_page(
@@ -74,15 +90,18 @@ async def user_list(update: Update, context: CustomContext, session: Session):
         )
         if pager.has_next:
             pager_keyboard.append(
-                context.buttons.next_page(f"{url}?p={pager.next_offset}")
+                context.buttons.next_page(f"{url}?p={pager.next_offset}{search_param}")
             )
         if context.language_code == constants.AR:
             pager_keyboard.reverse()
-    keyboard += [[context.buttons.search(f"{url}/{constants.SEARCH}")]]
+
+    if search_query is None:
+        keyboard += [[context.buttons.search(f"{url}/{constants.SEARCH}")]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     _ = context.gettext
-    message = _("Users") + f" [{len(users)}]"
+    message = _("Results") if search_query is not None else _("Users")
+    message += f" [{len(users)}]"
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -94,36 +113,42 @@ async def user_list(update: Update, context: CustomContext, session: Session):
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def semester(update: Update, context: CustomContext, session: Session):
-    """Runs on callback_data ^{URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)$"""
+async def user(update: Update, context: CustomContext, session: Session):
+    """Runs on callback_data
+    `^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)(?:\?q=(?P<query>\w+))?$`"""
 
-    query: None | CallbackQuery = None
+    query = update.callback_query
+    await query.answer()
 
-    if update.callback_query:
-        query = update.callback_query
-        await query.answer()
+    search_query = context.match.group("query")
+    user_id = context.match.group("user_id")
+    user = queries.user(session, user_id=user_id)
+    user_data: dict = user.user_data.data
 
-    url = context.match.group()
-    semester_id = context.match.group("semester_id")
-    semester = queries.semester(session, semester_id)
-
+    search_param = ("?q=" + search_query) if search_query else ""
     keyboard = [
-        [context.buttons.edit(url, "Number"), context.buttons.delete(url, "Semester")],
-        [context.buttons.back(url, "/\d+")],
+        [
+            context.buttons.back(
+                absolute_url=f"{URLPREFIX}/{constants.USERS}{search_param}"
+            )
+        ],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     _ = context.gettext
-    message = bold(_("Number")) + f": {semester.number}"
+    message = _("Full name") + f": {user_data.get('full_name')}"
+    message += (
+        ("\n" + _("Username") + f": {username}")
+        if (username := user_data.get("username"))
+        else ""
+    )
+    message += "\n" + _("Telegram id") + f": {user.telegram_id}"
 
-    if query:
-        await query.edit_message_text(
-            message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
-        )
-    else:
-        await update.message.reply_html(message, reply_markup=reply_markup)
+    await query.edit_message_text(
+        message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+    )
 
-    return ONE
+    return constants.ONE
 
 
 async def search(update: Update, context: CustomContext):
@@ -133,7 +158,7 @@ async def search(update: Update, context: CustomContext):
     await query.answer()
 
     _ = context.gettext
-    message = _("Search user")
+    message = _("Search users")
     await query.message.reply_text(
         message,
     )
@@ -145,26 +170,10 @@ async def search(update: Update, context: CustomContext):
 async def receive_search(update: Update, context: CustomContext, session: Session):
     """Runs on `Message.text` matching ^(\d+)$"""
 
-    semester_number = int(context.match.groups()[0])
-
-    url = context.chat_data[DATA_KEY]["url"]
-    match: re.Match[str] | None = re.search(
-        f"^{URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)/{EDIT}$",
-        url,
+    search_query = update.message.text
+    return await user_list.__wrapped__.__wrapped__(
+        update, context, session, search_query
     )
-
-    semester_id = int(match.group("semester_id"))
-    semester = queries.semester(session, semester_id)
-    semester.number = int(semester_number)
-
-    keyboard = [[context.buttons.back(match.group(), f"/{EDIT}", "to Semester")]]
-    _ = context.gettext
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    message = _("Success! {} updated").format(_("Semester number"))
-    await update.message.reply_text(message, reply_markup=reply_markup)
-
-    return ONE
 
 
 # ------------------------- ConversationHander -----------------------------
@@ -175,24 +184,24 @@ entry_points = [
     CallbackQueryHandler(
         user_list,
         pattern=f"^{URLPREFIX}/{constants.USERS}"
-        f"(?:\?p=(?P<page>\d+))?(?:/{constants.IGNORE})?$",
+        f"(?:\?(p=(?P<page>\d+))?(?:&)?(?:q=(?P<query>\w+))?)?(?:/{constants.IGNORE})?$",
     ),
 ]
 
 states = {
-    ONE: [
+    constants.ONE: [
         CallbackQueryHandler(
             search, pattern=f"^{URLPREFIX}/{constants.USERS}/{constants.SEARCH}$"
         ),
         CallbackQueryHandler(
-            semester,
-            pattern=f"^{URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)$",
+            user,
+            pattern=f"^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)(?:\?q=(?P<query>\w+))?$",
         ),
     ]
 }
 states.update(
     {
-        constants.SEARCH: states[ONE]
+        constants.SEARCH: states[constants.ONE]
         + [
             MessageHandler(filters.TEXT, receive_search),
         ]

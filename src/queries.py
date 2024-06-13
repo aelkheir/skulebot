@@ -1,6 +1,6 @@
 from typing import List, Optional, Sequence, Union
 
-from sqlalchemy import and_, case, or_, select
+from sqlalchemy import String, and_, case, cast, or_, select
 from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
 
 from src.models import (
@@ -19,6 +19,7 @@ from src.models import (
     Semester,
     Status,
     User,
+    UserData,
     UserOptionalCourse,
 )
 
@@ -107,19 +108,37 @@ def semester(
     )
 
 
-def users(
-    session: Session,
-) -> List[User]:
+def users(session: Session, query: Optional[str] = None) -> List[User]:
     """
     Query all :obj:`User`s
 
     Args:
         session (:obj:`Session`): An `sqlalchemy.orm.Session` instance.
+        query (:obj:`str`): A string to filter users against. Could be either
+            `User.telegram_id`, `UserData.username`, or `UserData.full_name`.
 
     Returns:
         List[:obj:`User`]
     """
-    return session.scalars(select(User)).all()
+    order = cast(UserData.data["full_name"], String).asc()
+    if query is None:
+        return session.scalars(
+            select(User).select_from(UserData).join(User).order_by(order)
+        ).all()
+    telegram_id = int(query) if query.isnumeric() else None
+    return session.scalars(
+        select(User)
+        .select_from(UserData)
+        .join(User)
+        .filter(
+            or_(
+                User.telegram_id == telegram_id,
+                cast(UserData.data["username"], String).ilike(f"%{query}%"),
+                cast(UserData.data["full_name"], String).ilike(f"%{query}%"),
+            )
+        )
+        .order_by(order)
+    ).all()
 
 
 def user(
