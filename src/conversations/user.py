@@ -138,7 +138,7 @@ async def user(update: Update, context: CustomContext, session: Session):
     _ = context.gettext
     message = _("Full name") + f": {user_data.get('full_name')}"
     message += (
-        ("\n" + _("Username") + f": {username}")
+        ("\n" + _("Username") + f": @{username}")
         if (username := user_data.get("username"))
         else ""
     )
