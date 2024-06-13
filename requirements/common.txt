@@ -1,3 +1,4 @@
 python-telegram-bot[all]==21.1.1
 SQLAlchemy==2.0.29
+alembic==1.13.1
 Babel==2.14.0

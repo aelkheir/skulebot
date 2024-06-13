@@ -1,7 +1,7 @@
 """Contains callbacks and handlers for the /enrollments conversaion"""
 
 import re
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -219,7 +219,7 @@ async def enrollment_delete(update: Update, context: CustomContext, session: Ses
     year = enrollment.academic_year
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
 

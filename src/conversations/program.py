@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
@@ -554,7 +553,7 @@ async def course_link(update: Update, context: CustomContext, session: Session):
     program = queries.program(session, program_id)
     semester = queries.semester(session, semester_id)
 
-    keyboard: List
+    keyboard: list
     message: str
     _ = context.gettext
 
@@ -719,7 +718,7 @@ async def program_delete(update: Update, context: CustomContext, session: Sessio
     program = queries.program(session, program_id)
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
     if has_confirmed is None:

@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
@@ -465,7 +464,7 @@ async def course_delete(update: Update, context: CustomContext, session: Session
 
     course_name = course.get_name(context.language_code)
 
-    menu_buttons: List
+    menu_buttons: list
     _ = context.gettext
     message = (
         underline(_("Course Management"))

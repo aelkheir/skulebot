@@ -1,7 +1,6 @@
 """Contains callbacks and handlers for the /semesters conversaion"""
 
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
@@ -175,7 +174,7 @@ async def semester_delete(update: Update, context: CustomContext, session: Sessi
     has_confirmed = context.match.group("has_confirmed")
 
     _ = context.gettext
-    menu_buttons: List
+    menu_buttons: list
     message: str
 
     if has_confirmed is None:

@@ -1,7 +1,5 @@
 """Contains callbacks and handlers for the NOTIFICATION_ conversaion"""
 
-from typing import List
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
@@ -45,11 +43,13 @@ async def material(
             update, context, session, file_id=material.file_id
         )
 
-    keyboard: List[List] = []
+    keyboard: list[list] = []
 
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(
             select(File).where(File.material_id == material.id)
+            # hack to have the order as document, photo, video then by file name
+            .order_by(File.type.asc(), File.name)
         ).all()
         files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
         keyboard += build_menu(files_menu, 1)
@@ -67,7 +67,7 @@ async def material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context)
+        + messages.material_message_text(url, context, material)
     )
 
     await query.edit_message_text(
@@ -91,6 +91,7 @@ async def collapse_material(
     query = update.callback_query
     await query.answer()
 
+    url = context.match.group()
     material_id = context.match.group("material_id")
     material = session.get(Material, material_id)
     _ = context.gettext
@@ -102,14 +103,16 @@ async def collapse_material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context)
+        + messages.material_message_text(url, context, material)
     )
     keyboard = [
         [context.buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(text=message, reply_markup=reply_markup)
+    await query.edit_message_text(
+        text=message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+    )
 
 
 # ------------------------- ConversationHander -----------------------------

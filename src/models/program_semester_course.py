@@ -13,7 +13,13 @@ if TYPE_CHECKING:
 
 class ProgramSemesterCourse(Base):
     __tablename__ = "program_semester_course"
-    __table_args__ = (UniqueConstraint("program_id", "course_id"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "program_id",
+            "course_id",
+            name="program_semester_course_program_id_course_id_key",
+        ),
+    )
     id: Mapped[int] = mapped_column(init=False, primary_key=True, autoincrement=True)
     program_id: Mapped[int] = mapped_column(
         ForeignKey("program.id"),

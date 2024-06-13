@@ -21,9 +21,9 @@ async def file(update: Update, context: CustomContext, session: Session):
     query = update.callback_query
     await query.answer()
 
-    path = context.match.group()
+    url = context.match.group()
 
-    if user_mode(path):
+    if user_mode(url):
         return await display(update, context)
 
     file_id = int(context.match.group("file_id"))
@@ -32,8 +32,8 @@ async def file(update: Update, context: CustomContext, session: Session):
     material = session.get(Material, material_id)
 
     menu_buttons = [
-        *context.buttons.file_menu(url=path),
-        context.buttons.back(url=path, pattern=f"/{constants.FILES}/\\d+"),
+        *context.buttons.file_menu(url=url),
+        context.buttons.back(url=url, pattern=f"/{constants.FILES}/\\d+"),
     ]
     keyboard = build_menu(
         menu_buttons[1:-1],
@@ -52,11 +52,12 @@ async def file(update: Update, context: CustomContext, session: Session):
         + material.course.get_name(context.language_code)
         + "\n"
         + messages.material_type_text(context.match, context=context)
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│   "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
         + "\n\n"
-        + messages.file_text(context.match, file=file, context=context)
+        + messages.file_text(file, context=context)
     )
 
     await query.edit_message_text(

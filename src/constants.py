@@ -1,7 +1,7 @@
 import gettext as pygettext
 from gettext import GNUTranslations, translation
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Optional
 
 from telegram import BotCommand
 
@@ -67,10 +67,11 @@ MATERIALS_ = "mat"
 SETTINGS_ = "stg"
 NOTIFICATION_ = "ntf"
 USER_ = "usr"
+REMINDER_ = "rmd"
 
 PUBLISH_GUIDE_URL = "https://telegra.ph/%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85-%D8%A7%D9%84%D8%A8%D9%88%D8%AA-%D9%84%D8%A7%D8%B6%D8%A7%D9%81%D8%A9-%D9%85%D8%AD%D8%AA%D9%88%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF-05-01-2"
 
-Locales: List[Tuple[str, GNUTranslations]] = [(AR, ar_), (EN, en_)]
+Locales: list[tuple[str, GNUTranslations]] = [(AR, ar_), (EN, en_)]
 
 
 class _Levels:

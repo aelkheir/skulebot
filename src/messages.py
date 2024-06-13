@@ -1,6 +1,7 @@
 import gettext as pygettext
 import re
-from typing import Optional, Set
+from typing import Optional
+from zoneinfo import ZoneInfo
 
 from babel.dates import format_datetime
 from sqlalchemy.orm import Session
@@ -15,7 +16,6 @@ from src.models import (
     Enrollment,
     File,
     HasNumber,
-    Lecture,
     Material,
     MaterialType,
     Review,
@@ -49,7 +49,7 @@ def underline(text):
 
 
 def help(
-    user_roles: Set[RoleName],
+    user_roles: set[RoleName],
     language_code: str,
     new: Optional[RoleName] = None,
 ):
@@ -151,17 +151,12 @@ def material_type_text(match: re.Match, context: CustomContext):
 
 
 def material_message_text(
-    match: Optional[re.Match] = None,
-    session: Session = None,
-    material: Material = None,
-    context: CustomContext = None,
+    url: str,
+    context: CustomContext,
+    material: Material,
 ):
+    language_code = context.language_code
     _ = context.gettext
-
-    url = match.group()
-    if match and material is None:
-        material_id: str = match.group("material_id")
-        material = session.get(Material, material_id)
 
     is_published = ""
     if not user_mode(url):
@@ -174,7 +169,15 @@ def material_message_text(
     material_type = _(material.type)
     if isinstance(material, Assignment):
         datestr = (
-            format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
+            (
+                "<b>"
+                + format_datetime(
+                    d.astimezone(ZoneInfo("Africa/Khartoum")),
+                    "E d MMM hh:mm a ZZZZ",
+                    locale=context.language_code,
+                )
+                + "</b>"
+            )
             if (d := material.deadline)
             else "[" + _("No value") + "]"
         )
@@ -184,29 +187,24 @@ def material_message_text(
         text = f"{material_type} {material.number}"
         message = text
     elif isinstance(material, SingleFile):
-        file = session.get(File, material.file_id)
-        return file_text(match, file, context) + " " + is_published
+        file = material.file
+        return file_text(file, context) + " " + is_published
     elif isinstance(material, Review):
-        text = material.get_name(context.language_code) + (
+        text = material.get_name(language_code) + (
             " " + str(d.year) if (d := material.date) else ""
         )
         message = text
 
     message += " " + is_published
-
-    if user_mode(url) and isinstance(material, Lecture):
-        message = "│ " + _("corner-symbol") + "── " + message
-    else:
-        message = "│   " + _("corner-symbol") + "── " + message
     return message
 
 
 def material_title_text(
     match: Optional[re.Match] = None,
     material: Material = None,
-    context: CustomContext = None,
+    language_code: Optional[str] = None,
 ):
-    _ = context.gettext if context else pygettext.gettext
+    _ = user_locale(language_code).gettext
     if not material:
         m_type: str = _(match.group("material_type"))
     else:
@@ -218,16 +216,13 @@ def material_title_text(
     if isinstance(material, SingleFile):
         return m_type + " " + str(material.file.name)
     if isinstance(material, Review):
-        return (
-            m_type
-            + " "
-            + str(material.get_name(context.language_code))
-            + (" " + str(d.year) if (d := material.date) else "")
+        return +str(material.get_name(language_code)) + (
+            " " + str(d.year) if (d := material.date) else ""
         )
     return None
 
 
-def file_text(match: re.Match, file: File, context: CustomContext):
+def file_text(file: File, context: CustomContext):
     _ = context.gettext
     return (
         file.name

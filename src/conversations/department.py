@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
@@ -216,7 +215,7 @@ async def department_delete(update: Update, context: CustomContext, session: Ses
     department = queries.department(session, department_id)
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
 

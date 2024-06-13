@@ -31,7 +31,7 @@ Entry points:
 
 import re
 from functools import partial
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -224,11 +224,13 @@ async def material(
             update, context, session, file_id=material.file_id
         )
 
-    keyboard: List[List] = []
+    keyboard: list[list] = []
     # First, list the files if material have them
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(
             select(File).where(File.material_id == material.id)
+            # hack to have the order as document, photo, video then by file name
+            .order_by(File.type.asc(), File.name)
         ).all()
         files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
         keyboard += build_menu(files_menu, 1)
@@ -288,6 +290,8 @@ async def material(
     keyboard += [[context.buttons.back(url, pattern=back_pattern)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    is_publish_menu = not user_mode(url)
+    spaces = " " if not is_publish_menu and isinstance(material, Lecture) else "   "
     message = (
         messages.title(context.match, session, context=context)
         + "\n"
@@ -297,9 +301,11 @@ async def material(
         + "\n"
         + messages.material_type_text(context.match, context=context)
         + ("\n" if isinstance(material, SingleFile) else "")
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│"
+        + spaces
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
     )
 
     await query.edit_message_text(

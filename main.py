@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     app = application.create()
     application.register_handlers(app)
+    application.schedule_jobs(app)
     application.run(app)
 
 

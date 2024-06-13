@@ -7,7 +7,8 @@ from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.error import Forbidden
 
-from src import constants, messages, queries
+from src import constants, jobs, messages, queries
+from src.buttons import ar_buttons, en_buttons
 from src.customcontext import CustomContext
 from src.database import Session as DBSession
 from src.models import (
@@ -49,7 +50,9 @@ async def handler(update: Update, context: CustomContext, session: Session, back
         await query.answer(_("Can't publish no files"))
         return constants.ONE
 
-    material_title = messages.material_title_text(context.match, material, context)
+    material_title = messages.material_title_text(
+        context.match, material, context.language_code
+    )
 
     if material.published:
         await query.answer(_("Already published").format(material_title))
@@ -87,9 +90,10 @@ async def handler(update: Update, context: CustomContext, session: Session, back
             + "\n"
             + messages.material_type_text(context.match, context=context)
             + ("\n" if isinstance(material, SingleFile) else "")
-            + messages.material_message_text(
-                context.match, session, material=material, context=context
-            )
+            + "│   "
+            + _("corner-symbol")
+            + "── "
+            + messages.material_message_text(url, context, material)
             + "\n\n"
             + _("Publishing Options").format(material_title)
         )
@@ -110,16 +114,6 @@ async def handler(update: Update, context: CustomContext, session: Session, back
         await register_jobs.__wrapped__(update, context, session)
         return await back.__wrapped__(update, context, session)
     return None
-
-
-def remove_job_if_exists(name: str, context: CustomContext) -> bool:
-    """Remove job with given name. Returns whether job was removed."""
-    current_jobs = context.job_queue.get_jobs_by_name(name)
-    if not current_jobs:
-        return False
-    for job in current_jobs:
-        job.schedule_removal()
-    return True
 
 
 @session
@@ -174,7 +168,7 @@ async def register_jobs(update: Update, context: CustomContext, session: Session
             + "_M_"
             + str(material.id)
         )
-        remove_job_if_exists(JOBNAME, context)
+        jobs.remove_job_if_exists(JOBNAME, context)
 
         session.expunge_all()
         is_last = i == len(users) - 1
@@ -212,9 +206,12 @@ async def send_notification(context: CustomContext) -> None:
             job.chat_id, text=context.gettext("Started sending notifications")
         )
 
+    buttons = ar_buttons if user.language_code == constants.AR else en_buttons
+
     with DBSession.begin() as session:
         session.add_all([material, user])
         with contextlib.suppress(Forbidden):
+            url = f"{constants.NOTIFICATION_}/{material.type}"
             message = (
                 translation.gettext("t-symbol")
                 + "─ 🔔 "
@@ -223,30 +220,29 @@ async def send_notification(context: CustomContext) -> None:
                 + translation.gettext("corner-symbol")
                 + "── "
                 + (
-                    messages.material_title_text(context.match, material, context)
+                    messages.material_message_text(
+                        url,
+                        CustomContext(
+                            context.application,
+                            user_id=user.telegram_id,
+                            chat_id=user.chat_id,
+                        ),
+                        material,
+                    )
                     if not isinstance(material, SingleFile)
                     else translation.gettext(material.type)
                 )
             )
 
-            keyboard = [
-                [
-                    context.buttons.show_more(
-                        f"{constants.NOTIFICATION_}/{material.type}/{material.id}"
-                    )
-                ]
-            ]
+            keyboard = [[buttons.show_more(f"{url}/{material.id}")]]
             if isinstance(material, (Review, SingleFile)):
-                keyboard = [
-                    [
-                        context.buttons.material(
-                            f"{constants.NOTIFICATION_}/{material.type}", material
-                        )
-                    ]
-                ]
+                keyboard = [[buttons.material(url, material)]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             await context.bot.send_message(
-                user.chat_id, text=message, reply_markup=reply_markup
+                user.chat_id,
+                text=message,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML,
             )
 
     if is_last:

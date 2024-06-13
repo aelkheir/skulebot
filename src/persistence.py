@@ -1,7 +1,7 @@
 import json
 from collections import defaultdict
 from logging import getLogger
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -34,21 +34,21 @@ class SQLPersistence(DictPersistence):
             ),
         )
 
-    def _load_user_data(self) -> Dict:
+    def _load_user_data(self) -> dict:
         data = {}
         user_datas = self.session.query(UserData).all()
         for user_data in user_datas:
             data[user_data.user.telegram_id] = user_data.data
         return data
 
-    def _load_chat_data(self) -> Dict:
+    def _load_chat_data(self) -> dict:
         data = {}
         chat_datas = self.session.query(ChatData).all()
         for chat_data in chat_datas:
             data[chat_data.user.chat_id] = chat_data.data
         return data
 
-    def _load_conversations(self) -> Dict:
+    def _load_conversations(self) -> dict:
         data = defaultdict(dict)
         conversations = (
             self.session.query(Conversation).order_by(Conversation.name).all()
@@ -59,7 +59,7 @@ class SQLPersistence(DictPersistence):
             )
         return data
 
-    async def update_user_data(self, user_id: int, data: Dict) -> None:
+    async def update_user_data(self, user_id: int, data: dict) -> None:
         """Will update the user_data (if changed).
         Args:
             user_id (:obj:`int`): The user the data might have been changed for.
@@ -84,7 +84,7 @@ class SQLPersistence(DictPersistence):
         user_data.data = data
         self.session.commit()
 
-    async def update_chat_data(self, chat_id: int, data: Dict) -> None:
+    async def update_chat_data(self, chat_id: int, data: dict) -> None:
         """Will update the chat_data (if changed).
         Args:
             chat_id (:obj:`int`): The chat the data might have been changed for.
@@ -110,7 +110,7 @@ class SQLPersistence(DictPersistence):
         self.session.commit()
 
     async def update_conversation(
-        self, name: str, key: Tuple[int, ...], new_state: Optional[object]
+        self, name: str, key: tuple[int, ...], new_state: Optional[object]
     ) -> None:
         """Will update the conversations for the given handler.
         Args:

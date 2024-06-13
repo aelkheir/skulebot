@@ -15,6 +15,8 @@ async def register_user(
     """This callback will be executed before every handler to make sure
     the user object exists in the database. when it doesn't exit we create it
     and cache it in `user_data`."""
+    if not (update.message or update.callback_query):
+        return
     if context.user_data.get("id") is None:
         telegram_id = update.effective_user.id
         chat_id = update.effective_chat.id
@@ -46,6 +48,11 @@ async def register_user(
         "full_name"
     ) != user.full_name:
         context.user_data["full_name"] = user.full_name
+
+    if (user := update.effective_user) and context.user_data.get(
+        "username"
+    ) != user.username:
+        context.user_data["username"] = user.username
 
 
 typehandler = TypeHandler(Update, callback=register_user)

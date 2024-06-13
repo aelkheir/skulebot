@@ -1,10 +1,11 @@
 import gettext
+from collections.abc import Sequence
 from datetime import date as datetype
 from datetime import datetime
 from enum import unique
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Sequence, Type
+from typing import TYPE_CHECKING, ClassVar
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import TIMESTAMP, Boolean, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from telegram.constants import InputMediaType
 
@@ -60,7 +61,7 @@ class Material(Base):
     course: Mapped["Course"] = relationship(init=False)
     academic_year: Mapped["AcademicYear"] = relationship(init=False)
 
-    __mapper_args__: ClassVar[Dict[str, str]] = {
+    __mapper_args__: ClassVar[dict[str, str]] = {
         "polymorphic_identity": "material",
         "polymorphic_on": "type",
     }
@@ -133,7 +134,7 @@ class Lab(HasId, Material, HasNumber, RefFilesMixin):
 class Assignment(HasId, Material, HasNumber, RefFilesMixin):
     __tablename__ = "assignment"
     deadline: Mapped[datetime] = mapped_column(
-        DateTime, nullable=True, default=None, sort_order=999
+        TIMESTAMP(timezone=True), nullable=True, default=None, sort_order=999
     )
     __mapper_args__: ClassVar[dict[str, MaterialType]] = {
         "polymorphic_identity": MaterialType.ASSIGNMENT
@@ -227,7 +228,7 @@ class Review(HasId, Material, RefFilesMixin):
     )
 
 
-__classes__: List[Type[Material]] = [
+__classes__: list[type[Material]] = [
     Lecture,
     Tutorial,
     Lab,
@@ -239,7 +240,7 @@ __classes__: List[Type[Material]] = [
 ]
 
 
-def get_material_class(m_type: MaterialType) -> Type[Material]:
+def get_material_class(m_type: MaterialType) -> type[Material]:
     for cls in __classes__:
         if cls.__mapper_args__.get("polymorphic_identity") == m_type:
             return cls

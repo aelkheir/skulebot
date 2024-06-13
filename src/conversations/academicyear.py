@@ -2,7 +2,6 @@
 
 import re
 from datetime import date
-from typing import List
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -175,7 +174,7 @@ async def year_delete(update: Update, context: CustomContext, session: Session):
     year = queries.academic_year(session, year_id)
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
 

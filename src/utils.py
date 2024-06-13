@@ -1,7 +1,7 @@
 import math
 from functools import wraps
 from gettext import GNUTranslations
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session as SessionType
@@ -63,6 +63,8 @@ def roles(roles: RoleName):
                 roles = get_user_roles(context.user_data["id"], session)
                 if any(user_role in _roles for user_role in roles):
                     return await callback(update, context, *args, **kwargs)
+                if update.callback_query:
+                    await update.callback_query.answer()
                 return None
 
         return wrapped
@@ -71,7 +73,14 @@ def roles(roles: RoleName):
 
 
 def user_mode(url: str):
-    return url.startswith((constants.COURSES_, constants.ENROLLMENT_))
+    return url.startswith(
+        (
+            constants.COURSES_,
+            constants.ENROLLMENT_,
+            constants.NOTIFICATION_,
+            constants.REMINDER_,
+        )
+    )
 
 
 def get_user_roles(user_id: int, session: SessionType):
@@ -115,7 +124,7 @@ def set_setting_value(
 
 
 def build_menu(
-    buttons: List[InlineKeyboardButton],
+    buttons: list[InlineKeyboardButton],
     n_cols: int,
     header_buttons: InlineKeyboardButton | list[InlineKeyboardButton] = None,
     footer_buttons: InlineKeyboardButton | list[InlineKeyboardButton] = None,
@@ -141,7 +150,7 @@ def build_menu(
 
 
 def build_media_group(
-    media: List,
+    media: list,
 ) -> list[list]:
     return [media[i : i + 10] for i in range(0, len(media), 10)]
 
@@ -177,8 +186,8 @@ T = TypeVar("T")
 
 
 class Pager(Generic[T]):
-    def __init__(self, i_list: List[T], offset: int, size: int):
-        self.items: List[T] = i_list[offset : offset + size]
+    def __init__(self, i_list: list[T], offset: int, size: int):
+        self.items: list[T] = i_list[offset : offset + size]
         self.has_next: bool = (offset + size) < len(i_list)
         self.next_offset = offset + size if self.has_next else None
 
@@ -189,8 +198,8 @@ class Pager(Generic[T]):
         self.number_of_pages = math.ceil(len(i_list) / size)
 
 
-def paginate(item_list: List[T], offset: int, size: int) -> Pager:
-    items: List[T] = item_list[offset : offset + size]
+def paginate(item_list: list[T], offset: int, size: int) -> Pager:
+    items: list[T] = item_list[offset : offset + size]
 
     has_next: bool = (offset + size) < len(item_list)
     next_offset = offset + size if has_next else None

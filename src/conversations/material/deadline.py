@@ -1,5 +1,6 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from babel.dates import format_date, format_datetime
 from sqlalchemy.orm import Session
@@ -31,8 +32,12 @@ async def edit(update: Update, context: CustomContext, session: Session):
     material_id = int(context.match.group("material_id"))
     material = session.get(Assignment, material_id)
     course = material.course
-    deadline = m.date() if (m := material.deadline) else None
-    path = re.search(
+    deadline = (
+        m.astimezone(ZoneInfo("Africa/Khartoum")).date()
+        if (m := material.deadline)
+        else None
+    )
+    url = re.search(
         rf".*/{constants.EDIT}/{constants.DEADLINE}", context.match.group()
     ).group()
 
@@ -49,7 +54,7 @@ async def edit(update: Update, context: CustomContext, session: Session):
         return f"{constants.EDIT} {constants.DEADLINE}"
     keyboard = picker.keyboard
     keyboard += [
-        [context.buttons.back(path, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]
+        [context.buttons.back(url, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
@@ -60,11 +65,14 @@ async def edit(update: Update, context: CustomContext, session: Session):
         + course.get_name(context.language_code)
         + "\n"
         + messages.material_type_text(context.match, context=context)
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│   "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
         + "\n\n"
         + _("Select {}").format(_("Date"))
+        + " "
+        + _("in Khartoum timezone")
         + " "
         + _("/empty to clear {}").format(_("Date"))
     )
@@ -105,16 +113,20 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     month = int(match.group("m"))
     day = int(match.group("d"))
 
-    d = datetime(year, month, day, hour, minute)
-    material.deadline = d
+    d = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("Africa/Khartoum"))
+    material.deadline = d.astimezone(timezone.utc)
 
-    message = (
-        f"Success! Assignment deadline"
-        f" set to <b>{d.strftime('%A %d %B %Y %H:%M')}</b>."
-    )
     message = _("Success! Deadline set {}").format(
-        format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
+        format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
     )
+    now = datetime.now(ZoneInfo("Africa/Khartoum"))
+    if now.hour < 6:
+        next_run = now.replace(hour=6, minute=0, second=0, microsecond=0)
+    else:
+        next_run = now.replace(hour=18, minute=0, second=0, microsecond=0)
+    if d >= next_run + timedelta(hours=36):
+        note = _("Success! Deadline reminder set")
+        message += "\n" + note
     await update.message.reply_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )

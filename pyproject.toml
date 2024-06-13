@@ -7,7 +7,7 @@ line_length = 88
 
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 show-fixes = true
 
 [tool.ruff.lint]

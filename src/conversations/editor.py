@@ -1,7 +1,6 @@
 """Contains callbacks and handlers for the /editorship conversaion"""
 
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, Document, InlineKeyboardMarkup, Update
@@ -106,7 +105,7 @@ async def access_add(update: Update, context: CustomContext, session: Session) -
     keyboard = [
         [
             context.buttons.submit_proof(url=f"{url}/{constants.ID}"),
-            context.buttons.contact_support(
+            context.buttons.contact(
                 url="https://t.me/skulebotsupport"
                 "?text=" + _("No id intro message {}").format(enrollment_text)
             ),
@@ -121,7 +120,8 @@ async def access_add(update: Update, context: CustomContext, session: Session) -
     return constants.ONE
 
 
-async def send_id(update: Update, context: CustomContext) -> None:
+@session
+async def send_id(update: Update, context: CustomContext, session: Session) -> None:
     """Run on callback_data
     `^{URLPREFIX}/{constants.ENROLLMENTS}/(?P<enrollment_id>\d+)
     /{constants.ADD}/{constants.ID}$`
@@ -129,6 +129,15 @@ async def send_id(update: Update, context: CustomContext) -> None:
 
     query = update.callback_query
     await query.answer()
+
+    most_recent_enrollment = queries.user_most_recent_enrollment(
+        session, user_id=context.user_data["id"]
+    )
+    if most_recent_enrollment.access_request:
+        message = context.gettext("Already applied for access")
+        await query.message.reply_text(message)
+        return constants.ONE
+
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
     message = context.gettext("Send me your proof")
@@ -181,6 +190,7 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
             context.buttons.grant_access(f"{url}?action={Status.GRANTED.value}"),
             context.buttons.reject(f"{url}?action={Status.REJECTED.value}"),
         ],
+        [context.buttons.contact(url=f"tg://user?id={user.id}")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     sender = (
@@ -199,6 +209,7 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
 
     message = _("Thanks for applying {}").format(constants.COMMANDS.editor1.command)
     await update.message.reply_text(message)
+    return constants.ONE
 
 
 @session
@@ -217,6 +228,10 @@ async def access(update: Update, context: CustomContext, session: Session) -> No
     enrollment = queries.enrollment(session, enrollment_id)
     request = enrollment.access_request
     _ = context.gettext
+
+    if request is None:
+        await update.effective_message.delete()
+        return None
 
     if request.status == Status.PENDING:
         message = messages.enrollment_text(enrollment=enrollment, context=context)
@@ -321,7 +336,7 @@ async def revoke_access(update: Update, context: CustomContext, session: Session
     year = enrollment.academic_year
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
 

@@ -1,7 +1,6 @@
 """Contains callbacks and handlers for the /settings conversaion"""
 
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
@@ -105,7 +104,7 @@ async def notifications(
     # url here is calculated because this handler reenter with query params
     url = re.search(rf".*/{constants.NOTIFICATIONS}", context.match.group()).group()
 
-    menu: List = []
+    menu: list = []
     for notification_setting in SettingKey.get_notification_keys():
         value = get_setting_value(
             session, context.user_data["id"], notification_setting
