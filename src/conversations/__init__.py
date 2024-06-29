@@ -9,6 +9,7 @@ filterwarnings(
 )
 
 from .academicyear import academicyear_
+from .broadcast import broadcast_
 from .contentmanagement import contentmanagement_
 from .course import usercourses_
 from .coursemanagement import coursemanagement_
@@ -40,4 +41,5 @@ handlers = [
     requestmanagement_,
     contentmanagement_,
     user_,
+    broadcast_,
 ]

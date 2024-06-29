@@ -17,6 +17,9 @@ async def register_user(
     and cache it in `user_data`."""
     if not (update.message or update.callback_query):
         return
+    if update.message and update.message.from_user.is_bot:
+        return
+
     if context.user_data.get("id") is None:
         telegram_id = update.effective_user.id
         chat_id = update.effective_chat.id
