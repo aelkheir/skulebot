@@ -229,7 +229,7 @@ async def material(
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(
             select(File).where(File.material_id == material.id)
-            # hack to have the order as document, photo, video then by file name
+            # hack to have the order as document, photo, video, voice then by file name
             .order_by(File.type.asc(), File.name)
         ).all()
         files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
@@ -474,7 +474,10 @@ def conversation(url_prefix: str):
                 constants.ADD: [
                     *states[constants.ONE],
                     MessageHandler(
-                        filters.Document.ALL | filters.VIDEO | filters.PHOTO,
+                        filters.Document.ALL
+                        | filters.VIDEO
+                        | filters.PHOTO
+                        | filters.VOICE,
                         files.receive_file,
                     ),
                 ],

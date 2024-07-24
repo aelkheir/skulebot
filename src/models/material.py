@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from sqlalchemy import TIMESTAMP, Boolean, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
-from telegram.constants import InputMediaType
+from telegram.constants import MessageAttachmentType
 
 from src import constants
 from src.enum import StringEnum
@@ -66,7 +66,7 @@ class Material(Base):
         "polymorphic_on": "type",
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType]
+    MEDIA_TYPES: Sequence[MessageAttachmentType]
     """This class property must be overwritten."""
 
     def __repr__(self) -> str:
@@ -101,9 +101,9 @@ class Lecture(HasId, Material, HasNumber, RefFilesMixin):
         "polymorphic_identity": MaterialType.LECTURE
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (
-        InputMediaType.DOCUMENT,
-        InputMediaType.VIDEO,
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (
+        MessageAttachmentType.DOCUMENT,
+        MessageAttachmentType.VIDEO,
     )
 
 
@@ -113,9 +113,9 @@ class Tutorial(HasId, Material, HasNumber, RefFilesMixin):
         "polymorphic_identity": MaterialType.TUTORIAL
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (
-        InputMediaType.DOCUMENT,
-        InputMediaType.VIDEO,
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (
+        MessageAttachmentType.DOCUMENT,
+        MessageAttachmentType.VIDEO,
     )
 
 
@@ -125,9 +125,9 @@ class Lab(HasId, Material, HasNumber, RefFilesMixin):
         "polymorphic_identity": MaterialType.LAB
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (
-        InputMediaType.DOCUMENT,
-        InputMediaType.VIDEO,
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (
+        MessageAttachmentType.DOCUMENT,
+        MessageAttachmentType.VIDEO,
     )
 
 
@@ -140,9 +140,10 @@ class Assignment(HasId, Material, HasNumber, RefFilesMixin):
         "polymorphic_identity": MaterialType.ASSIGNMENT
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (
-        InputMediaType.DOCUMENT,
-        InputMediaType.PHOTO,
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (
+        MessageAttachmentType.DOCUMENT,
+        MessageAttachmentType.PHOTO,
+        MessageAttachmentType.VOICE,
     )
 
 
@@ -166,7 +167,7 @@ class Reference(HasId, Material, SingleFile):
         "polymorphic_identity": MaterialType.REFERENCE
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (InputMediaType.DOCUMENT,)
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (MessageAttachmentType.DOCUMENT,)
 
 
 class Sheet(HasId, Material, SingleFile):
@@ -175,7 +176,7 @@ class Sheet(HasId, Material, SingleFile):
         "polymorphic_identity": MaterialType.SHEET
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (InputMediaType.DOCUMENT,)
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (MessageAttachmentType.DOCUMENT,)
 
 
 class Tool(HasId, Material, SingleFile):
@@ -184,7 +185,7 @@ class Tool(HasId, Material, SingleFile):
         "polymorphic_identity": MaterialType.TOOL
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (InputMediaType.DOCUMENT,)
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (MessageAttachmentType.DOCUMENT,)
 
 
 REVIEW_TYPES = {
@@ -222,9 +223,9 @@ class Review(HasId, Material, RefFilesMixin):
         "polymorphic_identity": MaterialType.REVIEW
     }
 
-    MEDIA_TYPES: Sequence[InputMediaType] = (
-        InputMediaType.DOCUMENT,
-        InputMediaType.PHOTO,
+    MEDIA_TYPES: Sequence[MessageAttachmentType] = (
+        MessageAttachmentType.DOCUMENT,
+        MessageAttachmentType.PHOTO,
     )
 
 

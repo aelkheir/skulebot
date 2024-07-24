@@ -1,7 +1,7 @@
 import re
 
 from sqlalchemy.orm import Session
-from telegram import Document, InlineKeyboardMarkup, Update, Video
+from telegram import Document, InlineKeyboardMarkup, Update, Video, Voice
 from telegram.constants import ParseMode
 
 from src import constants, messages
@@ -119,12 +119,16 @@ async def display(
         reply_markup = InlineKeyboardMarkup(keyboard)
 
     sender = (
-        query.message.reply_document
+        update.effective_message.reply_document
         if file.type == "document"
         else (
-            query.message.reply_video
+            update.effective_message.reply_video
             if file.type == "video"
-            else query.message.reply_photo
+            else (
+                update.effective_message.reply_photo
+                if file.type == "photo"
+                else update.effective_message.reply_voice
+            )
         )
     )
 
@@ -133,7 +137,7 @@ async def display(
     await sender(
         file.telegram_id,
         reply_markup=reply_markup,
-        caption=caption,
+        caption=caption if file.type != "voice" else None,
         parse_mode=ParseMode.HTML,
     )
     return constants.ONE
@@ -183,18 +187,24 @@ async def receive_file(update: Update, context: CustomContext, session: Session)
     file_name = (
         attachement.file_name
         if isinstance(attachement, (Document, Video))
-        else attachement[-1].file_unique_id
+        else (
+            "voice message"
+            if isinstance(attachement, Voice)
+            else attachement[-1].file_unique_id
+        )
     )
     telegram_id = (
         attachement.file_id
-        if isinstance(attachement, (Document, Video))
+        if isinstance(attachement, (Document, Video, Voice))
         else attachement[-1].file_id
     )
 
     material_id = int(match.group("material_id"))
 
     file_type = (
-        "document" if message.document else "video" if message.video else "photo"
+        "document"
+        if message.document
+        else "video" if message.video else "voice" if message.voice else "photo"
     )
     file = File(
         telegram_id=telegram_id,

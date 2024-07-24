@@ -59,17 +59,23 @@ async def send(
                 MaterialClass.course_id == course_id,
                 MaterialClass.academic_year_id == enrollment.academic_year_id,
             )
-            .order_by(File.type, File.id)
+            .order_by(File.type.asc(), File.name)
         ).all()
 
     def keygetter(f: File):
         if f.type in ["photo", "video"]:
             return "media"
-        return "document"
+        if f.type == "document":
+            return "document"
+        return "voice"
 
-    for _, group in groupby(files, key=keygetter):
+    for group, group_files in groupby(files, key=keygetter):
+        if group == "voice":
+            for file in group_files:
+                await update.effective_message.reply_voice(file.telegram_id)
+            continue
         albums = build_media_group(
-            [InputMedia(file.type, file.telegram_id) for file in group]
+            [InputMedia(file.type, file.telegram_id) for file in group_files]
         )
         for album in albums:
             await query.message.reply_media_group(media=album)

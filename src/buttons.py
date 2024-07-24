@@ -611,7 +611,7 @@ class Buttons:
     def files_list(self, url: str, files: list[File]):
         return [
             InlineKeyboardButton(
-                f"{file.name}",
+                file.name,
                 callback_data=f"{url}/{file.id}",
             )
             for file in files
