@@ -3,8 +3,8 @@
 import re
 from typing import Optional
 
-from sqlalchemy import and_, case, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     CallbackQueryHandler,
@@ -17,15 +17,7 @@ from telegram.ext import (
 from src import constants, jobs, queries
 from src.constants import COMMANDS
 from src.customcontext import CustomContext
-from src.models import (
-    AccessRequest,
-    Enrollment,
-    ProgramSemester,
-    RoleName,
-    Semester,
-    Status,
-    User,
-)
+from src.models import Enrollment, RoleName, User
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.BROADCAST_
@@ -224,7 +216,13 @@ async def broadcast_options(update: Update, context: CustomContext):
     await query.answer()
 
     url = context.match.group()
+    target = context.match.group("target")
     _ = context.gettext
+
+    if target == "missing":
+        await update.effective_message.reply_text("This is currently not implemented!")
+        return constants.ONE
+
     keyboard = build_menu(
         [
             InlineKeyboardButton(
@@ -246,6 +244,7 @@ async def broadcast_options(update: Update, context: CustomContext):
     message = _("Select action")
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(message, reply_markup=reply_markup)
+    return None
 
 
 @session
@@ -302,41 +301,43 @@ async def action(update: Update, context: CustomContext, session: Session):
             )
         ).all()
     elif target == "missing":
-        program_semester_1 = aliased(ProgramSemester)
-        ids = session.scalars(
-            select(program_semester_1.id)
-            .select_from(Enrollment)
-            .join(ProgramSemester)
-            .join(Semester)
-            .join(
-                program_semester_1,
-                and_(
-                    program_semester_1.program_id == ProgramSemester.program_id,
-                    program_semester_1.semester_id.in_(
-                        [
-                            Semester.number,
-                            Semester.number
-                            + case((Semester.number % 2 == 0, -1), else_=1),
-                        ]
-                    ),
-                ),
-            )
-            .join(AccessRequest)
-            .filter(
-                AccessRequest.status == Status.GRANTED,
-                Enrollment.academic_year_id == most_recent.id,
-            )
-            .distinct(program_semester_1.id)
-        ).all()
-        users = session.scalars(
-            select(User)
-            .select_from(Enrollment)
-            .join(User)
-            .filter(
-                Enrollment.academic_year_id == most_recent.id,
-                Enrollment.program_semester_id.not_in(ids),
-            )
-        ).all()
+        # TODO: Missing right now
+        # program_semester_1 = aliased(ProgramSemester)
+        # ids = session.scalars(
+        #     select(program_semester_1.id)
+        #     .select_from(Enrollment)
+        #     .join(ProgramSemester)
+        #     .join(Semester)
+        #     .join(
+        #         program_semester_1,
+        #         and_(
+        #             program_semester_1.program_id == ProgramSemester.program_id,
+        #             program_semester_1.semester_id.in_(
+        #                 [
+        #                     Semester.number,
+        #                     Semester.number
+        #                     + case((Semester.number % 2 == 0, -1), else_=1),
+        #                 ]
+        #             ),
+        #         ),
+        #     )
+        #     .join(AccessRequest)
+        #     .filter(
+        #         AccessRequest.status == Status.GRANTED,
+        #         Enrollment.academic_year_id == most_recent.id,
+        #     )
+        #     .distinct(program_semester_1.id)
+        # ).all()
+        # users = session.scalars(
+        #     select(User)
+        #     .select_from(Enrollment)
+        #     .join(User)
+        #     .filter(
+        #         Enrollment.academic_year_id == most_recent.id,
+        #         Enrollment.program_semester_id.not_in(ids),
+        #     )
+        # ).all()
+        pass
 
     success = await query.delete_message()
     if success:
