@@ -99,6 +99,11 @@ async def user_course_list(update: Update, context: CustomContext, session: Sess
         if has_optional_courses
         else menu
     )
+    menu.append(
+        context.buttons.calendar(
+            f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.DEADLINE}"
+        )
+    )
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
     _ = context.gettext

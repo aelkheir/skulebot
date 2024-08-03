@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-13 12:46+0300\n"
+"POT-Creation-Date: 2024-08-04 00:10+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -95,11 +95,11 @@ msgstr "الاعوام الاكاديمية"
 msgid "Access for year {}"
 msgstr "صلاحية النشر {}"
 
-#: src/buttons.py:827
+#: src/buttons.py:831
 msgid "Activate"
 msgstr "تفعيل"
 
-#: src/buttons.py:746
+#: src/buttons.py:750
 msgid "Add {}"
 msgstr "اضافة {}"
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Already published"
 msgstr "تم نشره من قبل"
 
-#: src/buttons.py:1096
+#: src/buttons.py:1127
 msgid "April"
 msgstr "ابريل"
 
@@ -136,19 +136,19 @@ msgstr "ابريل"
 msgid "Arabic"
 msgstr "العربية"
 
-#: src/buttons.py:1100
+#: src/buttons.py:1131
 msgid "August"
 msgstr "اغسطس"
 
-#: src/buttons.py:884
+#: src/buttons.py:888
 msgid "Back"
 msgstr "« رجوع"
 
-#: src/buttons.py:884
+#: src/buttons.py:888
 msgid "Back to {}"
 msgstr "رجوع ل{}"
 
-#: src/commands.py:141 src/conversations/setting.py:57
+#: src/commands.py:146 src/conversations/setting.py:57
 #: src/conversations/setting.py:131
 msgid "Bot Settings"
 msgstr "اعدادات البوت"
@@ -164,11 +164,15 @@ msgstr ""
 "\n"
 "في حال مواجهة اي صعوبات، نرجوا ان تتواصل مع @skulebotsupport"
 
+#: src/buttons.py:90
+msgid "Calendar"
+msgstr "جدول"
+
 #: src/conversations/material/publish.py:50
 msgid "Can't publish no files"
 msgstr "لايمكن النشر بدون ملفات!"
 
-#: src/buttons.py:821 src/conversations/program.py:200
+#: src/buttons.py:825 src/conversations/program.py:200
 #: src/conversations/program.py:261 src/conversations/program.py:383
 #: src/conversations/program.py:433 src/conversations/program.py:561
 msgid "Carriculam"
@@ -194,7 +198,7 @@ msgstr "هل انت متاكد <b>تماماَ</b> انك تود ان تسحب {
 msgid "Congratulations! New access"
 msgstr "تم قبول طلبك لنشر المحتويات 🎉! "
 
-#: src/buttons.py:656
+#: src/buttons.py:660
 msgid "Contact"
 msgstr "تواصل"
 
@@ -205,7 +209,7 @@ msgstr "تواصل"
 msgid "Content Management"
 msgstr "ادارة المحتويات"
 
-#: src/conversations/course.py:111 src/conversations/course.py:119
+#: src/conversations/course.py:297 src/conversations/course.py:305
 #: src/conversations/coursemanagement.py:232 src/conversations/program.py:582
 #: src/conversations/program.py:619
 msgid "Course"
@@ -232,7 +236,7 @@ msgstr "المادة مربوطة في سمستر مختلف ({})، هل ترغ�
 msgid "Course {}"
 msgstr "مادة {}"
 
-#: src/commands.py:105
+#: src/commands.py:110
 msgid "Courses"
 msgstr "المواد"
 
@@ -254,7 +258,7 @@ msgstr "الساعات: {}"
 msgid "Date"
 msgstr "التاريخ"
 
-#: src/buttons.py:831
+#: src/buttons.py:835
 msgid "Deactivate"
 msgstr "الغاء التفعيل"
 
@@ -273,11 +277,11 @@ msgstr ""
 msgid "Deadline passed"
 msgstr "مرّ زمن التسليم"
 
-#: src/buttons.py:1104
+#: src/buttons.py:1135
 msgid "December"
 msgstr "ديسمبر"
 
-#: src/buttons.py:782
+#: src/buttons.py:786
 msgid "Delete"
 msgstr "حذف"
 
@@ -289,7 +293,7 @@ msgstr "حذف"
 msgid "Delete warning {}"
 msgstr "انت على وشك حذف {}. هل هذا صحيح؟"
 
-#: src/buttons.py:782
+#: src/buttons.py:786
 msgid "Delete {}"
 msgstr "حذف ال{}"
 
@@ -307,19 +311,19 @@ msgstr "قسم {}"
 msgid "Departments"
 msgstr "الاقسام"
 
-#: src/buttons.py:647
+#: src/buttons.py:651
 msgid "Disable All"
 msgstr "الغاء الكل"
 
-#: src/buttons.py:622
+#: src/buttons.py:626
 msgid "Disenroll"
 msgstr "الغاء التسجل"
 
-#: src/buttons.py:918
+#: src/buttons.py:922
 msgid "Display"
 msgstr "عرض"
 
-#: src/buttons.py:858
+#: src/buttons.py:862
 msgid "Don't Notify"
 msgstr "بدون تنبيهات"
 
@@ -335,7 +339,7 @@ msgstr "تم ارسال تنبيهات التساليم القريبة!"
 msgid "Done! No reminders to send"
 msgstr "تم! لا يوجد تسليم قريب."
 
-#: src/buttons.py:765
+#: src/buttons.py:769
 msgid "Edit {}"
 msgstr "تعديل {}"
 
@@ -355,7 +359,7 @@ msgstr "قائمة النشر"
 msgid "English"
 msgstr "الانجليزية"
 
-#: src/buttons.py:130
+#: src/buttons.py:134
 msgid "Enroll Now"
 msgstr "سجِّل الآن"
 
@@ -364,7 +368,7 @@ msgstr "سجِّل الآن"
 msgid "Enrollment {} - {}"
 msgstr "تسجيل {} - {}"
 
-#: src/buttons.py:1094
+#: src/buttons.py:1125
 msgid "February"
 msgstr "فبراير"
 
@@ -372,7 +376,7 @@ msgstr "فبراير"
 msgid "Fifth Year"
 msgstr "المستوى الخامس"
 
-#: src/buttons.py:892
+#: src/buttons.py:896
 msgid "File"
 msgstr "ملف"
 
@@ -384,7 +388,7 @@ msgstr "المستوى الأول"
 msgid "Fourth Year"
 msgstr "المستوى الرابع"
 
-#: src/buttons.py:1023
+#: src/buttons.py:1038
 msgid "Fri"
 msgstr "جمعة"
 
@@ -392,22 +396,22 @@ msgstr "جمعة"
 msgid "Full name"
 msgstr "الإسم"
 
-#: src/buttons.py:340 src/conversations/coursemanagement.py:120
+#: src/buttons.py:344 src/conversations/coursemanagement.py:120
 #: src/conversations/coursemanagement.py:172
 #: src/conversations/coursemanagement.py:397
 #: src/conversations/coursemanagement.py:477
 msgid "General Department"
 msgstr "القسم العام"
 
-#: src/buttons.py:836
+#: src/buttons.py:840
 msgid "Get All"
 msgstr "ارسل الكل"
 
-#: src/buttons.py:662
+#: src/buttons.py:666
 msgid "Grant Access"
 msgstr "امنح الصلاحية"
 
-#: src/buttons.py:980
+#: src/buttons.py:984
 msgid "Hell no"
 msgstr "قطعاً لا"
 
@@ -425,19 +429,19 @@ msgstr ""
 "يوجد طريقتان. يمكنك ان ترسل اي ما تراه يثبت ذلك، أو اذا لم يكن لديك "
 "وسيلية تحقيق، تواصل معنا وسنقوم بالترتيب معاً. 📚"
 
-#: src/buttons.py:1093
+#: src/buttons.py:1124
 msgid "January"
 msgstr "ياناير"
 
-#: src/buttons.py:1099
+#: src/buttons.py:1130
 msgid "July"
 msgstr "يوليو"
 
-#: src/buttons.py:1098
+#: src/buttons.py:1129
 msgid "June"
 msgstr "يونيو"
 
-#: src/buttons.py:846 src/conversations/setting.py:61
+#: src/buttons.py:850 src/conversations/setting.py:61
 #: src/conversations/setting.py:87 src/conversations/setting.py:92
 msgid "Language"
 msgstr "اللغة"
@@ -446,19 +450,19 @@ msgstr "اللغة"
 msgid "Level"
 msgstr "المستوى"
 
-#: src/buttons.py:674
+#: src/buttons.py:678
 msgid "Link Course"
 msgstr "اربط مادة"
 
-#: src/buttons.py:1095
+#: src/buttons.py:1126
 msgid "March"
 msgstr "مارس"
 
-#: src/buttons.py:1097
+#: src/buttons.py:1128
 msgid "May"
 msgstr "مايو"
 
-#: src/buttons.py:1019
+#: src/buttons.py:1034
 msgid "Mon"
 msgstr "أثنين"
 
@@ -474,11 +478,11 @@ msgstr ""
 msgid "Name in {}"
 msgstr "الاسم ب{}"
 
-#: src/buttons.py:959 src/buttons.py:976
+#: src/buttons.py:963 src/buttons.py:980
 msgid "No"
 msgstr "لا"
 
-#: src/commands.py:111
+#: src/commands.py:116
 msgid "No editor warning {}"
 msgstr "[لا أحد معه صلاحية النشر، يمكنك ان تصبح منهم هنا /{}.]"
 
@@ -492,19 +496,27 @@ msgstr ""
 msgid "No value"
 msgstr "لا يوجد"
 
-#: src/buttons.py:955
+#: src/buttons.py:959
 msgid "Nope"
 msgstr "كلا"
 
-#: src/buttons.py:850 src/conversations/setting.py:135
+#: src/conversations/course.py:180
+msgid "Nothing coming soon"
+msgstr "لا شئ في الأيام المقبلة!"
+
+#: src/conversations/course.py:235
+msgid "Nothing for this day!"
+msgstr "لا شئ في هذا اليوم!"
+
+#: src/buttons.py:854 src/conversations/setting.py:135
 msgid "Notifications"
 msgstr "التنبيهات"
 
-#: src/buttons.py:854
+#: src/buttons.py:858
 msgid "Notify"
 msgstr "ارسل تنبيهاً"
 
-#: src/buttons.py:1103
+#: src/buttons.py:1134
 msgid "November"
 msgstr "نوفمبر"
 
@@ -513,11 +525,11 @@ msgstr "نوفمبر"
 msgid "Number"
 msgstr "الرقم"
 
-#: src/buttons.py:1102
+#: src/buttons.py:1133
 msgid "October"
 msgstr "اكتوبر"
 
-#: src/buttons.py:679
+#: src/buttons.py:683
 msgid "Optional"
 msgstr "اختياري"
 
@@ -525,11 +537,11 @@ msgstr "اختياري"
 msgid "Optional Courses"
 msgstr "المواد الاختيارية"
 
-#: src/buttons.py:159
+#: src/buttons.py:163
 msgid "Pending"
 msgstr "جارٍ"
 
-#: src/commands.py:175
+#: src/commands.py:180
 msgid "Pending access requests"
 msgstr "طلبات الصلاحية المعلقة"
 
@@ -542,7 +554,7 @@ msgstr "التخصص"
 msgid "Programs"
 msgstr "التخصصات"
 
-#: src/buttons.py:800
+#: src/buttons.py:804
 msgid "Publish"
 msgstr "نشر"
 
@@ -558,7 +570,7 @@ msgstr "(تم نشره)"
 msgid "Publishing Options"
 msgstr "هل ترغب في ارسال تنبيهات؟"
 
-#: src/buttons.py:666
+#: src/buttons.py:670
 msgid "Reject"
 msgstr "رفض"
 
@@ -567,11 +579,11 @@ msgstr "رفض"
 msgid "Reminder"
 msgstr "تذكير"
 
-#: src/buttons.py:123
+#: src/buttons.py:127
 msgid "Request Access"
 msgstr "اطلب صلاحية"
 
-#: src/buttons.py:685
+#: src/buttons.py:689
 msgid "Required"
 msgstr "اجباري"
 
@@ -579,7 +591,7 @@ msgstr "اجباري"
 msgid "Results"
 msgstr "النتائج"
 
-#: src/buttons.py:863
+#: src/buttons.py:867
 msgid "Revoke Access"
 msgstr "سحب الصلاحية"
 
@@ -587,7 +599,7 @@ msgstr "سحب الصلاحية"
 msgid "Revoke {}"
 msgstr "انت على وشك ان تسحب {}. هل هذا صحيح؟"
 
-#: src/buttons.py:1024
+#: src/buttons.py:1039
 msgid "Sat"
 msgstr "سبت"
 
@@ -603,7 +615,7 @@ msgstr "ابحث المستخدمين"
 msgid "Second Year"
 msgstr "المستوى الثاني"
 
-#: src/conversations/course.py:151 src/conversations/updatematerial.py:187
+#: src/conversations/course.py:337 src/conversations/updatematerial.py:187
 msgid "Select optional courses"
 msgstr "هذه المواد اختياربة. اختر منها للاضافة لقائمة /courses."
 
@@ -614,7 +626,7 @@ msgstr "هذه المواد اختياربة. اختر منها للاضافة �
 msgid "Select {}"
 msgstr "اختر {}"
 
-#: src/buttons.py:225 src/buttons.py:261 src/conversations/program.py:454
+#: src/buttons.py:229 src/buttons.py:265 src/conversations/program.py:454
 #: src/conversations/program.py:477
 msgid "Semester"
 msgstr "سمستر"
@@ -644,19 +656,19 @@ msgstr "ارسل الملفات ({})"
 msgid "Send me your proof"
 msgstr "حسناً. ارسل ما ياكد تسجيلك (صورة، ملف)"
 
-#: src/buttons.py:1101
+#: src/buttons.py:1132
 msgid "September"
 msgstr "سبتمبر"
 
-#: src/buttons.py:931
+#: src/buttons.py:935
 msgid "Show Less"
 msgstr "القليل"
 
-#: src/buttons.py:924
+#: src/buttons.py:928
 msgid "Show More"
 msgstr "المزيد"
 
-#: src/buttons.py:806 src/buttons.py:842 src/buttons.py:940
+#: src/buttons.py:810 src/buttons.py:846 src/buttons.py:944
 #: src/conversations/material/add.py:189
 #: src/conversations/material/files.py:215
 #: src/conversations/material/files.py:246
@@ -674,7 +686,7 @@ msgstr "بدأ ارسال تنبهات للتساليم القريبة."
 msgid "Started sending notifications"
 msgstr "بدأ ارسال التنبيهات"
 
-#: src/buttons.py:651
+#: src/buttons.py:655
 msgid "Submit Proof"
 msgstr "ارسل اثبات"
 
@@ -695,7 +707,7 @@ msgstr "سيتم ارسال تذكير قبل يوم ونصف على الاقل.
 msgid "Success! Deadline set {}"
 msgstr "نجاح! موعد التسليم وضع ل <b>{}</b>."
 
-#: src/conversations/course.py:111 src/conversations/material/add.py:61
+#: src/conversations/course.py:297 src/conversations/material/add.py:61
 #: src/conversations/material/add.py:207
 #: src/conversations/material/files.py:226
 msgid "Success! {} added"
@@ -729,7 +741,7 @@ msgstr "نجاح! تم ربط {}"
 msgid "Success! {} published"
 msgstr "نجاح! تم نشر {}"
 
-#: src/conversations/course.py:119 src/conversations/material/date.py:51
+#: src/conversations/course.py:305 src/conversations/material/date.py:51
 #: src/conversations/material/deadline.py:104
 #: src/conversations/material/files.py:270
 msgid "Success! {} removed"
@@ -756,7 +768,7 @@ msgstr "نجاح! تم الغاء ربط {}"
 msgid "Success! {} updated"
 msgstr "نجاح! تم تحديث {}"
 
-#: src/buttons.py:1018
+#: src/buttons.py:1033
 msgid "Sun"
 msgstr "أحد"
 
@@ -775,11 +787,11 @@ msgstr ""
 msgid "Third Year"
 msgstr "المستوى الثالث"
 
-#: src/buttons.py:1022
+#: src/buttons.py:1037
 msgid "Thu"
 msgstr "خميس"
 
-#: src/buttons.py:1020
+#: src/buttons.py:1035
 msgid "Tue"
 msgstr "ثلاث"
 
@@ -814,15 +826,15 @@ msgstr "ادخل رقم"
 msgid "Type year"
 msgstr "اكتب العام على الشكل yyyy - yyyy"
 
-#: src/buttons.py:670
+#: src/buttons.py:674
 msgid "Unlink Course"
 msgstr "الغاء الربط"
 
-#: src/buttons.py:472
+#: src/buttons.py:476
 msgid "Update to Semeter {}"
 msgstr "حدث لسمستر {}"
 
-#: src/buttons.py:108
+#: src/buttons.py:112
 msgid "User"
 msgstr "مستخدم"
 
@@ -834,7 +846,7 @@ msgstr "اسم المستخدم"
 msgid "Users"
 msgstr "المستخدمين"
 
-#: src/buttons.py:1021
+#: src/buttons.py:1036
 msgid "Wed"
 msgstr "أربع"
 
@@ -848,11 +860,11 @@ msgstr "العام"
 msgid "Year {} - {}"
 msgstr "العام {} - {}"
 
-#: src/buttons.py:951
+#: src/buttons.py:955
 msgid "Yes that's correct"
 msgstr "نعم هذا صحيح"
 
-#: src/buttons.py:972
+#: src/buttons.py:976
 #, python-format
 msgid "Yes, I'm 100% sure!"
 msgstr "نعم، انا متاكد 100%!"
@@ -925,15 +937,25 @@ msgstr "محاضرة"
 msgid "lectures"
 msgstr "المحاضرات"
 
+#: src/conversations/course.py:158
+msgid "more item"
+msgid_plural "more items"
+msgstr[0] "عنصر آخر"
+msgstr[1] "عنصر آخر"
+msgstr[2] "عنصرين آخرين"
+msgstr[3] "عناصر اُخرى"
+msgstr[4] "عنصر آخر"
+msgstr[5] "عنصر آخر"
+
 #: src/messages.py:84 src/messages.py:98
 msgid "new"
 msgstr "جديد"
 
-#: src/buttons.py:699 src/buttons.py:1037 src/buttons.py:1120
+#: src/buttons.py:703 src/buttons.py:1062 src/buttons.py:1150
 msgid "next-page-symbol"
 msgstr "<<"
 
-#: src/buttons.py:714 src/buttons.py:1029 src/buttons.py:1112
+#: src/buttons.py:718 src/buttons.py:1046 src/buttons.py:1142
 msgid "prev-page-symbol"
 msgstr ">>"
 
@@ -968,8 +990,8 @@ msgstr "شيت"
 msgid "sheets"
 msgstr "الشيتات"
 
-#: src/commands.py:141 src/conversations/contentmanagement.py:158
-#: src/conversations/course.py:65 src/conversations/coursemanagement.py:115
+#: src/commands.py:146 src/conversations/contentmanagement.py:158
+#: src/conversations/course.py:75 src/conversations/coursemanagement.py:115
 #: src/conversations/coursemanagement.py:167
 #: src/conversations/coursemanagement.py:392
 #: src/conversations/coursemanagement.py:472
@@ -1014,7 +1036,7 @@ msgstr "تمرين"
 msgid "tutorials"
 msgstr "التمارين"
 
-#: src/buttons.py:729
+#: src/buttons.py:733
 msgid "{} of {}"
 msgstr "{} من {}"
 

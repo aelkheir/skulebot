@@ -35,6 +35,15 @@ class CustomContext(CallbackContext[ExtBot, dict, dict, dict]):
         )
 
     @property
+    def ngettext(self):
+        user_lang = self.user_data.get("language_code")
+        return (
+            constants.ar_.ngettext
+            if user_lang == constants.AR
+            else constants.en_.ngettext
+        )
+
+    @property
     def language_code(self):
         """Shortcut for `context.user_data['language_code']"""
         return self.user_data["language_code"]

@@ -85,6 +85,10 @@ class Buttons:
         _ = self._gettext
         return InlineKeyboardButton(text=_("Search"), callback_data=url)
 
+    def calendar(self, url: str) -> InlineKeyboardButton:
+        _ = self._gettext
+        return InlineKeyboardButton(text="🗓️ " + _("Calendar"), callback_data=url)
+
     async def user_list(
         self,
         users: Sequence[User],
@@ -989,10 +993,21 @@ class Buttons:
         keyboard: list[list[InlineKeyboardButton]]
         date_time: Optional[datetime]
 
-    def datepicker(self, match: re.Match, selected: Optional[date] = None) -> Picker:
-        url = re.search(
-            rf".*/{constants.EDIT}/{constants.DEADLINE}", match.group()
-        ).group()
+    def datepicker(
+        self,
+        match: re.Match,
+        selected: Optional[Union[date, list[date]]] = None,
+        emoji: Optional[str] = "✅",
+        min: Optional[date] = None,
+        max: Optional[date] = None,
+    ) -> Picker:
+        selected_dates = []
+        if selected is not None:
+            selected_dates = (
+                (selected,) if isinstance(selected, date) else tuple(selected)
+            )
+
+        url = re.search(rf".*/{constants.DEADLINE}", match.group()).group()
 
         year, month, day = (
             int(y) if (y := match.group("y")) else None,
@@ -1001,9 +1016,9 @@ class Buttons:
         )
         today = datetime.now(ZoneInfo("Africa/Khartoum")).date()
         if not year and not month and not day:
-            if not selected:
+            if selected is None or isinstance(selected, list):
                 year, month = today.year, today.month
-            elif selected:
+            elif selected and isinstance(selected, date):
                 year, month = selected.year, selected.month
 
         keyboard: list[list[InlineKeyboardButton]] = None
@@ -1023,19 +1038,33 @@ class Buttons:
                 _("Fri"),
                 _("Sat"),
             ]
+            has_next = currentmonth.month < max.month if max else True
+            has_prev = currentmonth.month > min.month if min else True
             keyboard = build_menu(
                 [
                     InlineKeyboardButton(
-                        _("prev-page-symbol"),
-                        callback_data=f"{url}?y={prevmonth.year}&m={prevmonth.month}",
+                        _("prev-page-symbol") if has_prev else " ",
+                        callback_data=(
+                            f"{url}?y={prevmonth.year}&m={prevmonth.month}"
+                            if has_prev
+                            else f"{url}/{constants.IGNORE}"
+                        ),
                     ),
                     InlineKeyboardButton(
                         format_date(currentmonth, "MMM Y", locale=self._language_code),
-                        callback_data=f"{url}?y={year}",
+                        callback_data=(
+                            f"{url}?y={year}"
+                            if min is None
+                            else f"{url}/{constants.IGNORE}"
+                        ),
                     ),
                     InlineKeyboardButton(
-                        _("next-page-symbol"),
-                        callback_data=f"{url}?y={nextmonth.year}&m={nextmonth.month}",
+                        _("next-page-symbol") if has_next else " ",
+                        callback_data=(
+                            f"{url}?y={nextmonth.year}&m={nextmonth.month}"
+                            if has_next
+                            else f"{url}/{constants.IGNORE}"
+                        ),
                     ),
                 ],
                 3,
@@ -1057,27 +1086,29 @@ class Buttons:
                     [
                         InlineKeyboardButton(
                             (
-                                str(day)
-                                + (
-                                    " " + "⚪️"
-                                    if date(year, month, day) == today
-                                    else ""
+                                (
+                                    (
+                                        emoji
+                                        if date(year, month, day_) in selected_dates
+                                        else ""
+                                    )
+                                    + (
+                                        " " + "⚪️"
+                                        if date(year, month, day_) == today
+                                        else ""
+                                    )
+                                    + f" {day_}"
                                 )
-                                + (
-                                    " " + "✅"
-                                    if date(year, month, day) == selected
-                                    else ""
-                                )
-                                if day
+                                if day_
                                 else " "
                             ),
                             callback_data=(
-                                f"{url}?y={year}&m={month}&d={day}"
-                                if day
+                                f"{url}?y={year}&m={month}&d={day_}"
+                                if day_
                                 else f"{url}/{constants.IGNORE}"
                             ),
                         )
-                        for day in week
+                        for day_ in week
                     ],
                     7,
                     reverse=self._language_code == constants.AR,
@@ -1105,8 +1136,7 @@ class Buttons:
                     ]
                 )
             ]
-            keyboard = build_menu(menu, 3, reverse=self._language_code == constants.AR)
-            keyboard += build_menu(
+            keyboard = build_menu(
                 [
                     InlineKeyboardButton(
                         _("prev-page-symbol"),
@@ -1124,6 +1154,7 @@ class Buttons:
                 3,
                 reverse=self._language_code == constants.AR,
             )
+            keyboard += build_menu(menu, 3, reverse=self._language_code == constants.AR)
         if day:
             date_time = datetime(year, month, day)
         return self.Picker(keyboard=keyboard, date_time=date_time)

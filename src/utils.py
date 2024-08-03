@@ -1,8 +1,10 @@
 import math
+from datetime import timedelta
 from functools import wraps
 from gettext import GNUTranslations
 from typing import Generic, TypeVar
 
+from babel.dates import format_timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session as SessionType
 from telegram import Bot, BotCommandScopeChat, InlineKeyboardButton, Update
@@ -70,6 +72,53 @@ def roles(roles: RoleName):
         return wrapped
 
     return decoroator
+
+
+def time_remaining(delta: timedelta, language_code: str) -> list[str]:
+    seconds = delta.total_seconds()
+    weeks = seconds // (7 * 24 * 60 * 60)
+    days = seconds // (24 * 60 * 60) % 7
+    hours = (seconds // (60 * 60)) % 24
+    minutes = (seconds // (60)) % 60
+    parts = []
+    if weeks:
+        part = format_timedelta(
+            timedelta(weeks=weeks),
+            granularity="week",
+            format="long",
+            threshold=53,
+            locale=language_code,
+        )
+        parts.append(part)
+    if days:
+        part = format_timedelta(
+            timedelta(days=days),
+            granularity="day",
+            format="long",
+            threshold=1,
+            locale=language_code,
+        )
+        parts.append(part)
+    if hours and (not weeks or (not days and weeks)):
+        part = format_timedelta(
+            timedelta(hours=hours),
+            granularity="hours",
+            format="long",
+            threshold=1,
+            locale=language_code,
+        )
+        parts.append(part)
+    if minutes and not days and not weeks:
+        part = format_timedelta(
+            timedelta(minutes=minutes),
+            granularity="minutes",
+            format="long",
+            threshold=1,
+            locale=language_code,
+        )
+        parts.append(part)
+
+    return parts
 
 
 def user_mode(url: str):
