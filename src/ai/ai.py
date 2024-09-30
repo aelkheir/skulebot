@@ -4,7 +4,7 @@ from itertools import groupby
 
 import google.generativeai as genai
 from google.protobuf.struct_pb2 import Struct
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, text
 from sqlalchemy.orm import InstrumentedAttribute
 from sqlalchemy.orm import Session as SessionType
 from telegram import InputMedia, Update
@@ -58,6 +58,7 @@ async def query_materials(
     should_send_result = args["should_send_result"]
 
     MaterialClass = get_material_class(type_)
+    session.execute(text("SET TIME ZONE 'Africa/Khartoum'"))
 
     where = []
     for key in dir(MaterialClass):
