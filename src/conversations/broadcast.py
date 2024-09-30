@@ -189,7 +189,7 @@ async def target(update: Update, context: CustomContext, session: Session):
             1,
             footer_buttons=context.buttons.back(url, pattern="&p_id="),
         )
-        message = _("Select {}").format("Program")
+        message = _("Select {}").format(_("Program"))
     else:
         program_semesters = queries.program_semesters(session, program_id=program_id)
         levels_button = context.buttons.program_levels_list(
