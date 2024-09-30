@@ -20,7 +20,7 @@ from src.constants import COMMANDS
 from src.customcontext import CustomContext
 from src.models import RoleName
 from src.models.user import User
-from src.utils import Pager, build_menu, roles, session
+from src.utils import Pager, build_menu, roles, session, set_my_commands
 
 URLPREFIX = constants.USER_
 """used as a prefix for all `callback data` in this conversation"""
@@ -241,6 +241,7 @@ async def action(update: Update, context: CustomContext, session: Session):
                     update.effective_chat.id,
                     text=context.gettext("Done broadcasting message"),
                 )
+                await set_my_commands(context.bot, user)
 
 
 async def search(update: Update, context: CustomContext):
