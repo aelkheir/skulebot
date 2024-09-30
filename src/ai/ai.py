@@ -16,7 +16,13 @@ from src.models import REVIEW_TYPES as RT
 from src.models import Course, Material
 from src.models import MaterialType as MT
 from src.models.file import File
-from src.models.material import RefFilesMixin, Review, SingleFile, get_material_class
+from src.models.material import (
+    HasNumber,
+    RefFilesMixin,
+    Review,
+    SingleFile,
+    get_material_class,
+)
 from src.utils import build_media_group, session
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
@@ -133,24 +139,36 @@ async def send(
         if f.type in ["photo", "video"]:
             return "media"
         if f.type == "document":
-            return "document"
+            return "documents"
         return "voice"
 
+    course_name = material.course.get_name(context.language_code)
     for group, group_files in groupby(files, key=keygetter):
         if group == "voice":
             for file in group_files:
-                await update.effective_message.reply_voice(file.telegram_id)
+                caption = f"{course_name}\n" + messages.material_title_text(
+                    context.match, material, context.language_code
+                )
+
+                await update.effective_message.reply_voice(
+                    file.telegram_id, caption=caption
+                )
             continue
         albums = build_media_group(
             [InputMedia(file.type, file.telegram_id) for file in group_files]
         )
         _ = context.gettext
-        caption = None
         for i, album in enumerate(albums):
-            if isinstance(material, Review):
-                caption = messages.material_title_text(
-                    context.match, material, context.language_code
+            caption = None
+            if isinstance(material, (Review, HasNumber)):
+                caption = (
+                    course_name
+                    + "\n"
+                    + messages.material_title_text(
+                        context.match, material, context.language_code
+                    )
                 )
+                caption += f" ({group})" if isinstance(material, HasNumber) else ""
                 caption += (
                     "\n" + _("{} of {}").format(i + 1, len(albums))
                     if len(albums) > 1
