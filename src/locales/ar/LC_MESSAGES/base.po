@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-30 04:02+0300\n"
+"POT-Creation-Date: 2024-09-30 20:45+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -94,11 +94,11 @@ msgstr "رفع محتويات للمواد الحالية"
 msgid "/users description"
 msgstr "ابحث عن المستخدمين"
 
-#: src/commands.py:209
+#: src/commands.py:221
 msgid "AI activated"
 msgstr "تم تفعيل وضع الذكاء الاصطناعي، لتعطيله أرسل /ai مرة اخرى."
 
-#: src/commands.py:209
+#: src/commands.py:221
 msgid "AI deactivated"
 msgstr "تم تعطيل وضع الذكاء الاصطناعي"
 
@@ -177,16 +177,20 @@ msgstr "رجوع ل{}"
 msgid "Bot Settings"
 msgstr "اعدادات البوت"
 
-#: src/application.py:36 src/application.py:39
+#: src/application.py:35 src/application.py:38
 msgid "Bot bio"
 msgstr "بوت طلاب العلوم الرياضية"
 
-#: src/application.py:35 src/application.py:38
+#: src/application.py:34 src/application.py:37
 msgid "Bot description"
 msgstr ""
 "أُساعدك في العثور على محتويات المواد بصورة اكثر سهولة.\n"
 "\n"
 "في حال مواجهة اي صعوبات، نرجوا ان تتواصل مع @skulebotsupport"
+
+#: src/conversations/user.py:135
+msgid "Broadcast"
+msgstr "بث"
 
 #: src/buttons.py:90
 msgid "Calendar"
@@ -351,7 +355,7 @@ msgstr "عرض"
 msgid "Don't Notify"
 msgstr "بدون تنبيهات"
 
-#: src/conversations/broadcast.py:418
+#: src/conversations/broadcast.py:420 src/conversations/user.py:242
 msgid "Done broadcasting message"
 msgstr "انتهى بث الرسالة"
 
@@ -367,7 +371,7 @@ msgstr "تم ارسال تنبيهات التساليم القريبة!"
 msgid "Done! No reminders to send"
 msgstr "تم! لا يوجد تسليم قريب."
 
-#: src/conversations/broadcast.py:377
+#: src/conversations/broadcast.py:379
 msgid "Done! No users to broadcast to"
 msgstr "تم! لا يوجد مستخدمين للبث."
 
@@ -384,7 +388,7 @@ msgstr "صلاحيات النشر"
 msgid "Editor Menu"
 msgstr "قائمة النشر"
 
-#: src/ai/handlers.py:43
+#: src/ai/handlers.py:54
 msgid "Enable AI to continue."
 msgstr "وضع الذكاء الاصطناعي معطل، لتفعيله أرسل /ai."
 
@@ -428,7 +432,7 @@ msgstr "المستوى الرابع"
 msgid "Fri"
 msgstr "جمعة"
 
-#: src/conversations/user.py:139
+#: src/conversations/user.py:147
 msgid "Full name"
 msgstr "الإسم"
 
@@ -585,7 +589,7 @@ msgstr "جارٍ"
 msgid "Pending access requests"
 msgstr "طلبات الصلاحية المعلقة"
 
-#: src/conversations/broadcast.py:241
+#: src/conversations/broadcast.py:241 src/conversations/user.py:195
 msgid "Preview"
 msgstr "عرض"
 
@@ -631,7 +635,7 @@ msgstr "اطلب صلاحية"
 msgid "Required"
 msgstr "اجباري"
 
-#: src/conversations/user.py:103
+#: src/conversations/user.py:105
 msgid "Results"
 msgstr "النتائج"
 
@@ -651,7 +655,7 @@ msgstr "سبت"
 msgid "Search"
 msgstr "بحث"
 
-#: src/conversations/user.py:161
+#: src/conversations/user.py:253
 msgid "Search users"
 msgstr "ابحث المستخدمين"
 
@@ -659,7 +663,7 @@ msgstr "ابحث المستخدمين"
 msgid "Second Year"
 msgstr "المستوى الثاني"
 
-#: src/conversations/broadcast.py:246
+#: src/conversations/broadcast.py:246 src/conversations/user.py:202
 msgid "Select action"
 msgstr "اختر اجراء"
 
@@ -705,7 +709,7 @@ msgstr "سمستر {}"
 msgid "Semesters"
 msgstr "السمسترات"
 
-#: src/conversations/broadcast.py:231
+#: src/conversations/broadcast.py:231 src/conversations/user.py:192
 msgid "Send"
 msgstr "ارسل"
 
@@ -747,7 +751,7 @@ msgstr "المصدر"
 msgid "Specific Batch"
 msgstr "دفعة محددة"
 
-#: src/conversations/broadcast.py:394
+#: src/conversations/broadcast.py:396
 msgid "Started Broadcasting the message"
 msgstr "بدأ بث الرسالة"
 
@@ -849,7 +853,7 @@ msgstr "نجاح! تم تحديث {}"
 msgid "Sun"
 msgstr "أحد"
 
-#: src/conversations/user.py:145
+#: src/conversations/user.py:153
 msgid "Telegram id"
 msgstr "معرّف التيليقرام"
 
@@ -883,6 +887,10 @@ msgstr "ادخل التاريخ على الصورة <pre>[20]yy-mm[-dd]</pre>"
 #: src/conversations/material/files.py:256
 msgid "Type link"
 msgstr "ارسل رابط"
+
+#: src/conversations/user.py:173
+msgid "Type message"
+msgstr "اكتب الرسالة"
 
 #: src/conversations/broadcast.py:114
 msgid "Type message in {}"
@@ -919,11 +927,11 @@ msgstr "حدث لسمستر {}"
 msgid "User"
 msgstr "مستخدم"
 
-#: src/conversations/user.py:141
+#: src/conversations/user.py:149
 msgid "Username"
 msgstr "اسم المستخدم"
 
-#: src/conversations/user.py:103
+#: src/conversations/user.py:105
 msgid "Users"
 msgstr "المستخدمين"
 
@@ -1121,7 +1129,7 @@ msgstr "تمرين"
 msgid "tutorials"
 msgstr "التمارين"
 
-#: src/ai/ai.py:171 src/buttons.py:733 src/conversations/material/sendall.py:90
+#: src/ai/ai.py:154 src/buttons.py:733 src/conversations/material/sendall.py:90
 msgid "{} of {}"
 msgstr "{} من {}"
 

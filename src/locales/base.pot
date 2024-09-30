@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-30 04:02+0300\n"
+"POT-Creation-Date: 2024-09-30 20:45+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,11 +92,11 @@ msgstr ""
 msgid "/users description"
 msgstr ""
 
-#: src/commands.py:209
+#: src/commands.py:221
 msgid "AI activated"
 msgstr ""
 
-#: src/commands.py:209
+#: src/commands.py:221
 msgid "AI deactivated"
 msgstr ""
 
@@ -169,12 +169,16 @@ msgstr ""
 msgid "Bot Settings"
 msgstr ""
 
-#: src/application.py:36 src/application.py:39
+#: src/application.py:35 src/application.py:38
 msgid "Bot bio"
 msgstr ""
 
-#: src/application.py:35 src/application.py:38
+#: src/application.py:34 src/application.py:37
 msgid "Bot description"
+msgstr ""
+
+#: src/conversations/user.py:135
+msgid "Broadcast"
 msgstr ""
 
 #: src/buttons.py:90
@@ -338,7 +342,7 @@ msgstr ""
 msgid "Don't Notify"
 msgstr ""
 
-#: src/conversations/broadcast.py:418
+#: src/conversations/broadcast.py:420 src/conversations/user.py:242
 msgid "Done broadcasting message"
 msgstr ""
 
@@ -354,7 +358,7 @@ msgstr ""
 msgid "Done! No reminders to send"
 msgstr ""
 
-#: src/conversations/broadcast.py:377
+#: src/conversations/broadcast.py:379
 msgid "Done! No users to broadcast to"
 msgstr ""
 
@@ -371,7 +375,7 @@ msgstr ""
 msgid "Editor Menu"
 msgstr ""
 
-#: src/ai/handlers.py:43
+#: src/ai/handlers.py:54
 msgid "Enable AI to continue."
 msgstr ""
 
@@ -415,7 +419,7 @@ msgstr ""
 msgid "Fri"
 msgstr ""
 
-#: src/conversations/user.py:139
+#: src/conversations/user.py:147
 msgid "Full name"
 msgstr ""
 
@@ -558,7 +562,7 @@ msgstr ""
 msgid "Pending access requests"
 msgstr ""
 
-#: src/conversations/broadcast.py:241
+#: src/conversations/broadcast.py:241 src/conversations/user.py:195
 msgid "Preview"
 msgstr ""
 
@@ -604,7 +608,7 @@ msgstr ""
 msgid "Required"
 msgstr ""
 
-#: src/conversations/user.py:103
+#: src/conversations/user.py:105
 msgid "Results"
 msgstr ""
 
@@ -624,7 +628,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: src/conversations/user.py:161
+#: src/conversations/user.py:253
 msgid "Search users"
 msgstr ""
 
@@ -632,7 +636,7 @@ msgstr ""
 msgid "Second Year"
 msgstr ""
 
-#: src/conversations/broadcast.py:246
+#: src/conversations/broadcast.py:246 src/conversations/user.py:202
 msgid "Select action"
 msgstr ""
 
@@ -678,7 +682,7 @@ msgstr ""
 msgid "Semesters"
 msgstr ""
 
-#: src/conversations/broadcast.py:231
+#: src/conversations/broadcast.py:231 src/conversations/user.py:192
 msgid "Send"
 msgstr ""
 
@@ -720,7 +724,7 @@ msgstr ""
 msgid "Specific Batch"
 msgstr ""
 
-#: src/conversations/broadcast.py:394
+#: src/conversations/broadcast.py:396
 msgid "Started Broadcasting the message"
 msgstr ""
 
@@ -822,7 +826,7 @@ msgstr ""
 msgid "Sun"
 msgstr ""
 
-#: src/conversations/user.py:145
+#: src/conversations/user.py:153
 msgid "Telegram id"
 msgstr ""
 
@@ -852,6 +856,10 @@ msgstr ""
 
 #: src/conversations/material/files.py:256
 msgid "Type link"
+msgstr ""
+
+#: src/conversations/user.py:173
+msgid "Type message"
 msgstr ""
 
 #: src/conversations/broadcast.py:114
@@ -889,11 +897,11 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: src/conversations/user.py:141
+#: src/conversations/user.py:149
 msgid "Username"
 msgstr ""
 
-#: src/conversations/user.py:103
+#: src/conversations/user.py:105
 msgid "Users"
 msgstr ""
 
@@ -1084,7 +1092,7 @@ msgstr ""
 msgid "tutorials"
 msgstr ""
 
-#: src/ai/ai.py:171 src/buttons.py:733 src/conversations/material/sendall.py:90
+#: src/ai/ai.py:154 src/buttons.py:733 src/conversations/material/sendall.py:90
 msgid "{} of {}"
 msgstr ""
 

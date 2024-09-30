@@ -252,7 +252,9 @@ async def broadcast_options(update: Update, context: CustomContext):
 @session
 async def action(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
-    `^{URLPREFIX}\?(?:ar=(?P<has_arabic>0|1)|en=(?P<has_english>0|1))$`"""
+    \?ar=(?P<has_arabic>0|1)&en=(?P<has_english>0|1)
+    (&p_id=\d+)?&t=(?P<target>\w+)&o=(?P<option>\w+)$
+    """
 
     query = update.callback_query
     await query.answer()
