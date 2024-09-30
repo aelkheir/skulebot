@@ -163,6 +163,7 @@ Functions = {
     "query_materials": query_materials,
 }
 
+# Globals
 chats: dict[int, genai.ChatSession] = {}
 models: dict[tuple[int, int], genai.GenerativeModel] = {}
 
