@@ -1039,7 +1039,11 @@ class Buttons:
                 _("Sat"),
             ]
             has_next = currentmonth.month < max.month if max else True
-            has_prev = currentmonth.month > min.month if min else True
+            has_prev = (
+                currentmonth.month > min.month or currentmonth.month - 1 == today.month
+                if min
+                else True
+            )
             keyboard = build_menu(
                 [
                     InlineKeyboardButton(
