@@ -1,10 +1,12 @@
 """Contains callbacks and handlers for the /users conversaion"""
 
+import contextlib
 from typing import Optional
 
 from sqlalchemy.orm import Session
-from telegram import CallbackQuery, InlineKeyboardMarkup, Update
+from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
+from telegram.error import Forbidden
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
@@ -124,18 +126,24 @@ async def user(update: Update, context: CustomContext, session: Session):
     user_id = context.match.group("user_id")
     user = queries.user(session, user_id=user_id)
     user_data: dict = user.user_data.data
+    _ = context.gettext
 
     search_param = ("?q=" + search_query) if search_query else ""
     keyboard = [
         [
+            InlineKeyboardButton(
+                _("Broadcast"),
+                callback_data=f"{URLPREFIX}/{constants.USERS}/{user_id}/{constants.BROADCAST_}",
+            ),
+        ],
+        [
             context.buttons.back(
                 absolute_url=f"{URLPREFIX}/{constants.USERS}{search_param}"
-            )
+            ),
         ],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    _ = context.gettext
     message = _("Full name") + f": {user_data.get('full_name')}"
     message += (
         ("\n" + _("Username") + f": @{username}")
@@ -149,6 +157,90 @@ async def user(update: Update, context: CustomContext, session: Session):
     )
 
     return constants.ONE
+
+
+async def send(update: Update, context: CustomContext):
+    """Runs on callback_data
+    `^{URLPREFIX}/{constants.USERS}/\d+/{constants.BROADCAST_}$`"""
+
+    query = update.callback_query
+    await query.answer()
+
+    url = context.match.group()
+    context.chat_data.setdefault(DATA_KEY, {})["url"] = url
+    _ = context.gettext
+
+    message = _("Type message")
+    await query.message.reply_text(
+        message,
+    )
+
+    return constants.BROADCAST_
+
+
+@session
+async def receive_message(update: Update, context: CustomContext, session: Session):
+    """Runs on `Message.text` matching filters.ALL"""
+
+    url = context.chat_data[DATA_KEY]["url"]
+    context.chat_data.setdefault(DATA_KEY, {})["message_id"] = update.message.id
+
+    _ = context.gettext
+    keyboard = build_menu(
+        [
+            InlineKeyboardButton(
+                _("Send"),
+                callback_data=f"{url}?o=send",
+            ),
+            InlineKeyboardButton(_("Preview"), callback_data=f"{url}?o=preview"),
+        ],
+        2,
+    )
+    _ = context.gettext
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    message = _("Select action")
+    await update.message.reply_text(message, reply_markup=reply_markup)
+
+    return constants.ONE
+
+
+@session
+async def action(update: Update, context: CustomContext, session: Session):
+    """Runs on callback_data
+    ^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)/{constants.BROADCAST_}?o=(?P<option>\w+)
+    """
+
+    query = update.callback_query
+    await query.answer()
+
+    option = context.match.group("option")
+    message_id = context.chat_data[DATA_KEY]["message_id"]
+    user_id = context.match.group("user_id")
+    user = queries.user(session, user_id)
+
+    if option == "preview":
+        await context.bot.copy_message(
+            update.effective_chat.id,
+            from_chat_id=update.effective_chat.id,
+            message_id=message_id,
+        )
+        return
+
+    success = await query.delete_message()
+    if success:
+        with contextlib.suppress(Forbidden):
+            message = await context.bot.copy_message(
+                user.chat_id,
+                from_chat_id=update.effective_chat.id,
+                message_id=message_id,
+            )
+
+            if message:
+                await context.bot.send_message(
+                    update.effective_chat.id,
+                    text=context.gettext("Done broadcasting message"),
+                )
 
 
 async def search(update: Update, context: CustomContext):
@@ -197,6 +289,15 @@ states = {
             user,
             pattern=f"^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)(?:\?q=(?P<query>\w+))?$",
         ),
+        CallbackQueryHandler(
+            send,
+            pattern=f"^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)/{constants.BROADCAST_}$",
+        ),
+        CallbackQueryHandler(
+            action,
+            pattern=f"^{URLPREFIX}/{constants.USERS}/(?P<user_id>\d+)"
+            f"/{constants.BROADCAST_}\?o=(?P<option>\w+)$",
+        ),
     ]
 }
 states.update(
@@ -204,6 +305,15 @@ states.update(
         constants.SEARCH: states[constants.ONE]
         + [
             MessageHandler(filters.TEXT, receive_search),
+        ]
+    }
+)
+
+states.update(
+    {
+        constants.BROADCAST_: states[constants.ONE]
+        + [
+            MessageHandler(filters.ALL, receive_message),
         ]
     }
 )

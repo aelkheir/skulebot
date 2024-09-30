@@ -189,7 +189,7 @@ async def target(update: Update, context: CustomContext, session: Session):
             1,
             footer_buttons=context.buttons.back(url, pattern="&p_id="),
         )
-        message = _("Select program")
+        message = _("Select {}").format("Program")
     else:
         program_semesters = queries.program_semesters(session, program_id=program_id)
         levels_button = context.buttons.program_levels_list(
@@ -202,7 +202,7 @@ async def target(update: Update, context: CustomContext, session: Session):
             1,
             footer_buttons=context.buttons.back(url, pattern="\d+$"),
         )
-        message = _("Select level")
+        message = _("Select {}").format("Level")
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(message, reply_markup=reply_markup)
@@ -252,7 +252,9 @@ async def broadcast_options(update: Update, context: CustomContext):
 @session
 async def action(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
-    `^{URLPREFIX}\?(?:ar=(?P<has_arabic>0|1)|en=(?P<has_english>0|1))$`"""
+    \?ar=(?P<has_arabic>0|1)&en=(?P<has_english>0|1)
+    (&p_id=\d+)?&t=(?P<target>\w+)&o=(?P<option>\w+)$
+    """
 
     query = update.callback_query
     await query.answer()
