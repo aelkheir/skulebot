@@ -5,7 +5,7 @@ from typing import Optional
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from telegram import InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardMarkup, Update, error
 from telegram.constants import ParseMode
 from telegram.ext import CallbackQueryHandler, ConversationHandler
 
@@ -84,32 +84,38 @@ async def enrollments_add(
         program_semester_id=program_semester.id,
     )
 
-    try:
+    async def proceed_enrollment():
         user = queries.user(session, context.user_data["id"])
         user.enrollments.append(enrollment_obj)
         is_only_enrollment = len(user.enrollments) == 1
         session.flush()
+        await query.message.reply_html(_("You have been enrolled"))
+        if is_only_enrollment:
+            user.roles.append(queries.role(session, RoleName.STUDENT))
+            await set_my_commands(context.bot, user)
+            help_message = messages.help(
+                user_roles={role.name for role in user.roles},
+                language_code=context.language_code,
+                new=RoleName.STUDENT,
+            )
+            await query.message.reply_html(
+                _("Your commands have been Updated")
+                + "\n"
+                + f"{'\n'.join(help_message.splitlines()[1:])}"
+            )
+
+    try:
         success = await query.delete_message()
         if success:
-            await query.message.reply_html(_("You have been enrolled"))
-            if is_only_enrollment:
-                user.roles.append(queries.role(session, RoleName.STUDENT))
-                await set_my_commands(context.bot, user)
-                help_message = messages.help(
-                    user_roles={role.name for role in user.roles},
-                    language_code=context.language_code,
-                    new=RoleName.STUDENT,
-                )
-                await query.message.reply_html(
-                    _("Your commands have been Updated")
-                    + "\n"
-                    + f"{'\n'.join(help_message.splitlines()[1:])}"
-                )
+            await proceed_enrollment()
             return None
     # enrollment creation has faild because user alread enrolled from another message
     except IntegrityError:
         await query.message.reply_html(_("Already enrolled"))
         return constants.ONE
+    except error.BadRequest:
+        await proceed_enrollment()
+        return None
 
 
 @session
