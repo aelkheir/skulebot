@@ -217,7 +217,7 @@ async def ai(update: Update, context: CustomContext, session: Session) -> None:
     ai_active = a if (a := context.user_data.get("ai_active")) is not None else False
     context.user_data["ai_active"] = not ai_active
 
-    if not context.user_data["ai_active"] and context.user_data["telegram_id"]:
+    if not context.user_data["ai_active"] and chats[context.user_data["telegram_id"]]:
         del chats[context.user_data["telegram_id"]]
 
     _ = context.gettext
