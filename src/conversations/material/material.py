@@ -51,6 +51,7 @@ from src.conversations.material import (
     deadline,
     delete,
     files,
+    name,
     number,
     publish,
     sendall,
@@ -469,6 +470,15 @@ def conversation(url_prefix: str):
                         )
                         | (filters.Command(only_start=True) & (filters.Text("/empty"))),
                         date.receive,
+                    ),
+                ],
+                f"{constants.ADD} {constants.NAME}": [
+                    *states[constants.ONE],
+                    MessageHandler(
+                        filters.Regex(
+                            r"^(?P<en_name>(?:.)+?)\s*-\s*(?P<ar_name>(?:.)+?)$"
+                        ),
+                        name.receive,
                     ),
                 ],
                 constants.ADD: [
