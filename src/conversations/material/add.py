@@ -2,7 +2,7 @@ import re
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from telegram import Document, InlineKeyboardMarkup, Update, Video
+from telegram import Document, InlineKeyboardButton, InlineKeyboardMarkup, Update, Video
 from telegram.constants import ParseMode
 
 from src import constants, messages, queries
@@ -73,7 +73,7 @@ async def handler(update: Update, context: CustomContext, session: Session, back
 
     if issubclass(MaterialClass, Review):
         type_key = context.match.groupdict().get("type_key")
-        if type_key:
+        if type_key and type_key in REVIEW_TYPES:
             t = REVIEW_TYPES[type_key]
             review = MaterialClass(
                 course_id=course_id,
@@ -89,9 +89,29 @@ async def handler(update: Update, context: CustomContext, session: Session, back
             return await back.__wrapped__(
                 update, context, session, material_id=review.id
             )
+        if type_key == "custom":
+            context.chat_data[f"{constants.ADD} {constants.NAME}"] = {
+                "url": context.match.group(),
+                "year_id": academic_year_id,
+                "course_id": course_id,
+                "material_type": material_type,
+            }
+            message = context.gettext("Type multilingual name")
+            keyboard = [[context.buttons.back(context.match.group(), "\?.*")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await query.edit_message_text(
+                message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+            )
+            return f"{constants.ADD} {constants.NAME}"
 
         await query.answer()
         menu = context.buttons.review_types(context.match.group())
+        menu += [
+            InlineKeyboardButton(
+                _("Custom"),
+                callback_data=f"{context.match.group()}?t=custom",
+            )
+        ]
 
         keyboard = build_menu(
             menu,
