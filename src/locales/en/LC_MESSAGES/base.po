@@ -892,7 +892,7 @@ msgstr "Type message in {}"
 #: src/conversations/coursemanagement.py:201
 #: src/conversations/department.py:106 src/conversations/program.py:114
 msgid "Type multilingual name"
-msgstr "Type name in the form <pre>english name - arabic name<pre>"
+msgstr "Type name in the form <pre>english name - arabic name</pre>"
 
 #: src/conversations/coursemanagement.py:254
 #: src/conversations/department.py:156 src/conversations/program.py:158
