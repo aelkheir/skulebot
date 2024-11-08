@@ -23,6 +23,11 @@ class Config:
         int(id) if (id := os.getenv("ERROR_CHANNEL_CHAT_ID")) else None
     )
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    BETA_GROUP = tuple(
+        (int(id_.strip()) for id_ in ids.split(","))
+        if (ids := os.getenv("BETA_GROUP"))
+        else ()
+    )
 
     @classmethod
     def validate(cls):

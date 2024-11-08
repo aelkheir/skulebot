@@ -5,6 +5,7 @@ from telegram.ext import CommandHandler
 
 from src import constants, messages, queries
 from src.ai.ai import chats
+from src.config import Config
 from src.customcontext import CustomContext
 from src.messages import bold
 from src.models import Course, RoleName, Status
@@ -203,15 +204,7 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
 async def ai(update: Update, context: CustomContext, session: Session) -> None:
     """Runs with Message.text `/ai`."""
 
-    allowed_users = [
-        1645307364,
-        657164321,
-        561728157,
-        444371409,
-        5351556147,
-        1004861825,
-    ]
-    if update.effective_user.id not in allowed_users:
+    if update.effective_user.id not in Config.BETA_GROUP:
         return
 
     ai_active = a if (a := context.user_data.get("ai_active")) is not None else False

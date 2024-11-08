@@ -12,6 +12,7 @@ from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 
 from src import constants
+from src.config import Config
 from src.constants import Commands
 from src.database import Session
 from src.models import Role, RoleName, Setting, SettingKey, User, user_role
@@ -205,15 +206,7 @@ def build_media_group(
 
 
 async def set_my_commands(bot: Bot, user: User):
-    allowed_users = [
-        1645307364,
-        657164321,
-        561728157,
-        444371409,
-        5351556147,
-        1004861825,
-    ]
-    is_allowed = user.telegram_id in allowed_users
+    is_allowed = user.telegram_id in Config.BETA_GROUP
 
     role_names = [r.name for r in user.roles]
     role_names = {r.name for r in user.roles}

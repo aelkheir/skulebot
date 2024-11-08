@@ -6,6 +6,7 @@ from telegram import Update
 from telegram.ext import MessageHandler, filters
 
 from src.ai.ai import Functions, get_user_chat
+from src.config import Config
 from src.customcontext import CustomContext
 from src.utils import session
 
@@ -37,15 +38,7 @@ async def excecute_parts(
 
 @session
 async def handler(update: Update, context: CustomContext, session: Session) -> None:
-    allowed_users = [
-        1645307364,
-        657164321,
-        561728157,
-        444371409,
-        5351556147,
-        1004861825,
-    ]
-    if update.effective_user.id not in allowed_users:
+    if update.effective_user.id not in Config.BETA_GROUP:
         return
 
     _ = context.gettext
