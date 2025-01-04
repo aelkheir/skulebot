@@ -113,13 +113,6 @@ def schedule_jobs(application: Application):
                 user_id=root.telegram_id,
                 chat_id=root.chat_id,
             )
-            job_queue.run_repeating(
-                jobs.deadline_reminder,
-                3,
-                name=JOB_NAME,
-                user_id=root.telegram_id,
-                chat_id=root.chat_id,
-            )
 
 
 def run(application: Application):

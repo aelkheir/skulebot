@@ -129,7 +129,6 @@ async def deadline_reminder(context: CustomContext):
                 text=context.gettext("Done! No reminders to send"),
                 disable_notification=True,
             )
-        session.rollback()
 
 
 async def send_reminder(context: CustomContext) -> None:
