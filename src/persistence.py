@@ -9,7 +9,7 @@ from telegram.ext import DictPersistence, PersistenceInput
 
 from src import queries
 from src.database import engine
-from src.models import ChatData, Conversation, User, UserData
+from src.models import BotData, ChatData, Conversation, User, UserData
 
 
 class SQLPersistence(DictPersistence):
@@ -22,17 +22,27 @@ class SQLPersistence(DictPersistence):
         self.session = scoped_session(sessionmaker(bind=engine, autoflush=False))
         chat_data_json = json.dumps(self._load_chat_data())
         user_data_json = json.dumps(self._load_user_data())
+        bot_data_json = json.dumps(self._load_bot_data())
         conversations_json = json.dumps(self._load_conversations())
         self.logger.info("Database loaded successfully!")
 
         super().__init__(
             chat_data_json=chat_data_json,
             user_data_json=user_data_json,
+            bot_data_json=bot_data_json,
             conversations_json=conversations_json,
             store_data=PersistenceInput(
-                user_data=True, chat_data=True, bot_data=False, callback_data=False
+                user_data=True, chat_data=True, bot_data=True, callback_data=False
             ),
         )
+
+    def _load_bot_data(self) -> dict:
+        bot_data = self.session.query(BotData).first()
+        if bot_data is None:
+            bot_data = BotData(data={})
+            self.session.add(bot_data)
+            self.session.commit()
+        return bot_data.data
 
     def _load_user_data(self) -> dict:
         data = {}
@@ -58,6 +68,25 @@ class SQLPersistence(DictPersistence):
                 conversation.new_state
             )
         return data
+
+    async def update_bot_data(self, data: dict) -> None:
+        """Will update the bot_data (if changed).
+
+        Args:
+            data (:obj:`dict`): The :attr:`telegram.ext.Application.bot_data`.
+        """
+        await super().update_bot_data(data)
+        bot_data = self.session.query(BotData).first()
+
+        if bot_data is None:
+            bot_data = BotData(data={})
+            self.session.add(bot_data)
+
+        if bot_data.data == data:
+            return
+
+        bot_data.data = data
+        self.session.commit()
 
     async def update_user_data(self, user_id: int, data: dict) -> None:
         """Will update the user_data (if changed).

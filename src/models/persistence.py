@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, ForeignKey, String, UniqueConstraint
+from sqlalchemy import JSON, CheckConstraint, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -35,6 +35,21 @@ class UserData(Base):
 
     def __repr__(self) -> str:
         return f"UserData(id={self.id!r}, user={self.user!r}, data={self.data!r})"
+
+
+class BotData(Base):
+    __tablename__ = "bot_data"
+    __table_args__ = (
+        CheckConstraint(
+            "id = 1",
+            name="id",
+        ),
+    )
+    id: Mapped[int] = mapped_column(init=False, primary_key=True, default=1)
+    data: Mapped[JSON] = mapped_column(JSON, nullable=False, default=None)
+
+    def __repr__(self) -> str:
+        return f"BotData(id={self.id!r}, data={self.data!r})"
 
 
 class Conversation(Base):
