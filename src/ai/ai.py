@@ -262,7 +262,7 @@ def create_model(key: tuple[int, int], user_id: int, session: SessionType):
     )
     declarations = create_decalarations([c.en_name for c in courses])
     return genai.GenerativeModel(
-        model_name="gemini-1.5-flash-exp-0827",
+        model_name="gemini-2.0-flash",
         tools=[declarations],
         system_instruction="You are a student assistant to help users find course "
         "materials. Be very brief but friendly ",
