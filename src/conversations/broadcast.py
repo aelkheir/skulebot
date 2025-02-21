@@ -164,8 +164,12 @@ async def target(update: Update, context: CustomContext, session: Session):
         keyboard = build_menu(
             [
                 InlineKeyboardButton(
+                    _("All Users"),
+                    callback_data=f"{URLPREFIX}?ar={has_arabic}&en={has_english}&t=all_users",
+                ),
+                InlineKeyboardButton(
                     _("All Enrolled Students"),
-                    callback_data=f"{URLPREFIX}?ar={has_arabic}&en={has_english}&t=enrolled",
+                    callback_data=f"{URLPREFIX}?ar={has_arabic}&en={has_english}&t=recently_enrolled",
                 ),
                 InlineKeyboardButton(
                     _("Students Missing Publishers"),
@@ -295,7 +299,7 @@ async def action(update: Update, context: CustomContext, session: Session):
                 Enrollment.academic_year_id == most_recent.id,
             )
         ).all()
-    elif target == "enrolled":
+    elif target == "recently_enrolled":
         users = session.scalars(
             select(User)
             .select_from(Enrollment)
@@ -304,6 +308,8 @@ async def action(update: Update, context: CustomContext, session: Session):
                 Enrollment.academic_year_id == most_recent.id,
             )
         ).all()
+    elif target == "all_users":
+        users = session.scalars(select(User)).all()
     elif target == "missing":
         # TODO: Missing right now
         # program_semester_1 = aliased(ProgramSemester)
