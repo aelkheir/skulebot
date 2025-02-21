@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2024 ORGANIZATION
+# Copyright (C) 2025 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-17 13:30+0300\n"
+"POT-Creation-Date: 2025-02-21 17:27+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,11 +92,11 @@ msgstr ""
 msgid "/users description"
 msgstr ""
 
-#: src/commands.py:228
+#: src/commands.py:221
 msgid "AI activated"
 msgstr ""
 
-#: src/commands.py:228
+#: src/commands.py:221
 msgid "AI deactivated"
 msgstr ""
 
@@ -121,8 +121,12 @@ msgstr ""
 msgid "Admin call for action {fullname} {mention} {enrollment}"
 msgstr ""
 
-#: src/conversations/broadcast.py:167
+#: src/conversations/broadcast.py:171
 msgid "All Enrolled Students"
+msgstr ""
+
+#: src/conversations/broadcast.py:167
+msgid "All Users"
 msgstr ""
 
 #: src/conversations/broadcast.py:86
@@ -164,7 +168,7 @@ msgstr ""
 msgid "Back to {}"
 msgstr ""
 
-#: src/commands.py:147 src/conversations/setting.py:57
+#: src/commands.py:148 src/conversations/setting.py:57
 #: src/conversations/setting.py:131
 msgid "Bot Settings"
 msgstr ""
@@ -253,7 +257,7 @@ msgstr ""
 msgid "Course {}"
 msgstr ""
 
-#: src/commands.py:111
+#: src/commands.py:112
 msgid "Courses"
 msgstr ""
 
@@ -346,7 +350,7 @@ msgstr ""
 msgid "Don't Notify"
 msgstr ""
 
-#: src/conversations/broadcast.py:420 src/conversations/user.py:242
+#: src/conversations/broadcast.py:426 src/conversations/user.py:242
 msgid "Done broadcasting message"
 msgstr ""
 
@@ -362,7 +366,7 @@ msgstr ""
 msgid "Done! No reminders to send"
 msgstr ""
 
-#: src/conversations/broadcast.py:379
+#: src/conversations/broadcast.py:385
 msgid "Done! No users to broadcast to"
 msgstr ""
 
@@ -379,7 +383,7 @@ msgstr ""
 msgid "Editor Menu"
 msgstr ""
 
-#: src/ai/handlers.py:54
+#: src/ai/handlers.py:47
 msgid "Enable AI to continue."
 msgstr ""
 
@@ -505,7 +509,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: src/commands.py:117
+#: src/commands.py:118
 msgid "No editor warning {}"
 msgstr ""
 
@@ -562,15 +566,15 @@ msgstr ""
 msgid "Pending"
 msgstr ""
 
-#: src/commands.py:181
+#: src/commands.py:182
 msgid "Pending access requests"
 msgstr ""
 
-#: src/conversations/broadcast.py:241 src/conversations/user.py:195
+#: src/conversations/broadcast.py:245 src/conversations/user.py:195
 msgid "Preview"
 msgstr ""
 
-#: src/conversations/broadcast.py:192 src/conversations/enrollment.py:49
+#: src/conversations/broadcast.py:196 src/conversations/enrollment.py:49
 #: src/conversations/program.py:727 src/conversations/program.py:732
 msgid "Program"
 msgstr ""
@@ -640,7 +644,7 @@ msgstr ""
 msgid "Second Year"
 msgstr ""
 
-#: src/conversations/broadcast.py:246 src/conversations/user.py:202
+#: src/conversations/broadcast.py:250 src/conversations/user.py:202
 msgid "Select action"
 msgstr ""
 
@@ -656,7 +660,7 @@ msgstr ""
 msgid "Select optional courses"
 msgstr ""
 
-#: src/conversations/broadcast.py:192 src/conversations/broadcast.py:205
+#: src/conversations/broadcast.py:196 src/conversations/broadcast.py:209
 #: src/conversations/coursemanagement.py:404 src/conversations/enrollment.py:49
 #: src/conversations/enrollment.py:63 src/conversations/material/add.py:134
 #: src/conversations/material/deadline.py:73 src/conversations/program.py:454
@@ -686,11 +690,11 @@ msgstr ""
 msgid "Semesters"
 msgstr ""
 
-#: src/conversations/broadcast.py:231 src/conversations/user.py:192
+#: src/conversations/broadcast.py:235 src/conversations/user.py:192
 msgid "Send"
 msgstr ""
 
-#: src/conversations/broadcast.py:235
+#: src/conversations/broadcast.py:239
 msgid "Send & Pin"
 msgstr ""
 
@@ -724,11 +728,11 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: src/conversations/broadcast.py:175
+#: src/conversations/broadcast.py:179
 msgid "Specific Batch"
 msgstr ""
 
-#: src/conversations/broadcast.py:396
+#: src/conversations/broadcast.py:402
 msgid "Started Broadcasting the message"
 msgstr ""
 
@@ -740,7 +744,7 @@ msgstr ""
 msgid "Started sending notifications"
 msgstr ""
 
-#: src/conversations/broadcast.py:171
+#: src/conversations/broadcast.py:175
 msgid "Students Missing Publishers"
 msgstr ""
 
@@ -947,7 +951,7 @@ msgstr ""
 msgid "Your commands have been Updated"
 msgstr ""
 
-#: src/commands.py:52 src/conversations/enrollment.py:260
+#: src/commands.py:53 src/conversations/enrollment.py:260
 msgid "Your enrollments"
 msgstr ""
 
@@ -1052,7 +1056,7 @@ msgstr ""
 msgid "sheets"
 msgstr ""
 
-#: src/commands.py:147 src/conversations/contentmanagement.py:158
+#: src/commands.py:148 src/conversations/contentmanagement.py:158
 #: src/conversations/course.py:75 src/conversations/coursemanagement.py:115
 #: src/conversations/coursemanagement.py:167
 #: src/conversations/coursemanagement.py:392

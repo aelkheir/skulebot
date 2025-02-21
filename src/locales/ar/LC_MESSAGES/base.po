@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-17 13:30+0300\n"
+"POT-Creation-Date: 2025-02-21 17:27+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -25,7 +25,7 @@ msgstr "تحديث الاعوام الدراسية"
 
 #: src/constants.py:191
 msgid "/ai description"
-msgstr "تحدث مع ال ai (تجريبي)"
+msgstr "تفعليل/الغاء تفعيل وضع الذكاء الاصطناعي"
 
 #: src/constants.py:199
 msgid "/broadcast description"
@@ -94,13 +94,13 @@ msgstr "رفع محتويات للمواد الحالية"
 msgid "/users description"
 msgstr "ابحث عن المستخدمين"
 
-#: src/commands.py:228
+#: src/commands.py:221
 msgid "AI activated"
-msgstr "تم تفعيل وضع الذكاء الاصطناعي، لتعطيله أرسل /ai مرة اخرى."
+msgstr "تم تفعيل وضع الذكاء الاصطناعي."
 
-#: src/commands.py:228
+#: src/commands.py:221
 msgid "AI deactivated"
-msgstr "تم تعطيل وضع الذكاء الاصطناعي"
+msgstr "تم الغاء تفعيل وضع الذكاء الاصطناعي."
 
 #: src/conversations/academicyear.py:51
 msgid "Academic years"
@@ -127,9 +127,13 @@ msgstr ""
 "يطلب {fullname} صلاحية للنشر في التسجيل\n"
 "{enrollment}"
 
-#: src/conversations/broadcast.py:167
+#: src/conversations/broadcast.py:171
 msgid "All Enrolled Students"
 msgstr "جميع الطلاب"
+
+#: src/conversations/broadcast.py:167
+msgid "All Users"
+msgstr "كل المستخدمين"
 
 #: src/conversations/broadcast.py:86
 msgid "All set."
@@ -172,7 +176,7 @@ msgstr "« رجوع"
 msgid "Back to {}"
 msgstr "رجوع ل{}"
 
-#: src/commands.py:147 src/conversations/setting.py:57
+#: src/commands.py:148 src/conversations/setting.py:57
 #: src/conversations/setting.py:131
 msgid "Bot Settings"
 msgstr "اعدادات البوت"
@@ -264,7 +268,7 @@ msgstr "المادة مربوطة في سمستر مختلف ({})، هل ترغ�
 msgid "Course {}"
 msgstr "مادة {}"
 
-#: src/commands.py:111
+#: src/commands.py:112
 msgid "Courses"
 msgstr "المواد"
 
@@ -359,7 +363,7 @@ msgstr "عرض"
 msgid "Don't Notify"
 msgstr "بدون تنبيهات"
 
-#: src/conversations/broadcast.py:420 src/conversations/user.py:242
+#: src/conversations/broadcast.py:426 src/conversations/user.py:242
 msgid "Done broadcasting message"
 msgstr "انتهى بث الرسالة"
 
@@ -375,7 +379,7 @@ msgstr "تم ارسال تنبيهات التساليم القريبة!"
 msgid "Done! No reminders to send"
 msgstr "تم! لا يوجد تسليم قريب."
 
-#: src/conversations/broadcast.py:379
+#: src/conversations/broadcast.py:385
 msgid "Done! No users to broadcast to"
 msgstr "تم! لا يوجد مستخدمين للبث."
 
@@ -392,9 +396,9 @@ msgstr "صلاحيات النشر"
 msgid "Editor Menu"
 msgstr "قائمة النشر"
 
-#: src/ai/handlers.py:54
+#: src/ai/handlers.py:47
 msgid "Enable AI to continue."
-msgstr "وضع الذكاء الاصطناعي معطل، لتفعيله أرسل /ai."
+msgstr "فعل وضع الذكاء الاصطناعي للمتابعة."
 
 #: src/conversations/broadcast.py:113 src/conversations/coursemanagement.py:253
 #: src/conversations/coursemanagement.py:291
@@ -530,7 +534,7 @@ msgstr "التالي"
 msgid "No"
 msgstr "لا"
 
-#: src/commands.py:117
+#: src/commands.py:118
 msgid "No editor warning {}"
 msgstr "[لا أحد معه صلاحية النشر، يمكنك ان تصبح منهم هنا /{}.]"
 
@@ -589,15 +593,15 @@ msgstr "المواد الاختيارية"
 msgid "Pending"
 msgstr "جارٍ"
 
-#: src/commands.py:181
+#: src/commands.py:182
 msgid "Pending access requests"
 msgstr "طلبات الصلاحية المعلقة"
 
-#: src/conversations/broadcast.py:241 src/conversations/user.py:195
+#: src/conversations/broadcast.py:245 src/conversations/user.py:195
 msgid "Preview"
 msgstr "عرض"
 
-#: src/conversations/broadcast.py:192 src/conversations/enrollment.py:49
+#: src/conversations/broadcast.py:196 src/conversations/enrollment.py:49
 #: src/conversations/program.py:727 src/conversations/program.py:732
 msgid "Program"
 msgstr "التخصص"
@@ -667,7 +671,7 @@ msgstr "ابحث المستخدمين"
 msgid "Second Year"
 msgstr "المستوى الثاني"
 
-#: src/conversations/broadcast.py:246 src/conversations/user.py:202
+#: src/conversations/broadcast.py:250 src/conversations/user.py:202
 msgid "Select action"
 msgstr "اختر اجراء"
 
@@ -683,7 +687,7 @@ msgstr "اختر لغة الرسالة"
 msgid "Select optional courses"
 msgstr "هذه المواد اختياربة. اختر منها للاضافة لقائمة /courses."
 
-#: src/conversations/broadcast.py:192 src/conversations/broadcast.py:205
+#: src/conversations/broadcast.py:196 src/conversations/broadcast.py:209
 #: src/conversations/coursemanagement.py:404 src/conversations/enrollment.py:49
 #: src/conversations/enrollment.py:63 src/conversations/material/add.py:134
 #: src/conversations/material/deadline.py:73 src/conversations/program.py:454
@@ -713,11 +717,11 @@ msgstr "سمستر {}"
 msgid "Semesters"
 msgstr "السمسترات"
 
-#: src/conversations/broadcast.py:231 src/conversations/user.py:192
+#: src/conversations/broadcast.py:235 src/conversations/user.py:192
 msgid "Send"
 msgstr "ارسل"
 
-#: src/conversations/broadcast.py:235
+#: src/conversations/broadcast.py:239
 msgid "Send & Pin"
 msgstr "ارسل & علق"
 
@@ -751,11 +755,11 @@ msgstr "المزيد"
 msgid "Source"
 msgstr "المصدر"
 
-#: src/conversations/broadcast.py:175
+#: src/conversations/broadcast.py:179
 msgid "Specific Batch"
 msgstr "دفعة محددة"
 
-#: src/conversations/broadcast.py:396
+#: src/conversations/broadcast.py:402
 msgid "Started Broadcasting the message"
 msgstr "بدأ بث الرسالة"
 
@@ -767,7 +771,7 @@ msgstr "بدأ ارسال تنبهات للتساليم القريبة."
 msgid "Started sending notifications"
 msgstr "بدأ ارسال التنبيهات"
 
-#: src/conversations/broadcast.py:171
+#: src/conversations/broadcast.py:175
 msgid "Students Missing Publishers"
 msgstr "الطلاب بلا ناشر"
 
@@ -977,7 +981,7 @@ msgstr "تم تسجيلك 🎉!"
 msgid "Your commands have been Updated"
 msgstr "هذه قائمة محدثة من الأوامر. يمكنك عرضها دوماً باستعمال /help."
 
-#: src/commands.py:52 src/conversations/enrollment.py:260
+#: src/commands.py:53 src/conversations/enrollment.py:260
 msgid "Your enrollments"
 msgstr "التسجيل"
 
@@ -1089,7 +1093,7 @@ msgstr "شيت"
 msgid "sheets"
 msgstr "الشيتات"
 
-#: src/commands.py:147 src/conversations/contentmanagement.py:158
+#: src/commands.py:148 src/conversations/contentmanagement.py:158
 #: src/conversations/course.py:75 src/conversations/coursemanagement.py:115
 #: src/conversations/coursemanagement.py:167
 #: src/conversations/coursemanagement.py:392
@@ -1142,4 +1146,10 @@ msgstr "{} من {}"
 #: src/conversations/reminder.py:148 src/jobs.py:180
 msgid "{} of {} is due in {}"
 msgstr "{} من مادة {} بقي عليه {}"
+
+#~ msgid "Select program"
+#~ msgstr "التخصص"
+
+#~ msgid "Enable AI to continue."
+#~ msgstr ""
 
