@@ -374,9 +374,6 @@ def user_courses(
         :obj:`Course`
 
     """
-    # Temporarly return courses for the two semesters
-    number = session.scalar(select(Semester.number).where(Semester.id == semester_id))
-    numbers = [number, number + (-1 if number % 2 == 0 else 1)]
     return session.scalars(
         select(Course)
         .select_from(ProgramSemesterCourse)
@@ -386,11 +383,10 @@ def user_courses(
             & (UserOptionalCourse.user_id == user_id),
         )
         .join(Course)
-        .join(Semester)
         .where(
             and_(
                 ProgramSemesterCourse.program_id == program_id,
-                Semester.number.in_(numbers),
+                ProgramSemesterCourse.semester_id == semester_id,
                 or_(
                     ProgramSemesterCourse.optional == False,  # noqa: E712
                     and_(
@@ -403,7 +399,7 @@ def user_courses(
                 ),
             ),
         )
-        .order_by(ProgramSemesterCourse.optional, Semester.number.desc(), sort_attr)
+        .order_by(ProgramSemesterCourse.optional, sort_attr)
     ).all()
 
 
