@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-21 17:27+0300\n"
+"POT-Creation-Date: 2025-02-22 19:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,15 +105,16 @@ msgid "Academic years"
 msgstr ""
 
 #: src/conversations/editor.py:347 src/conversations/editor.py:354
-#: src/conversations/editor.py:379
+#: src/conversations/editor.py:379 src/conversations/user.py:415
+#: src/conversations/user.py:422 src/conversations/user.py:447
 msgid "Access for year {}"
 msgstr ""
 
-#: src/buttons.py:831
+#: src/buttons.py:832
 msgid "Activate"
 msgstr ""
 
-#: src/buttons.py:750
+#: src/buttons.py:751
 msgid "Add {}"
 msgstr ""
 
@@ -133,11 +134,12 @@ msgstr ""
 msgid "All set."
 msgstr ""
 
-#: src/conversations/editor.py:137
+#: src/conversations/editor.py:137 src/conversations/user.py:518
+#: src/conversations/user.py:581
 msgid "Already applied for access"
 msgstr ""
 
-#: src/conversations/enrollment.py:114
+#: src/conversations/enrollment.py:114 src/conversations/user.py:856
 msgid "Already enrolled"
 msgstr ""
 
@@ -145,7 +147,7 @@ msgstr ""
 msgid "Already published"
 msgstr ""
 
-#: src/buttons.py:1131
+#: src/buttons.py:1132
 msgid "April"
 msgstr ""
 
@@ -156,15 +158,15 @@ msgstr ""
 msgid "Arabic"
 msgstr ""
 
-#: src/buttons.py:1135
+#: src/buttons.py:1136
 msgid "August"
 msgstr ""
 
-#: src/buttons.py:888
+#: src/buttons.py:889
 msgid "Back"
 msgstr ""
 
-#: src/buttons.py:888
+#: src/buttons.py:889
 msgid "Back to {}"
 msgstr ""
 
@@ -181,7 +183,7 @@ msgstr ""
 msgid "Bot description"
 msgstr ""
 
-#: src/conversations/user.py:135
+#: src/conversations/user.py:161
 msgid "Broadcast"
 msgstr ""
 
@@ -193,7 +195,7 @@ msgstr ""
 msgid "Can't publish no files"
 msgstr ""
 
-#: src/buttons.py:825 src/conversations/program.py:200
+#: src/buttons.py:826 src/conversations/program.py:200
 #: src/conversations/program.py:261 src/conversations/program.py:383
 #: src/conversations/program.py:433 src/conversations/program.py:561
 msgid "Carriculam"
@@ -207,11 +209,11 @@ msgstr ""
 #: src/conversations/coursemanagement.py:493
 #: src/conversations/department.py:231 src/conversations/enrollment.py:239
 #: src/conversations/material/delete.py:66 src/conversations/program.py:731
-#: src/conversations/semester.py:187
+#: src/conversations/semester.py:187 src/conversations/user.py:696
 msgid "Confirm delete warning {}"
 msgstr ""
 
-#: src/conversations/editor.py:353
+#: src/conversations/editor.py:353 src/conversations/user.py:421
 msgid "Confirm revoke {}"
 msgstr ""
 
@@ -219,7 +221,7 @@ msgstr ""
 msgid "Congratulations! New access"
 msgstr ""
 
-#: src/buttons.py:660
+#: src/buttons.py:661
 msgid "Contact"
 msgstr ""
 
@@ -283,7 +285,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/buttons.py:835
+#: src/buttons.py:836
 msgid "Deactivate"
 msgstr ""
 
@@ -300,11 +302,11 @@ msgstr ""
 msgid "Deadline passed"
 msgstr ""
 
-#: src/buttons.py:1139
+#: src/buttons.py:1140
 msgid "December"
 msgstr ""
 
-#: src/buttons.py:786
+#: src/buttons.py:787
 msgid "Delete"
 msgstr ""
 
@@ -312,11 +314,11 @@ msgstr ""
 #: src/conversations/coursemanagement.py:488
 #: src/conversations/department.py:226 src/conversations/enrollment.py:234
 #: src/conversations/material/delete.py:63 src/conversations/program.py:726
-#: src/conversations/semester.py:182
+#: src/conversations/semester.py:182 src/conversations/user.py:691
 msgid "Delete warning {}"
 msgstr ""
 
-#: src/buttons.py:786
+#: src/buttons.py:787
 msgid "Delete {}"
 msgstr ""
 
@@ -334,23 +336,23 @@ msgstr ""
 msgid "Departments"
 msgstr ""
 
-#: src/buttons.py:651
+#: src/buttons.py:652
 msgid "Disable All"
 msgstr ""
 
-#: src/buttons.py:626
+#: src/buttons.py:627
 msgid "Disenroll"
 msgstr ""
 
-#: src/buttons.py:922
+#: src/buttons.py:923
 msgid "Display"
 msgstr ""
 
-#: src/buttons.py:862
+#: src/buttons.py:863
 msgid "Don't Notify"
 msgstr ""
 
-#: src/conversations/broadcast.py:426 src/conversations/user.py:242
+#: src/conversations/broadcast.py:426 src/conversations/user.py:266
 msgid "Done broadcasting message"
 msgstr ""
 
@@ -370,7 +372,7 @@ msgstr ""
 msgid "Done! No users to broadcast to"
 msgstr ""
 
-#: src/buttons.py:769
+#: src/buttons.py:770
 msgid "Edit {}"
 msgstr ""
 
@@ -398,12 +400,22 @@ msgstr ""
 msgid "Enroll Now"
 msgstr ""
 
+#: src/conversations/user.py:316 src/conversations/user.py:371
+msgid "Enrollment"
+msgstr ""
+
 #: src/conversations/enrollment.py:235 src/conversations/enrollment.py:240
-#: src/conversations/enrollment.py:265
+#: src/conversations/enrollment.py:265 src/conversations/user.py:692
+#: src/conversations/user.py:697 src/conversations/user.py:722
 msgid "Enrollment {} - {}"
 msgstr ""
 
-#: src/buttons.py:1129
+#: src/conversations/user.py:165 src/conversations/user.py:442
+#: src/conversations/user.py:717
+msgid "Enrollments"
+msgstr ""
+
+#: src/buttons.py:1130
 msgid "February"
 msgstr ""
 
@@ -411,7 +423,7 @@ msgstr ""
 msgid "Fifth Year"
 msgstr ""
 
-#: src/buttons.py:896
+#: src/buttons.py:897
 msgid "File"
 msgstr ""
 
@@ -423,11 +435,11 @@ msgstr ""
 msgid "Fourth Year"
 msgstr ""
 
-#: src/buttons.py:1038
+#: src/buttons.py:1039
 msgid "Fri"
 msgstr ""
 
-#: src/conversations/user.py:147
+#: src/conversations/user.py:49
 msgid "Full name"
 msgstr ""
 
@@ -438,15 +450,15 @@ msgstr ""
 msgid "General Department"
 msgstr ""
 
-#: src/buttons.py:840
+#: src/buttons.py:841
 msgid "Get All"
 msgstr ""
 
-#: src/buttons.py:666
+#: src/buttons.py:667
 msgid "Grant Access"
 msgstr ""
 
-#: src/buttons.py:984
+#: src/buttons.py:985
 msgid "Hell no"
 msgstr ""
 
@@ -454,40 +466,40 @@ msgstr ""
 msgid "How editing works"
 msgstr ""
 
-#: src/buttons.py:1128
+#: src/buttons.py:1129
 msgid "January"
 msgstr ""
 
-#: src/buttons.py:1134
+#: src/buttons.py:1135
 msgid "July"
 msgstr ""
 
-#: src/buttons.py:1133
+#: src/buttons.py:1134
 msgid "June"
 msgstr ""
 
-#: src/buttons.py:850 src/conversations/setting.py:61
+#: src/buttons.py:851 src/conversations/setting.py:61
 #: src/conversations/setting.py:87 src/conversations/setting.py:92
 msgid "Language"
 msgstr ""
 
-#: src/conversations/enrollment.py:63
+#: src/conversations/enrollment.py:63 src/conversations/user.py:794
 msgid "Level"
 msgstr ""
 
-#: src/buttons.py:678
+#: src/buttons.py:679
 msgid "Link Course"
 msgstr ""
 
-#: src/buttons.py:1130
+#: src/buttons.py:1131
 msgid "March"
 msgstr ""
 
-#: src/buttons.py:1132
+#: src/buttons.py:1133
 msgid "May"
 msgstr ""
 
-#: src/buttons.py:1034
+#: src/buttons.py:1035
 msgid "Mon"
 msgstr ""
 
@@ -505,7 +517,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: src/buttons.py:963 src/buttons.py:980
+#: src/buttons.py:964 src/buttons.py:981
 msgid "No"
 msgstr ""
 
@@ -521,7 +533,7 @@ msgstr ""
 msgid "No value"
 msgstr ""
 
-#: src/buttons.py:959
+#: src/buttons.py:960
 msgid "Nope"
 msgstr ""
 
@@ -533,15 +545,15 @@ msgstr ""
 msgid "Nothing for this day!"
 msgstr ""
 
-#: src/buttons.py:854 src/conversations/setting.py:135
+#: src/buttons.py:855 src/conversations/setting.py:135
 msgid "Notifications"
 msgstr ""
 
-#: src/buttons.py:858
+#: src/buttons.py:859
 msgid "Notify"
 msgstr ""
 
-#: src/buttons.py:1138
+#: src/buttons.py:1139
 msgid "November"
 msgstr ""
 
@@ -550,11 +562,11 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-#: src/buttons.py:1137
+#: src/buttons.py:1138
 msgid "October"
 msgstr ""
 
-#: src/buttons.py:683
+#: src/buttons.py:684
 msgid "Optional"
 msgstr ""
 
@@ -570,12 +582,13 @@ msgstr ""
 msgid "Pending access requests"
 msgstr ""
 
-#: src/conversations/broadcast.py:245 src/conversations/user.py:195
+#: src/conversations/broadcast.py:245 src/conversations/user.py:219
 msgid "Preview"
 msgstr ""
 
 #: src/conversations/broadcast.py:196 src/conversations/enrollment.py:49
 #: src/conversations/program.py:727 src/conversations/program.py:732
+#: src/conversations/user.py:780
 msgid "Program"
 msgstr ""
 
@@ -583,7 +596,7 @@ msgstr ""
 msgid "Programs"
 msgstr ""
 
-#: src/buttons.py:804
+#: src/buttons.py:805
 msgid "Publish"
 msgstr ""
 
@@ -599,7 +612,7 @@ msgstr ""
 msgid "Publishing Options"
 msgstr ""
 
-#: src/buttons.py:670
+#: src/buttons.py:671
 msgid "Reject"
 msgstr ""
 
@@ -612,23 +625,23 @@ msgstr ""
 msgid "Request Access"
 msgstr ""
 
-#: src/buttons.py:689
+#: src/buttons.py:690
 msgid "Required"
 msgstr ""
 
-#: src/conversations/user.py:105
+#: src/conversations/user.py:132
 msgid "Results"
 msgstr ""
 
-#: src/buttons.py:867
+#: src/buttons.py:868
 msgid "Revoke Access"
 msgstr ""
 
-#: src/conversations/editor.py:346
+#: src/conversations/editor.py:346 src/conversations/user.py:414
 msgid "Revoke {}"
 msgstr ""
 
-#: src/buttons.py:1039
+#: src/buttons.py:1040
 msgid "Sat"
 msgstr ""
 
@@ -636,7 +649,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: src/conversations/user.py:254
+#: src/conversations/user.py:278
 msgid "Search users"
 msgstr ""
 
@@ -644,7 +657,8 @@ msgstr ""
 msgid "Second Year"
 msgstr ""
 
-#: src/conversations/broadcast.py:250 src/conversations/user.py:202
+#: src/conversations/broadcast.py:250 src/conversations/user.py:226
+#: src/conversations/user.py:484
 msgid "Select action"
 msgstr ""
 
@@ -665,6 +679,8 @@ msgstr ""
 #: src/conversations/enrollment.py:63 src/conversations/material/add.py:134
 #: src/conversations/material/deadline.py:73 src/conversations/program.py:454
 #: src/conversations/program.py:582 src/conversations/program.py:619
+#: src/conversations/user.py:765 src/conversations/user.py:780
+#: src/conversations/user.py:794
 msgid "Select {}"
 msgstr ""
 
@@ -690,7 +706,7 @@ msgstr ""
 msgid "Semesters"
 msgstr ""
 
-#: src/conversations/broadcast.py:235 src/conversations/user.py:192
+#: src/conversations/broadcast.py:235 src/conversations/user.py:216
 msgid "Send"
 msgstr ""
 
@@ -702,23 +718,23 @@ msgstr ""
 msgid "Send files ({})"
 msgstr ""
 
-#: src/conversations/editor.py:143
+#: src/conversations/editor.py:143 src/conversations/user.py:587
 msgid "Send me your proof"
 msgstr ""
 
-#: src/buttons.py:1136
+#: src/buttons.py:1137
 msgid "September"
 msgstr ""
 
-#: src/buttons.py:935
+#: src/buttons.py:936
 msgid "Show Less"
 msgstr ""
 
-#: src/buttons.py:928
+#: src/buttons.py:929
 msgid "Show More"
 msgstr ""
 
-#: src/buttons.py:810 src/buttons.py:846 src/buttons.py:944
+#: src/buttons.py:811 src/buttons.py:847 src/buttons.py:945
 #: src/conversations/material/add.py:209
 #: src/conversations/material/files.py:225
 #: src/conversations/material/files.py:256
@@ -748,12 +764,13 @@ msgstr ""
 msgid "Students Missing Publishers"
 msgstr ""
 
-#: src/buttons.py:655
+#: src/buttons.py:656
 msgid "Submit Proof"
 msgstr ""
 
 #: src/conversations/program.py:348 src/conversations/program.py:352
 #: src/conversations/setting.py:171 src/conversations/setting.py:176
+#: src/conversations/user.py:662
 msgid "Success!"
 msgstr ""
 
@@ -789,7 +806,7 @@ msgstr ""
 #: src/conversations/department.py:241 src/conversations/enrollment.py:264
 #: src/conversations/material/delete.py:76
 #: src/conversations/material/files.py:91 src/conversations/program.py:741
-#: src/conversations/semester.py:195
+#: src/conversations/semester.py:195 src/conversations/user.py:721
 msgid "Success! {} deleted"
 msgstr ""
 
@@ -810,7 +827,7 @@ msgstr ""
 msgid "Success! {} removed"
 msgstr ""
 
-#: src/conversations/editor.py:378
+#: src/conversations/editor.py:378 src/conversations/user.py:446
 msgid "Success! {} revoked"
 msgstr ""
 
@@ -831,11 +848,11 @@ msgstr ""
 msgid "Success! {} updated"
 msgstr ""
 
-#: src/buttons.py:1033
+#: src/buttons.py:1034
 msgid "Sun"
 msgstr ""
 
-#: src/conversations/user.py:153
+#: src/conversations/user.py:55
 msgid "Telegram id"
 msgstr ""
 
@@ -847,11 +864,11 @@ msgstr ""
 msgid "Third Year"
 msgstr ""
 
-#: src/buttons.py:1037
+#: src/buttons.py:1038
 msgid "Thu"
 msgstr ""
 
-#: src/buttons.py:1035
+#: src/buttons.py:1036
 msgid "Tue"
 msgstr ""
 
@@ -867,7 +884,7 @@ msgstr ""
 msgid "Type link"
 msgstr ""
 
-#: src/conversations/user.py:173
+#: src/conversations/user.py:197
 msgid "Type message"
 msgstr ""
 
@@ -895,11 +912,11 @@ msgstr ""
 msgid "Type year"
 msgstr ""
 
-#: src/buttons.py:674
+#: src/buttons.py:675
 msgid "Unlink Course"
 msgstr ""
 
-#: src/buttons.py:476
+#: src/buttons.py:477
 msgid "Update to Semeter {}"
 msgstr ""
 
@@ -907,15 +924,15 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: src/conversations/user.py:149
+#: src/conversations/user.py:51
 msgid "Username"
 msgstr ""
 
-#: src/conversations/user.py:105
+#: src/conversations/user.py:132
 msgid "Users"
 msgstr ""
 
-#: src/buttons.py:1036
+#: src/buttons.py:1037
 msgid "Wed"
 msgstr ""
 
@@ -924,6 +941,7 @@ msgid "Would you like to provide a translation in an another language"
 msgstr ""
 
 #: src/conversations/academicyear.py:81 src/conversations/academicyear.py:155
+#: src/conversations/user.py:765
 msgid "Year"
 msgstr ""
 
@@ -933,11 +951,11 @@ msgstr ""
 msgid "Year {} - {}"
 msgstr ""
 
-#: src/buttons.py:955
+#: src/buttons.py:956
 msgid "Yes that's correct"
 msgstr ""
 
-#: src/buttons.py:976
+#: src/buttons.py:977
 #, python-format
 msgid "Yes, I'm 100% sure!"
 msgstr ""
@@ -1020,11 +1038,11 @@ msgstr[1] ""
 msgid "new"
 msgstr ""
 
-#: src/buttons.py:703 src/buttons.py:1066 src/buttons.py:1154
+#: src/buttons.py:704 src/buttons.py:1067 src/buttons.py:1155
 msgid "next-page-symbol"
 msgstr ""
 
-#: src/buttons.py:718 src/buttons.py:1050 src/buttons.py:1146
+#: src/buttons.py:719 src/buttons.py:1051 src/buttons.py:1147
 msgid "prev-page-symbol"
 msgstr ""
 
@@ -1102,7 +1120,7 @@ msgstr ""
 msgid "tutorials"
 msgstr ""
 
-#: src/ai/ai.py:173 src/buttons.py:733 src/conversations/material/sendall.py:90
+#: src/buttons.py:734 src/conversations/material/sendall.py:90
 msgid "{} of {}"
 msgstr ""
 
