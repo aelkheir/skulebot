@@ -382,6 +382,7 @@ class Buttons:
         self,
         academic_years: Sequence[AcademicYear],
         url: str,
+        sep: str = "/",
     ):
         """Builds a list of :class:`InlineKeyboardButton` for
         model :class:`AcademicYear` with `InlineKeyboardButton.text =
@@ -397,7 +398,7 @@ class Buttons:
         return [
             InlineKeyboardButton(
                 f"{year.start} - {year.end}",
-                callback_data=f"{url}/{year.id}",
+                callback_data=f"{url}{sep}{year.id}",
             )
             for year in academic_years
         ]
