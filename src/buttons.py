@@ -513,9 +513,7 @@ class Buttons:
         return buttons
 
     def enrollments_list(
-        self,
-        enrollments: Sequence[Enrollment],
-        url: str,
+        self, enrollments: Sequence[Enrollment], url: str, text_style: str = "year"
     ):
         """Builds a list of :class:`InlineKeyboardButton` for model :class:`Enrollment`
         with:
@@ -528,9 +526,18 @@ class Buttons:
             url (:obj:`str`): Callback data to be passed to
                 `InlineKeyboardButton.callback_data`.
         """
+        _ = self._gettext
+
+        def get_text(enrollment: Enrollment):
+            if text_style == "levels":
+                semester = enrollment.program_semester.semester
+                level = (semester.number // 2 + (semester.number % 2)) - 1
+                return _(LEVELS[level])
+            return f"{enrollment.academic_year.start} - {enrollment.academic_year.end}"
+
         return [
             InlineKeyboardButton(
-                f"{enrollment.academic_year.start} - {enrollment.academic_year.end}",
+                get_text(enrollment),
                 callback_data=f"{url}/{enrollment.id}",
             )
             for enrollment in enrollments
