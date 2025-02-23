@@ -68,7 +68,7 @@ msgstr "سجل في تخصصك ومستواك"
 
 #: src/constants.py:175
 msgid "/enrollments2 description"
-msgstr "تحديث التسجيل"
+msgstr "قائمة التسجيل"
 
 #: src/constants.py:135
 msgid "/pending description"
