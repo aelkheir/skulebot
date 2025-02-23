@@ -42,7 +42,7 @@ async def list_enrollments(
         )
 
     menu += context.buttons.enrollments_list(
-        enrollments, f"{URLPREFIX}/{constants.ENROLLMENTS}"
+        enrollments, f"{URLPREFIX}/{constants.ENROLLMENTS}", text_style="levels"
     )
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
