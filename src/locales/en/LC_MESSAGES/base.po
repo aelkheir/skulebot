@@ -63,7 +63,7 @@ msgstr "enroll yourself to a program"
 
 #: src/constants.py:173
 msgid "/enrollments2 description"
-msgstr "update your enrollments"
+msgstr "list your enrollments"
 
 #: src/constants.py:133
 msgid "/pending description"
